@@ -96,18 +96,18 @@ ENV NODE_PATH $NVM_DIR/versions/node/$NODE_VERSION/bin
 ENV PATH $NODE_PATH:$PATH
 
 
-COPY apache/apache2.conf /etc/apache2/apache2.conf
-COPY apache/default.conf /etc/apache2/sites-available/000-default.conf
+COPY common/apache-conf/apache2.conf /etc/apache2/apache2.conf
+COPY common/apache-conf/default.conf /etc/apache2/sites-available/000-default.conf
 
 RUN rm -f /var/www/html/index.html
 
-COPY apache/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY common/supervisord.apache.conf /etc/supervisor/conf.d/supervisord.conf
 
-COPY php/php.ini /usr/local/etc/php/conf.d/php.ini
-COPY php/20-xdebug.ini /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+COPY common/php/php.ini /usr/local/etc/php/conf.d/php.ini
+COPY common/php/20-xdebug.ini /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 
 
-COPY apache/start-container /usr/local/bin/start-container
+COPY common/start-container /usr/local/bin/start-container
 RUN chmod +x /usr/local/bin/start-container
 
 
