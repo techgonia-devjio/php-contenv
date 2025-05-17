@@ -14,8 +14,8 @@ app:
         - '${VITE_PORT:-5170}:${VITE_PORT:-5170}'
     environment:
         WWWUSER: '${WWWUSER:-1000}'
-        # Must match the server name in PHPStorm's server configuration
-        PHP_IDE_CONFIG: "serverName=docker"
+        WWWGROUP: '${WWWGROUP:-1000}'
+        PHP_IDE_CONFIG: "serverName=docker" # Must match the server name in PHPStorm's server configuration
         XDEBUG_MODE: '${DEEM_XDEBUG_MODE:-off}'
         XDEBUG_CONFIG: '${DEEM_XDEBUG_CONFIG:-client_host=host.docker.internal}'
         IGNITION_LOCAL_SITES_PATH: '${PWD}'
@@ -26,5 +26,3 @@ app:
         - './.docker/common/php/20-xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini'
         - './.docker/common/php/php.ini:/usr/local/etc/php/conf.d/99-custom.ini'
         - './logs/:/var/log'
-    # networks:
-        # - optimesh

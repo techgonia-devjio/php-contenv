@@ -293,19 +293,13 @@ generate_docker_compose() {
         error "App service stub not found: $app_stub_path"
     fi
     local app_service_content=$(cat "$app_stub_path")
-
-    local app_volumes="- '.:/var/www/html'\n"
-    app_volumes+="- './${DOCKER_DIR}/common/php/20-xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini'\n"
-    app_volumes+="- './${DOCKER_DIR}/common/php/php.ini:/usr/local/etc/php/conf.d/99-custom.ini'\n"
-    app_volumes+="- './logs/:/var/log'"
-
+    local app_volumes=""
     # Replace placeholders and insert dynamic volumes into the app service content
     # Using sed for simple replacements. More complex YAML manipulation, we need a dedicated parser/tool.
     app_service_content=$(echo "$app_service_content" | \
         sed "s|context: .docker|context: ${DOCKER_DIR}|" | \
         sed "s|dockerfile: 8.1/apache/Dockerfile|dockerfile: ${php_version}/${web_server}/Dockerfile|" | \
-        sed "/volumes:/,+3 d" | \
-        sed "/environment:/i\    volumes:\n${app_volumes}"
+        awk -v volumes_content="${app_volumes}" '/environment:/ { print; next } { print }' \
     )
 
     docker_compose_content+="$app_service_content\n"
@@ -381,13 +375,10 @@ add_service_to_compose() {
         error "Service stub not found for '${service_name}': ${service_stub_path}. Please ensure the stub file exists in ${STUBS_DIR}."
     fi
 
-    # Read the existing docker-compose.yml content
     local compose_content=$(cat "$DOCKER_COMPOSE_DEST")
 
-    # service already exists? check using grep with -q for quiet mode and -E for extended regex
     if echo "$compose_content" | grep -q -E "^[[:space:]]*${service_name}:"; then
         hot_log "Service '${service_name}' already exists in docker-compose.yml. Skipping."
-        # Optionally log .env variables even if service exists
         log_env_variables_to_add "add-service" "$service_stub"
         return 0
     fi
@@ -396,50 +387,44 @@ add_service_to_compose() {
 
     local service_content=$(cat "$service_stub_path")
 
-    # Find the line number where the 'networks:' section starts
-    # If 'networks:' is not found, find the line number where 'volumes:' starts
-    # If neither is found, append at the end of the file (less ideal)
     local insert_line=$(echo "$compose_content" | grep -n "^networks:" | head -n 1 | cut -d: -f1)
     if [ -z "$insert_line" ]; then
         insert_line=$(echo "$compose_content" | grep -n "^volumes:" | head -n 1 | cut -d: -f1)
     fi
 
-     if [ -z "$insert_line" ]; then
-         insert_line=$(echo "$compose_content" | wc -l)
-         # If appending at the very end, add a newline before inserting
-         service_content="\n$service_content"
-     else
-         # If inserting before networks or volumes, add a newline before the service content
-         service_content="\n$service_content"
-     fi
-
-
-    # Insert content into the compose file, using sed
-    local escaped_service_content=$(echo "$service_content" | sed ':a;N;$!ba;s/\n/\\n/g')
-
-    # Use awk for more reliable insertion if sed becomes problematic with complex YAML
-    # awk -v content="$service_content" -v line="$insert_line" 'NR == line { print content } { print }' "$DOCKER_COMPOSE_DEST" > temp_compose.yml
-    # mv temp_compose.yml "$DOCKER_COMPOSE_DEST"
-
-    # If insert_line is the last line + 1 (for appending), sed needs different logic.
-    if [ -z "$(echo "$compose_content" | grep -n "^networks:")$(echo "$compose_content" | grep -n "^volumes:")" ]; then
-         echo -e "$service_content" >> "$DOCKER_COMPOSE_DEST"
+    # Use awk for reliable multi-line insertion,Pipe service_content into awk and use getline
+    if [ -z "$insert_line" ]; then
+        echo -e "\n$service_content" >> "$DOCKER_COMPOSE_DEST"
     else
-        echo "$compose_content" | sed "${insert_line}i\\${escaped_service_content}" > temp_compose.yml
+        echo "$compose_content" | awk -v line="$insert_line" '
+        BEGIN {
+            # Read the service content from stdin (piped input)
+            service_content = ""
+            while ((getline line_from_stdin < "-") > 0) {
+                service_content = service_content line_from_stdin "\n"
+            }
+            # Remove the trailing newline added by the loop
+            sub(/\n$/, "", service_content)
+        }
+        NR == line {
+            print service_content;
+            print;
+            next;
+        }
+        { print }
+        ' > temp_compose.yml
         mv temp_compose.yml "$DOCKER_COMPOSE_DEST"
     fi
 
 
     log "Service '${service_name}' added to docker-compose.yml."
 
-    # Simple check for named volumes in the added service stub
     if echo "$service_content" | grep -q 'volumes:'; then
          hot_log "Checking for named volumes in the '${service_name}' service stub..."
          local service_volumes=$(echo "$service_content" | sed -n '/volumes:/,/^[^[:space:]]/p' | grep -v 'volumes:' | grep -v '^- ' | sed 's/:.*//' | xargs)
-         local root_volumes_section=$(echo "$compose_content" | sed -n '/^volumes:/,/^[^[:space:]]/p') # Get the existing root volumes block
+         local root_volumes_section=$(cat "$DOCKER_COMPOSE_DEST" | sed -n '/^volumes:/,/^[^[:space:]]/p')
 
          for vol in $service_volumes; do
-             # Check if the named volume is already defined at the root level
              if ! echo "$root_volumes_section" | grep -q "^${vol}:"; then
                  hot_log "Named volume '${vol}' not found in root 'volumes:' section. Please add it manually to your docker-compose.yml:"
                  log "volumes:"
@@ -456,13 +441,13 @@ add_service_to_compose() {
     fi
 
 
-    # Log relevant .env variables for the added service
     log_env_variables_to_add "add-service" "$service_stub"
 
     hot_log "Service '${service_name}' successfully added."
     hot_log "Remember to review the updated docker-compose.yml, add any necessary named volumes or networks at the root level, and update your .env file."
     hot_log "Then run 'docker compose up -d' to start the new service."
 }
+
 
 
 create_logs_directory() {
@@ -482,9 +467,8 @@ case "$1" in
         setup_environment
         ;;
     add-service)
-        # Shift past the command name ("add-service")
         shift
-        add_service_to_compose "$@" # Pass remaining arguments (service name)
+        add_service_to_compose "$@"
         ;;
     *)
         echo "Usage: $0 [--docker-dir <directory>] {setup | add-service <service_name>}"

@@ -8,7 +8,7 @@ mysql-svc:
         MYSQL_USER: '${DB_USERNAME:-deem}'
         MYSQL_PASSWORD: '${DB_PASSWORD:-secret}'
     volumes:
-        - 'optimesh-mysql:/var/lib/mysql'
+        - 'deem-mysql:/var/lib/mysql'
         - '.docker/database/mysql/create-database.sh:/docker-entrypoint-initdb.d/10-create-database.sh'
     healthcheck:
         test:
@@ -22,3 +22,7 @@ mysql-svc:
             - '${DB_PASSWORD:-secret}'
         retries: 3
         timeout: 5s
+    # add the following lines for volume under the volumes section in docker-compose.yml
+    # volumes:
+        # deem-mysql:
+            # driver: local

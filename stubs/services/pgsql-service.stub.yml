@@ -21,3 +21,7 @@ pgsql:
             - '${DB_USERNAME:-deem}'
         retries: 3
         timeout: 5s
+    # add the following lines for volume under the volumes section in docker-compose.yml
+    # volumes:
+        # deem-pgsql:
+            # driver: local
