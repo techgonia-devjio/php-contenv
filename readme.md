@@ -34,9 +34,7 @@ git submodule update --init --recursive
         ./.docker/docky setup
         ```
     * **Windows:**
-        ```batch
-        .\.docker\docky.bat setup
-        ```
+        Use git bash or similar tool which can run bash script(or WSL).
     The script will guide you through selecting your desired PHP version and web server, set up the necessary `docker-compose.yml` and `.env` files, and create required directories, if necessary.
 
 3.  **Start the Environment:**
