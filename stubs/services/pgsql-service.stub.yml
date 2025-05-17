@@ -1,0 +1,23 @@
+pgsql:
+    image: 'postgres:15'
+    ports:
+        - '${FORWARD_DB_PORT:-5432}:5432'
+    environment:
+        PGPASSWORD: '${DB_PASSWORD:-secret}'
+        POSTGRES_DB: '${DB_DATABASE:-deem}'
+        POSTGRES_USER: '${DB_USERNAME:-deem}'
+        POSTGRES_PASSWORD: '${DB_PASSWORD:-deem}'
+    volumes:
+        - 'deem-pgsql:/var/lib/postgresql/data'
+        - '.docker/database/pgsql/create-testing-database.sql:/docker-entrypoint-initdb.d/10-create-testing-database.sql'
+    healthcheck:
+        test:
+            - CMD
+            - pg_isready
+            - '-q'
+            - '-d'
+            - '${DB_DATABASE:-deem}'
+            - '-U'
+            - '${DB_USERNAME:-deem}'
+        retries: 3
+        timeout: 5s
