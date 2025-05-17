@@ -1,0 +1,36 @@
+services:
+
+    laravel.app.apache:
+        container_name: ${APP_NAME:-default_app_name}_apache83_test
+        build:
+            context: "../"
+            dockerfile: 8.3/apache/Dockerfile
+            args:
+                WWWUSER: '${WWWUSER:-1000}'
+                WWWGROUP: '${WWWGROUP:-1000}'
+                NODE_VERSION: '20'
+        extra_hosts:
+            - "host.docker.internal:host-gateway"
+        ports:
+            - '${APP_PORT:-8081}:80'
+            - '${VITE_PORT:-5170}:${VITE_PORT:-5170}'
+        environment:
+            WWWUSER: '${WWWUSER:-1000}'
+            # Must match the server name in PHPStorm's server configuration
+            PHP_IDE_CONFIG: "serverName=docker"
+            XDEBUG_MODE: '${DEEM_XDEBUG_MODE:-off}'
+            XDEBUG_CONFIG: '${DEEM_XDEBUG_CONFIG:-client_host=host.docker.internal}'
+            IGNITION_LOCAL_SITES_PATH: '${PWD}'
+            SUPERVISOR_PHP_USER: 'www-data'
+
+        volumes:
+            - '../:/var/www/html' # this adds/attach the current codebase to the container, basically it mirrors the codebase in container
+            - '../common/php/php.ini:/usr/local/etc/php/conf.d/99-custom.ini'
+            - '../common/php/20-xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini'
+            - '../logs/:/var/log'
+        networks:
+            - optimesh
+
+networks:
+    optimesh:
+        driver: bridge

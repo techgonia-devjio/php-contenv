@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+
+if [ "$SUPERVISOR_PHP_USER" != "root" ] && [ "$SUPERVISOR_PHP_USER" != "www-data" ]; then
+    echo "You should set SUPERVISOR_PHP_USER to either 'www-data' or 'root'."
+    exit 1
+fi
+
+# If WWWUSER environment variable is set, update the UID of the 'www-data' user
+# This is useful for matching host user permissions
+if [ ! -z "$WWWUSER" ]; then
+    # Check if the www-data user exists before trying to modify it
+    if id "www-data" &>/dev/null; then
+        echo "Updating www-data user UID to $WWWUSER"
+        usermod -u "$WWWUSER" www-data
+        # Also update the group ID if WWWGROUP is set
+        if [ ! -z "$WWWGROUP" ]; then
+            echo "Updating www-data group GID to $WWWGROUP"
+            groupmod -g "$WWWGROUP" www-data
+        fi
+    else
+        echo "Warning: www-data user not found. Skipping UID/GID update."
+    fi
+fi
+
+if [ ! -d /.composer ]; then
+    mkdir /.composer
+fi
+
+chmod -R ugo+rw /.composer
+chown -R www-data:www-data /.composer
+
+mkdir -p /run
+touch /run/nginx.pid
+chown -R www-data:www-data /run
+
+if [ -d /var/www/html/bootstrap/cache ]; then
+    chmod -R ugo+rw /var/www/html/bootstrap/cache
+    chown -R www-data:www-data /var/www/html/bootstrap/cache
+fi
+if [ -d /var/www/html/storage ]; then
+    chmod -R ugo+rw /var/www/html/storage
+    chown -R www-data:www-data /var/www/html/storage
+fi
+
+# logs
+mkdir -p /var/log/php /var/log/nginx /var/log/supervisor
+chown -R www-data:www-data /var/log/{php,nginx,supervisor}
+mkdir -p /run /var/lib/nginx/body
+chown -R www-data:www-data /run /var/lib/nginx
+
+if [ $# -gt 0 ]; then
+    if [ "$SUPERVISOR_PHP_USER" = "root" ]; then
+        exec "$@"
+    else
+        exec gosu "$SUPERVISOR_PHP_USER" "$@"
+    fi
+else
+    exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
+fi

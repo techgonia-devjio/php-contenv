@@ -1,4 +1,3 @@
 
-**/logs/*
-
+/logs/
 supervisord.pid
