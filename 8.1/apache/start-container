@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+
+if [ "$SUPERVISOR_PHP_USER" != "root" ] && [ "$SUPERVISOR_PHP_USER" != "www-data" ]; then
+    echo "You should set SUPERVISOR_PHP_USER to either 'www-data' or 'root'."
+    exit 1
+fi
+
+# If WWWUSER environment variable is set, update the UID of the 'www-data' user
+# This is useful for matching host user permissions
+if [ ! -z "$WWWUSER" ]; then
+    if id "www-data" &>/dev/null; then
+        echo "Updating www-data user UID to $WWWUSER"
+        usermod -u "$WWWUSER" www-data
+        if [ ! -z "$WWWGROUP" ]; then
+            echo "Updating www-data group GID to $WWWGROUP"
+            groupmod -g "$WWWGROUP" www-data
+        fi
+    else
+        echo "Warning: www-data user not found. Skipping UID/GID update."
+    fi
+fi
+
+# Ensure the .composer directory exists and has correct permissions
+# This is where Composer stores its cache and configuration
+if [ ! -d /.composer ]; then
+    mkdir /.composer
+fi
+# Give ownership to www-data, allowing Composer to run as this user
+chown -R www-data:www-data /.composer
+chmod -R ugo+rw /.composer
+
+mkdir -p /var/www/html/storage /var/www/html/bootstrap/cache
+chown -R www-data:www-data /var/www/html/storage
+chown -R www-data:www-data /var/www/html/bootstrap/cache
+
+# logs
+mkdir -p /var/log/php /var/log/apache2 /var/log/supervisor
+chown -R www-data:www-data /var/log/{php,apache2,supervisor}
+
+# This allows running commands like `docker exec app composer install`  like Sail does
+if [ $# -gt 0 ]; then
+    if [ "$SUPERVISOR_PHP_USER" = "root" ]; then
+        exec "$@"
+    else
+        exec gosu "$SUPERVISOR_PHP_USER" "$@"
+    fi
+else
+    exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
+fi
