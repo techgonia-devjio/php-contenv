@@ -13,6 +13,8 @@ ENV PATH $NVM_DIR/versions/node/v${NODE_VERSION}/bin:$PATH
 WORKDIR /var/www/html
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    locales \
+    locales-all \
     apt-transport-https \
     ca-certificates \
     curl \
