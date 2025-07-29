@@ -331,6 +331,7 @@ generate_docker_compose() {
     docker_compose_content+="\nnetworks:\n"
     docker_compose_content+="  $network_name:\n"
     docker_compose_content+="    driver: bridge\n"
+    docker_compose_content+="    name: optimesh\n"
 
     if [ ${#named_volumes_needed[@]} -gt 0 ]; then
         docker_compose_content+="\nvolumes:\n"
@@ -340,7 +341,7 @@ generate_docker_compose() {
     fi
 
     log "Writing generated docker-compose.yml to $DOCKER_COMPOSE_DEST"
-    echo -e "$docker_compose_content" > "$DOCKER_COMPOSE_DEST"
+    echo "$docker_compose_content" > "$DOCKER_COMPOSE_DEST"
     log "Successfully generated docker-compose.yml"
 }
 

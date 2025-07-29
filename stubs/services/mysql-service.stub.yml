@@ -22,6 +22,10 @@
                 - '${DB_PASSWORD:-secret}'
             retries: 3
             timeout: 5s
+
+        networks:
+            - optimesh
+
         # add the following lines for volume under the volumes section in docker-compose.yml
         # volumes:
             # deem-mysql:
