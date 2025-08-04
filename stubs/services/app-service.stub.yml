@@ -1,5 +1,5 @@
     app:
-        container_name: ${APP_NAME:-docky_app}_test
+        container_name: ${APP_NAME:-docky_app}
         build:
             context: .docker
             dockerfile: 8.1/apache/Dockerfile

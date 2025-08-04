@@ -3,7 +3,6 @@ FROM php:8.2-apache
 LABEL maintainer="mani"
 
 ARG NODE_VERSION=lts
-ARG NVM_INSTALL_BASH_SCRIPT_URL=https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh
 ARG WWWUSER=1000
 ARG WWWGROUP=1000
 
@@ -86,8 +85,10 @@ RUN mkdir -p $NVM_DIR \
     && chown -R www-data:www-data $NVM_DIR
 
 # Install nvm with node and npm
-RUN curl ${NVM_INSTALL_BASH_SCRIPT_URL} | bash \
-&& . $NVM_DIR/nvm.sh \
+COPY common/install-nvm.sh /tmp/install-nvm.sh
+RUN chmod +x /tmp/install-nvm.sh
+RUN /tmp/install-nvm.sh
+RUN rm /tmp/install-nvm.sh && . $NVM_DIR/nvm.sh \
 && nvm install ${NODE_VERSION} \
 && nvm alias default ${NODE_VERSION} \
 && nvm use default
