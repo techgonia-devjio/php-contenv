@@ -1,0 +1,45 @@
+site_name: MANI PHP Stack
+site_url: ""
+repo_url: ""
+theme:
+  name: material
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - content.code.annotate
+    - toc.follow
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+markdown_extensions:
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+nav:
+  - Overview: index.md
+  - Getting Started: getting-started.md
+  - Architecture: architecture.md
+  - Configuration:
+      - All Variables: configuration.md
+      - PHP Extensions: extensions.md
+      - JS Runtimes: js-runtimes.md
+  - Web Servers:
+      - Apache: services-apache.md
+      - Nginx (FPM): services-nginx.md
+      - FrankenPHP: services-frankenphp.md
+      - Swoole: services-swoole.md
+  - Runtime:
+      - s6 & Services: s6-runtime.md
+      - Healthchecks: healthchecks.md
+      - Dev Tools & Sanity: sanity-tools.md
+  - Recipes: recipes.md
+  - Troubleshooting: troubleshooting.md
+  - FAQ: faq.md
+  - Security Notes: security.md
+  - Contributing: contributing.md

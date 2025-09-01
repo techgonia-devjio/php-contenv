@@ -1,0 +1,6 @@
+#!/bin/sh
+set -e
+echo "----> Starting Nginx service..."
+# ensure pid dir
+mkdir -p /run/nginx
+exec nginx -g 'daemon off;'

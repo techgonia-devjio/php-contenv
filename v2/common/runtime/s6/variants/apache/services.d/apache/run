@@ -1,0 +1,7 @@
+#!/bin/sh
+set -e
+
+. /etc/apache2/envvars
+
+echo "----> Starting Apache2 service..."
+exec /usr/sbin/apache2ctl -D FOREGROUND

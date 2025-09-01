@@ -1,0 +1,13 @@
+#!/command/with-contenv /bin/bash
+set -euo pipefail
+
+# If service directory exists (not removed by cont-init), we run the worker
+if [[ ! -f /var/www/html/artisan ]]; then
+  echo "[queue-worker] artisan not found; sleeping"
+  exec tail -f /dev/null
+fi
+
+echo "----> Starting Laravel queue worker..."
+# exec /usr/bin/s6-setuidgid mani \
+exec /common/s6-setuidgid mani \
+  php /var/www/html/artisan queue:work --verbose --tries=3 --timeout=90

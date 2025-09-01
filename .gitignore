@@ -2,3 +2,8 @@
 **/logs/*
 
 supervisord.pid
+.tmp/
+tmp
+.DS_Store
+**/.container-history
+v2/common/build/oldy

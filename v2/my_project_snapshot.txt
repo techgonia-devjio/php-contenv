@@ -1,0 +1,4156 @@
+==================================================
+ Directory Snapshot
+==================================================
+Source Path:   /Users/manpreet/Desktop/projects/priv/php-contenv/v2
+Generated on:  Mon Aug 25 08:17:51 CEST 2025
+Ignored Dirs:  .git|docs|database|.venv
+Ignored Files: *.md|LICENSE
+--------------------------------------------------
+
+### DIRECTORY TREE ###
+
+manpreet@MacBook-Pro v2 % tree . -h
+[ 544]  .
+├── [1.0K]  LICENSE
+├── [ 497]  Makefile
+├── [ 128]  common
+│   ├── [ 128]  build
+│   │   ├── [ 192]  oldy
+│   │   │   ├── [ 448]  mani-docker-install-php-ext-deps-db.sh
+│   │   │   ├── [ 615]  mani-docker-install-php-ext-deps-image-drivers.sh
+│   │   │   ├── [2.2K]  mani-docker-install-php-ext-deps.sh
+│   │   │   └── [1.4K]  mani-docker-install-php-ext-runtime.sh
+│   │   └── [ 224]  scripts
+│   │       ├── [3.8K]  mani-docker-install-js-runtime.sh
+│   │       ├── [ 437]  mani-docker-install-system-deps.sh
+│   │       ├── [2.7K]  mani-php-ext-core.sh
+│   │       ├── [3.4K]  mani-php-ext-db.sh
+│   │       └── [2.0K]  mani-php-ext-images.sh
+│   └── [ 256]  runtime
+│       ├── [ 224]  configs
+│       │   ├── [ 128]  apache
+│       │   │   ├── [1.3K]  apache2.conf
+│       │   │   └── [  96]  sites-available
+│       │   │       └── [ 892]  000-default.conf
+│       │   ├── [  96]  frankenphp
+│       │   │   └── [ 377]  Caddyfile
+│       │   ├── [ 128]  nginx
+│       │   │   ├── [  96]  conf.d
+│       │   │   │   └── [1.4K]  default.conf
+│       │   │   └── [1.1K]  nginx.conf
+│       │   ├── [ 128]  php
+│       │   │   ├── [2.0K]  90-docker-custom.ini
+│       │   │   └── [1.6K]  92-docker-php-ext-xdebug.ini
+│       │   └── [ 128]  swoole-nginx
+│       │       ├── [ 128]  conf.d
+│       │       │   ├── [1.4K]  default.conf
+│       │       │   └── [1.2K]  swoole.conf
+│       │       └── [1.1K]  nginx.conf
+│       ├── [ 192]  healthchecks
+│       │   ├── [  59]  healthcheck-apache.sh
+│       │   ├── [  60]  healthcheck-frankenphp.sh
+│       │   ├── [  60]  healthcheck-nginx.sh
+│       │   └── [ 123]  healthcheck-swoole.sh
+│       ├── [  96]  profile
+│       │   └── [ 686]  zz-history.sh
+│       ├── [ 192]  s6
+│       │   ├── [  96]  cont-finish.d
+│       │   │   └── [  16]  99-shutdown-log.sh
+│       │   ├── [ 128]  cont-init.d
+│       │   │   ├── [1.2K]  10-init.sh
+│       │   │   └── [3.6K]  20-overlay.sh
+│       │   ├── [  96]  env
+│       │   │   └── [   0]  APP_ENV
+│       │   └── [ 224]  variants
+│       │       ├── [ 128]  apache
+│       │       │   ├── [  64]  cont-init.d
+│       │       │   └── [ 128]  services.d
+│       │       │       ├── [ 192]  apache
+│       │       │       │   ├── [   0]  finish
+│       │       │       │   ├── [  96]  log
+│       │       │       │   │   └── [  62]  run
+│       │       │       │   ├── [ 385]  run
+│       │       │       │   └── [   7]  type
+│       │       │       └── [  96]  queue-worker
+│       │       │           └── [ 399]  run
+│       │       ├── [  96]  frankenphp
+│       │       │   └── [  96]  services.d
+│       │       │       └── [ 128]  frankenphp
+│       │       │           ├── [  96]  log
+│       │       │           │   └── [  65]  run
+│       │       │           └── [ 271]  run
+│       │       ├── [ 128]  nginx
+│       │       │   ├── [  64]  cont-init.d
+│       │       │   └── [ 160]  services.d
+│       │       │       ├── [ 192]  nginx
+│       │       │       │   ├── [   0]  finish
+│       │       │       │   ├── [  96]  log
+│       │       │       │   │   └── [  60]  run
+│       │       │       │   ├── [ 121]  run
+│       │       │       │   └── [   7]  type
+│       │       │       ├── [ 192]  php-fpm
+│       │       │       │   ├── [  16]  finish
+│       │       │       │   ├── [  96]  log
+│       │       │       │   │   └── [  80]  run
+│       │       │       │   ├── [ 214]  run
+│       │       │       │   └── [   7]  type
+│       │       │       └── [  96]  queue-worker
+│       │       │           └── [ 325]  run
+│       │       ├── [  96]  nginx-swoole
+│       │       │   └── [ 128]  services.d
+│       │       │       ├── [  96]  nginx
+│       │       │       │   └── [  86]  run
+│       │       │       └── [  96]  swoole
+│       │       │           └── [ 862]  run
+│       │       └── [  96]  swoole
+│       │           └── [  96]  services.d
+│       │               └── [ 160]  swoole
+│       │                   ├── [  96]  log
+│       │                   │   └── [  61]  run
+│       │                   ├── [1.3K]  run
+│       │                   └── [   7]  type
+│       ├── [  96]  sanity
+│       │   └── [4.1K]  mani-sanity.sh
+│       └── [  96]  swoole
+│           └── [5.4K]  mani-swoole-server
+├── [ 160]  database
+│   ├── [  96]  mariadb
+│   │   └── [ 207]  create-testing-database.sh
+│   ├── [ 128]  mysql
+│   │   ├── [ 308]  create-database.sh
+│   │   └── [ 196]  create-testing-database.sh
+│   └── [  96]  pgsql
+│       └── [ 112]  create-testing-database.sql
+├── [4.4K]  docker-compose.test.yml
+├── [ 16K]  docky
+├── [ 128]  docs
+│   ├── [ 672]  docs
+│   │   ├── [4.6K]  architecture.md
+│   │   ├── [ 14K]  config-reference.md
+│   │   ├── [ 381]  contributing.md
+│   │   ├── [2.5K]  conventions.md
+│   │   ├── [1.2K]  extensions.md
+│   │   ├── [ 724]  faq.md
+│   │   ├── [1.3K]  getting-started.md
+│   │   ├── [ 462]  healthchecks.md
+│   │   ├── [1.0K]  index.md
+│   │   ├── [ 576]  js-runtimes.md
+│   │   ├── [ 817]  recipes.md
+│   │   ├── [ 577]  s6-runtime.md
+│   │   ├── [ 748]  sanity-tools.md
+│   │   ├── [ 404]  security.md
+│   │   ├── [ 686]  services-apache.md
+│   │   ├── [ 687]  services-frankenphp.md
+│   │   ├── [ 520]  services-nginx.md
+│   │   ├── [ 719]  services-swoole.md
+│   │   └── [1013]  troubleshooting.md
+│   └── [1.1K]  mkdocs.yml
+├── [6.4K]  grabber.sh
+├── [133K]  my_project_snapshot.txt
+├── [ 192]  php
+│   ├── [ 192]  8.2
+│   │   ├── [  64]  apache
+│   │   ├── [  64]  frankenphp
+│   │   ├── [  64]  nginx
+│   │   └── [  64]  swoole
+│   ├── [ 192]  8.3
+│   │   ├── [  64]  apache
+│   │   ├── [  64]  frankenphp
+│   │   ├── [  64]  nginx
+│   │   └── [  64]  swoole
+│   ├── [ 192]  8.4
+│   │   ├── [  96]  apache
+│   │   │   └── [8.8K]  Dockerfile
+│   │   ├── [  96]  frankenphp
+│   │   │   └── [8.7K]  Dockerfile
+│   │   ├── [  96]  nginx
+│   │   │   └── [8.7K]  Dockerfile
+│   │   └── [  96]  swoole
+│   │       └── [9.0K]  Dockerfile
+│   └── [  96]  base
+│       └── [4.0K]  Dockerfile
+├── [ 160]  public
+│   ├── [  47]  34.php
+│   ├── [  51]  index.php
+│   └── [  23]  text.txt
+├── [2.7K]  readme.md
+├── [3.7K]  reboost.sh
+└── [ 224]  scripts
+    ├── [ 428]  ci-matrix.sh
+    ├── [ 342]  lint-dockerfiles.sh
+    ├── [   0]  lint-shell.sh
+    ├── [ 965]  smoke.sh
+    └── [ 694]  validate-s6.sh
+
+75 directories, 96 files
+
+---
+
+### FILE: reboost.sh ###
+
+#!/usr/local/bin/bash
+# reboost: repository snapshot generator (macOS/Linux, Bash 5+)
+# Usage:
+#   reboost [path=.] [--output <file>] [--ignoreDir "dir1|dir2|.git"] [--ignoreFiles "*.md|LICENSE|.gitattributes"]
+
+set -euo pipefail
+shopt -s nocasematch
+
+PATH_ARG="."
+OUTPUT_FILE=""
+IGNORE_DIRS_RAW=""
+IGNORE_FILES_RAW=""
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --output) OUTPUT_FILE="${2:-}"; shift 2 ;;
+    --ignoreDir|--ignoreDirs) IGNORE_DIRS_RAW="${2:-}"; shift 2 ;;
+    --ignoreFiles) IGNORE_FILES_RAW="${2:-}"; shift 2 ;;
+    -h|--help)
+      echo "Usage: reboost [path=.] [--output <file>] [--ignoreDir \"dir1|dir2|...\"] [--ignoreFiles \"glob1|glob2|...\"]"
+      exit 0
+      ;;
+    *) PATH_ARG="$1"; shift ;;
+  esac
+done
+
+if [[ ! -d "$PATH_ARG" ]]; then
+  echo "Path not a directory: $PATH_ARG" >&2
+  exit 1
+fi
+
+timestamp() { date +"%Y-%m-%d_%H-%M-%S"; }
+[[ -n "$OUTPUT_FILE" ]] || OUTPUT_FILE="snapshot_$(timestamp).txt"
+
+ABS_PATH="$(cd "$PATH_ARG" && pwd)"
+
+IFS='|' read -r -a IGNORE_DIRS <<< "${IGNORE_DIRS_RAW}"
+IFS='|' read -r -a IGNORE_FILES <<< "${IGNORE_FILES_RAW}"
+
+# Build a `find` command (as an ARRAY) that prunes ignored directories and prints NUL-separated files
+declare -a FIND_CMD=()
+build_find_cmd() {
+  FIND_CMD=(find "$ABS_PATH")
+  if (( ${#IGNORE_DIRS[@]} > 0 )) && [[ -n "${IGNORE_DIRS_RAW}" ]]; then
+    FIND_CMD+=( "(" )
+    local first=1
+    for d in "${IGNORE_DIRS[@]}"; do
+      [[ -z "$d" ]] && continue
+      d="${d#/}"; d="${d%/}"
+      if (( first )); then first=0; else FIND_CMD+=( -o ); fi
+      FIND_CMD+=( -type d \( -ipath "*/$d" -o -ipath "*/$d/*" \) )
+    done
+    FIND_CMD+=( ")" -prune -o )
+  fi
+  FIND_CMD+=( -type f -print0 )
+}
+
+matches_ignore_files() {
+  local name="$1"
+  if (( ${#IGNORE_FILES[@]} == 0 )) || [[ -z "${IGNORE_FILES_RAW}" ]]; then
+    return 1
+  fi
+  local g
+  for g in "${IGNORE_FILES[@]}"; do
+    [[ -z "$g" ]] && continue
+    if [[ "$name" == $g ]]; then
+      return 0
+    fi
+  done
+  return 1
+}
+
+capture_tree() {
+  local pattern=""
+  [[ -n "$IGNORE_DIRS_RAW" ]] && pattern="$IGNORE_DIRS_RAW"
+  if [[ -n "$IGNORE_FILES_RAW" ]]; then
+    if [[ -n "$pattern" ]]; then
+      pattern="$pattern|$IGNORE_FILES_RAW"
+    else
+      pattern="$IGNORE_FILES_RAW"
+    fi
+  fi
+
+  if command -v tree >/dev/null 2>&1; then
+    if [[ -n "$pattern" ]]; then
+      (cd "$ABS_PATH" && tree -h -a -I "$pattern")
+    else
+      (cd "$ABS_PATH" && tree -h -a)
+    fi
+  else
+    (cd "$ABS_PATH" && find . -print | sed 's|^\./||')
+  fi
+}
+
+{
+  echo "# reboost snapshot"
+  echo "# Generated: $(date -Iseconds 2>/dev/null || date)"
+  echo "# Root: ${ABS_PATH}"
+  echo "# Ignore Dirs: ${IGNORE_DIRS_RAW:-<none>}"
+  echo "# Ignore Files: ${IGNORE_FILES_RAW:-<none>}"
+  echo
+  echo "===== TREE ====="
+  capture_tree
+  echo
+} > "$OUTPUT_FILE"
+
+build_find_cmd
+
+declare -a INCLUDED_FILES=()
+while IFS= read -r -d '' abs; do
+  rel="${abs#$ABS_PATH/}"
+  base="${rel##*/}"
+  if matches_ignore_files "$base"; then
+    continue
+  fi
+  INCLUDED_FILES+=("$rel")
+done < <("${FIND_CMD[@]}")
+
+{
+  echo "===== FILE INDEX (${#INCLUDED_FILES[@]}) ====="
+  for rel in "${INCLUDED_FILES[@]}"; do
+    echo "$rel"
+  done
+  echo
+} >> "$OUTPUT_FILE"
+
+{
+  echo "===== FILE CONTENTS ====="
+  for rel in "${INCLUDED_FILES[@]}"; do
+    abs="${ABS_PATH}/${rel}"
+    echo
+    echo "---------- BEGIN FILE: ${rel} ----------"
+    mt="$(/usr/bin/file -I -b "$abs" 2>/dev/null || /usr/bin/file -b "$abs" 2>/dev/null || echo text/plain)"
+    if [[ "$mt" == text/* || "$mt" == application/json* || "$mt" == application/xml* || "$mt" == application/javascript* ]]; then
+      sed -e 's/\r$//' "$abs"
+    else
+      echo "[binary or non-text content omitted: $mt]"
+    fi
+    echo "----------- END FILE: ${rel} -----------"
+  done
+} >> "$OUTPUT_FILE"
+
+echo "$OUTPUT_FILE"
+
+---
+
+### FILE: Makefile ###
+
+.PHONY: lint validate smoke-all
+
+lint:
+	@bash scripts/lint-shell.sh
+	@bash scripts/lint-dockerfiles.sh
+
+validate:
+	@bash scripts/validate-s6.sh
+
+# quick matrix over the 8.4 variants (tweak as you like)
+smoke-all:
+	@bash scripts/smoke.sh php/8.4/apache/Dockerfile     development 8081
+	@bash scripts/smoke.sh php/8.4/nginx/Dockerfile      development 8082
+	@bash scripts/smoke.sh php/8.4/frankenphp/Dockerfile development 8083
+	@bash scripts/smoke.sh php/8.4/swoole/Dockerfile     development 8084
+
+---
+
+### FILE: docky ###
+
+#!/usr/bin/env bash
+
+set -e
+
+DOCKER_DIR=".docker"
+while [[ "$#" -gt 0 ]]; do
+    case "$1" in
+        --docker-dir)
+            if [ -n "$2" ]; then
+                DOCKER_DIR="$2"
+                shift 2 # Shift past the argument name and value
+            else
+                echo "Error: --docker-dir requires a directory name." >&2
+                exit 1
+            fi
+            ;;
+        *)
+            break
+            ;;
+    esac
+done
+
+STUBS_DIR="${DOCKER_DIR}/stubs/services"
+PROJECT_ROOT="$(pwd)"
+REPO_ROOT="${PROJECT_ROOT}/${DOCKER_DIR}"
+DOCKER_COMPOSE_DEST="${PROJECT_ROOT}/docker-compose.yml"
+
+
+log() {
+    echo "[php-contenv] $1"
+}
+
+
+
+hot_log() {
+    if command_exists tput; then
+        echo "$(tput setaf 3)$(tput bold)[php-contenv] $1$(tput sgr0)"
+    else
+        echo "[php-contenv] $1"
+    fi
+}
+
+
+
+error() {
+    echo "[php-contenv ERROR] $1" >&2
+    exit 1
+}
+
+
+command_exists() {
+    command -v "$1" >/dev/null 2>&1
+}
+
+
+get_input_with_default() {
+    local prompt="$1"
+    local default_value="$2"
+    local input_value
+
+    read -p "$prompt [$default_value]: " input_value
+    echo "${input_value:-$default_value}"
+}
+
+
+is_service_selected() {
+    local service_name="$1"
+    local selected_services_array=("${@:2}")
+    for selected in "${selected_services_array[@]}"; do
+        if [[ "$selected" == "${service_name}-service.stub.yml" ]]; then
+            return 0 # Service found
+        fi
+    done
+    return 1 # Service not found
+}
+
+
+log_env_variables_to_add() {
+    local context="$1"
+    shift 1
+    local services_list=("$@")
+
+    hot_log "Please add the following variables to your project's .env file:"
+
+    if [[ "$context" == "setup" ]]; then
+         log "APP_PORT=8080"
+         log "VITE_PORT=5173"
+         log "WWWUSER=1000"
+         log "WWWGROUP=1000"
+         log "DEEM_XDEBUG_MODE=off"
+         log "DEEM_XDEBUG_CONFIG=client_host=host.docker.internal"
+         log ""
+    fi
+
+
+    for service_item in "${services_list[@]}"; do
+        local service_name="${service_item%-service.stub.yml}"
+
+        case "$service_name" in
+            mysql|pgsql|mariadb)
+                log "# Database Configuration for ${service_name} service"
+                log "DB_CONNECTION=${service_name}"
+                log "DB_HOST=${service_name}"
+                if [[ "$service_name" == "pgsql" ]]; then
+                    log "DB_PORT=5432"
+                else
+                    log "DB_PORT=3306"
+                fi
+                log "DB_DATABASE=laravel"
+                log "DB_USERNAME=root"
+                log "DB_PASSWORD=complex!Passw0rd"
+                log ""
+                # Conditional DB port forwarding
+                if [[ "$service_name" == "pgsql" ]]; then
+                    log "FORWARD_DB_PORT=5432"
+                else
+                    log "FORWARD_DB_PORT=3306"
+                fi
+                log ""
+                ;;
+            mailpit)
+                log "# Mailpit Configuration"
+                log "MAIL_MAILER=smtp"
+                log "MAIL_HOST=mailpit"
+                log "MAIL_PORT=1025"
+                log "MAIL_USERNAME=null"
+                log "MAIL_PASSWORD=null"
+                log "MAIL_ENCRYPTION=null"
+                log "MAIL_FROM_ADDRESS=\"hello@example.com\""
+                log "MAIL_FROM_NAME=\"\${APP_NAME}\""
+                log "FORWARD_MAILPIT_PORT=1025"
+                log "FORWARD_MAILPIT_DASHBOARD_PORT=8025"
+                log ""
+                ;;
+            redis)
+                log "# Redis Configuration"
+                log "REDIS_HOST=redis"
+                log "REDIS_PASSWORD=null"
+                log "REDIS_PORT=6379"
+                log ""
+                ;;
+            typesense)
+                 log "# Typesense Configuration"
+                 log "TYPESENSE_HOST=typesense"
+                 log "TYPESENSE_PORT=8108"
+                 log "TYPESENSE_PROTOCOL=http"
+                 log "TYPESENSE_API_KEY=xyz"
+                 log "FORWARD_TYPESENSE_PORT=8108"
+                 log ""
+                 ;;
+            *)
+                log "# Review .env variables for the ${service_name} service."
+                ;;
+        esac
+    done
+
+    hot_log "Review and update your .env file with these and any other project-specific variables."
+}
+
+
+log_gitignore_to_add() {
+    hot_log "Please add the following patterns to your project's .gitignore file:"
+    log "/logs/"
+    log ".env"
+    log "docker-compose.override.yml" # If you plan to use overrides
+    log "supervisord*" # Files created by supervisord
+    hot_log "Ensure these are not already present or conflict with existing patterns."
+}
+
+
+# --- Setup Command ---
+setup_environment() {
+    log "Starting php-contenv setup..."
+
+
+    if ! command_exists docker; then
+        error "Docker is not installed. Please install Docker Desktop or Docker Engine."
+    fi
+    if ! command_exists docker compose; then
+
+        if ! command_exists docker-compose; then
+            log "Using the older 'docker-compose' command."
+            DOCKER_COMPOSE_CMD="docker-compose"
+        else
+            error "Docker Compose is not installed. Please install Docker Compose V2 or the standalone docker-compose."
+        fi
+    else
+        log "Using 'docker compose' (Docker Compose V2)."
+        DOCKER_COMPOSE_CMD="docker compose"
+    fi
+
+
+    if [ ! -d "$DOCKER_DIR" ]; then
+        error "'${DOCKER_DIR}' directory not found. Please run this script from your project root directory after adding php-contenv as a git submodule (e.g., git submodule add https://github.com/techgonia-devjio/php-contenv ${DOCKER_DIR}). If you used a different name for the submodule, use the --docker-dir flag."
+    fi
+
+
+    if [ -f "$DOCKER_COMPOSE_DEST" ]; then
+        if ! grep -q "# Generated by php-contenv setup script" "$DOCKER_COMPOSE_DEST"; then
+            error "A docker-compose.yml file already exists in the project root and was not generated by this script. Please back it up manually before running setup."
+        else
+             log "Existing docker-compose.yml found (generated by php-contenv). Backing it up."
+             local timestamp=$(date +"%Y%m%d_%H%M%S")
+             local backup_file="${DOCKER_COMPOSE_DEST}.bak_${timestamp}"
+             cp "$DOCKER_COMPOSE_DEST" "$backup_file"
+             log "Backed up to $backup_file"
+        fi
+    fi
+
+
+    log "Gathering environment details..."
+
+    available_versions=($(ls -d "$DOCKER_DIR"/[0-9]*.[0-9]* 2>/dev/null | xargs -n 1 basename))
+
+    if [ ${#available_versions[@]} -eq 0 ]; then
+        error "No PHP version directories found in '$DOCKER_DIR'."
+    fi
+
+    echo "Available PHP Versions:"
+    select php_version in "${available_versions[@]}"; do
+        if [[ " ${available_versions[@]} " =~ " ${php_version} " ]]; then
+            break
+        else
+            echo "Invalid selection. Please try again."
+        fi
+    done
+
+    available_servers=($(ls -d "$DOCKER_DIR/$php_version"/* 2>/dev/null | xargs -n 1 basename))
+    # Filter out 'php' and 'database' directories
+    available_servers=($(echo "${available_servers[@]}" | tr ' ' '\n' | grep -v '^php$' | grep -v '^database$' | tr '\n' ' '))
+
+    if [ ${#available_servers[@]} -eq 0 ]; then
+        error "No server configurations found for PHP version $php_version in '$DOCKER_DIR/$php_version'."
+    fi
+
+    echo "Available Web Servers for PHP $php_version:"
+    select web_server in "${available_servers[@]}"; do
+        if [[ " ${available_servers[@]} " =~ " ${web_server} " ]]; then
+            break
+        else
+            echo "Invalid selection. Please try again."
+        fi
+    done
+
+    log "You selected PHP $php_version with $web_server."
+
+    DOCKER_NETWORK_NAME=$(get_input_with_default "Enter Docker network name" "optimesh")
+    log "Using Docker network: $DOCKER_NETWORK_NAME"
+
+    log "Select optional services to include (y/N for each):"
+    available_service_stubs=($(ls "$STUBS_DIR"/*.stub.yml 2>/dev/null | xargs -n 1 basename | grep -v '^app-service.stub.yml$'))
+
+    selected_services=()
+    if [ ${#available_service_stubs[@]} -eq 0 ]; then
+        log "No optional service stubs found in '$STUBS_DIR'."
+    else
+        for service_stub in "${available_service_stubs[@]}"; do
+            local service_name="${service_stub%.stub.yml}"
+            read -p "Include ${service_name} service? (y/N): " include_service
+            if [[ "$include_service" =~ ^[Yy]$ ]]; then
+                selected_services+=("$service_stub")
+            fi
+        done
+    fi
+
+    log "Selected services: ${selected_services[*]:-None}"
+
+
+    generate_docker_compose "$php_version" "$web_server" "$DOCKER_NETWORK_NAME" "${selected_services[@]}"
+
+    create_logs_directory
+
+    log_env_variables_to_add "setup" "${selected_services[@]}"
+    log_gitignore_to_add
+
+    log "Setup complete! You can now build and start your Docker environment:"
+    log "$DOCKER_COMPOSE_CMD build"
+    log "$DOCKER_COMPOSE_CMD up -d"
+    hot_log "Remember to run 'composer install' and 'npm install' inside the container after the first build."
+}
+
+generate_docker_compose() {
+    local php_version="$1"
+    local web_server="$2"
+    local network_name="$3"
+    shift 3
+    local optional_service_stubs=("$@")
+
+    local docker_compose_content="# Generated by php-contenv setup script\n\nservices:\n"
+
+    local app_stub_path="${STUBS_DIR}/app-service.stub.yml"
+    if [ ! -f "$app_stub_path" ]; then
+        error "App service stub not found: $app_stub_path"
+    fi
+    local app_service_content=$(cat "$app_stub_path")
+    local app_volumes=""
+    # Replace placeholders and insert dynamic volumes into the app service content
+    # Using sed for simple replacements. More complex YAML manipulation, we need a dedicated parser/tool.
+    app_service_content=$(echo "$app_service_content" | \
+        sed "s|context: .docker|context: ${DOCKER_DIR}|" | \
+        sed "s|dockerfile: 8.1/apache/Dockerfile|dockerfile: ${php_version}/${web_server}/Dockerfile|" | \
+        awk -v volumes_content="${app_volumes}" '/environment:/ { print; next } { print }' \
+    )
+
+    docker_compose_content+="$app_service_content\n"
+
+    local named_volumes_needed=()
+    for service_stub in "${optional_service_stubs[@]}"; do
+        local service_stub_path="${STUBS_DIR}/${service_stub}"
+        if [ ! -f "$service_stub_path" ]; then
+            log "Warning: Service stub not found: $service_stub_path. Skipping."
+            continue
+        fi
+        local service_content=$(cat "$service_stub_path")
+
+        # Simple check for named volumes in the stub (e.g., 'volumes:')
+        if echo "$service_content" | grep -q 'volumes:'; then
+             # Extract named volume names (basic parsing)
+             local service_volumes=$(echo "$service_content" | sed -n '/volumes:/,/^[^[:space:]]/p' | grep -v 'volumes:' | grep -v '^- ' | sed 's/:.*//' | xargs)
+             for vol in $service_volumes; do
+                 if [[ ! " ${named_volumes_needed[@]} " =~ " ${vol} " ]]; then
+                     named_volumes_needed+=("$vol")
+                 fi
+             done
+        fi
+
+        docker_compose_content+="\n$service_content\n"
+    done
+
+    # Add networks definition
+    docker_compose_content+="\nnetworks:\n"
+    docker_compose_content+="  $network_name:\n"
+    docker_compose_content+="    driver: bridge\n"
+    docker_compose_content+="    name: optimesh\n"
+
+    if [ ${#named_volumes_needed[@]} -gt 0 ]; then
+        docker_compose_content+="\nvolumes:\n"
+        for vol in "${named_volumes_needed[@]}"; do
+            docker_compose_content+="  $vol:\n"
+        done
+    fi
+
+    log "Writing generated docker-compose.yml to $DOCKER_COMPOSE_DEST"
+    echo "$docker_compose_content" > "$DOCKER_COMPOSE_DEST"
+    log "Successfully generated docker-compose.yml"
+}
+
+# Function to create necessary log directories on the host
+create_logs_directory() {
+    local LOGS_DIR="${PROJECT_ROOT}/logs"
+    if [ ! -d "$LOGS_DIR" ]; then
+        log "Creating logs directory: $LOGS_DIR"
+        mkdir -p "$LOGS_DIR"
+        # Create subdirectories for clarity
+        mkdir -p "$LOGS_DIR/php" "$LOGS_DIR/apache2" "$LOGS_DIR/nginx" "$LOGS_DIR/supervisor"
+    else
+        log "Logs directory already exists: $LOGS_DIR"
+    fi
+}
+
+# --- Add Service Command ---
+add_service_to_compose() {
+    local service_name="$1"
+    local service_stub="${service_name}-service.stub.yml"
+    local service_stub_path="${STUBS_DIR}/${service_stub}"
+
+    if [ -z "$service_name" ]; then
+        error "Please specify the service name to add (e.g., docky add-service typesense)."
+    fi
+
+    if [ ! -f "$DOCKER_COMPOSE_DEST" ]; then
+        error "docker-compose.yml not found in the project root. Please run 'docky setup' first."
+    fi
+
+    if [ ! -f "$service_stub_path" ]; then
+        error "Service stub not found for '${service_name}': ${service_stub_path}. Please ensure the stub file exists in ${STUBS_DIR}."
+    fi
+
+    local compose_content=$(cat "$DOCKER_COMPOSE_DEST")
+
+    if echo "$compose_content" | grep -q -E "^[[:space:]]*${service_name}:"; then
+        hot_log "Service '${service_name}' already exists in docker-compose.yml. Skipping."
+        log_env_variables_to_add "add-service" "$service_stub"
+        return 0
+    fi
+
+    log "Adding service '${service_name}' from stub: ${service_stub_path}"
+
+    local service_content=$(cat "$service_stub_path")
+
+    local insert_line=$(echo "$compose_content" | grep -n "^networks:" | head -n 1 | cut -d: -f1)
+    if [ -z "$insert_line" ]; then
+        insert_line=$(echo "$compose_content" | grep -n "^volumes:" | head -n 1 | cut -d: -f1)
+    fi
+
+    # Use awk for reliable multi-line insertion,Pipe service_content into awk and use getline
+    if [ -z "$insert_line" ]; then
+        echo -e "\n$service_content" >> "$DOCKER_COMPOSE_DEST"
+    else
+        echo "$compose_content" | awk -v line="$insert_line" '
+        BEGIN {
+            # Read the service content from stdin (piped input)
+            service_content = ""
+            while ((getline line_from_stdin < "-") > 0) {
+                service_content = service_content line_from_stdin "\n"
+            }
+            # Remove the trailing newline added by the loop
+            sub(/\n$/, "", service_content)
+        }
+        NR == line {
+            print service_content;
+            print;
+            next;
+        }
+        { print }
+        ' > temp_compose.yml
+        mv temp_compose.yml "$DOCKER_COMPOSE_DEST"
+    fi
+
+
+    log "Service '${service_name}' added to docker-compose.yml."
+
+    if echo "$service_content" | grep -q 'volumes:'; then
+         hot_log "Checking for named volumes in the '${service_name}' service stub..."
+         local service_volumes=$(echo "$service_content" | sed -n '/volumes:/,/^[^[:space:]]/p' | grep -v 'volumes:' | grep -v '^- ' | sed 's/:.*//' | xargs)
+         local root_volumes_section=$(cat "$DOCKER_COMPOSE_DEST" | sed -n '/^volumes:/,/^[^[:space:]]/p')
+
+         for vol in $service_volumes; do
+             if ! echo "$root_volumes_section" | grep -q "^${vol}:"; then
+                 hot_log "Named volume '${vol}' not found in root 'volumes:' section. Please add it manually to your docker-compose.yml:"
+                 log "volumes:"
+                 log "  ${vol}:"
+                 log ""
+             else
+                 log "Named volume '${vol}' already defined in root 'volumes:' section."
+             fi
+         done
+    fi
+
+    if echo "$service_content" | grep -q 'networks:'; then
+        hot_log "The '${service_name}' service stub defines a 'networks:' block. Please ensure the referenced network(s) are defined at the root level of your docker-compose.yml if they are not the main network ('${DOCKER_NETWORK_NAME}')."
+    fi
+
+
+    log_env_variables_to_add "add-service" "$service_stub"
+
+    hot_log "Service '${service_name}' successfully added."
+    hot_log "Remember to review the updated docker-compose.yml, add any necessary named volumes or networks at the root level, and update your .env file."
+    hot_log "Then run 'docker compose up -d' to start the new service."
+}
+
+
+
+create_logs_directory() {
+    local LOGS_DIR="${PROJECT_ROOT}/logs"
+    if [ ! -d "$LOGS_DIR" ]; then
+        log "Creating logs directory: $LOGS_DIR"
+        mkdir -p "$LOGS_DIR"
+        mkdir -p "$LOGS_DIR/php" "$LOGS_DIR/apache2" "$LOGS_DIR/nginx" "$LOGS_DIR/supervisor"
+    else
+        log "Logs directory already exists: $LOGS_DIR"
+    fi
+}
+
+
+case "$1" in
+    setup)
+        setup_environment
+        ;;
+    add-service)
+        shift
+        add_service_to_compose "$@"
+        ;;
+    *)
+        echo "Usage: $0 [--docker-dir <directory>] {setup | add-service <service_name>}"
+        exit 1
+        ;;
+esac
+
+---
+
+### FILE: php/8.4/swoole/Dockerfile ###
+
+# PHP 8.4 + Swoole/OpenSwoole — Dev/Prod, optional Nginx front, s6, healthchecks
+ARG PHP_VERSION=8.4
+FROM php:${PHP_VERSION}-cli-bookworm AS base
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    COMPOSER_ALLOW_SUPERUSER=1
+SHELL ["/bin/bash","-o","pipefail","-c"]
+
+# Core OS deps (includes dos2unix, gosu, etc.)
+COPY common/build/scripts/mani-docker-install-system-deps.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/mani-docker-install-system-deps.sh \
+ && mani-docker-install-system-deps.sh
+
+# ---------- Build tools ----------
+FROM base AS build_tools
+
+# Feature flags
+ARG PHP_EXT_SWOOLE=false
+ARG PHP_EXT_INTL=true
+ARG PHP_EXT_ZIP=true
+ARG PHP_EXT_GD=true
+ARG PHP_EXT_IMAGICK=true
+ARG PHP_EXT_VIPS=true
+ARG PHP_EXT_PDO_MYSQL=true
+ARG PHP_EXT_PDO_PGSQL=false
+ARG PHP_EXT_PDO_SQLITE=false
+ARG PHP_EXT_SQLITE=false
+ARG PHP_EXT_MONGODB=false
+ARG PHP_EXT_REDIS=false
+ARG PHP_EXT_MEMCACHED=false
+ARG PHP_EXT_XDEBUG=true
+
+# DB clients (optional)
+ARG INSTALL_DB_PGSQL_CLIENT=false
+ARG DB_PGSQL_CLIENT_VERSION=18
+ARG INSTALL_DB_MYSQL_CLIENT=true
+
+# JS Runtimes (optional)
+ARG JS_RUNTIME_REQUIRE_NODE=true
+ARG JS_RUNTIME_NODE_VERSION=22
+ARG JS_RUNTIME_REQUIRE_DENO=false
+ARG JS_RUNTIME_REQUIRE_BUN=false
+ARG JS_RUNTIME_REQUIRE_YARN=false
+ARG JS_RUNTIME_REQUIRE_PNPM=false
+
+# Domain scripts
+COPY common/build/scripts/mani-php-ext-core.sh   /usr/local/bin/
+COPY common/build/scripts/mani-php-ext-db.sh     /usr/local/bin/
+COPY common/build/scripts/mani-php-ext-images.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/mani-php-ext-*.sh
+
+# Build-time passes
+ENV PHP_EXT_SWOOLE=${PHP_EXT_SWOOLE} \
+    PHP_EXT_INTL=${PHP_EXT_INTL} \
+    PHP_EXT_ZIP=${PHP_EXT_ZIP} \
+    PHP_EXT_GD=${PHP_EXT_GD} \
+    PHP_EXT_IMAGICK=${PHP_EXT_IMAGICK} \
+    PHP_EXT_VIPS=${PHP_EXT_VIPS} \
+    PHP_EXT_PDO_MYSQL=${PHP_EXT_PDO_MYSQL} \
+    PHP_EXT_PDO_PGSQL=${PHP_EXT_PDO_PGSQL} \
+    PHP_EXT_PDO_SQLITE=${PHP_EXT_PDO_SQLITE} \
+    PHP_EXT_SQLITE=${PHP_EXT_SQLITE} \
+    PHP_EXT_MONGODB=${PHP_EXT_MONGODB} \
+    PHP_EXT_REDIS=${PHP_EXT_REDIS} \
+    PHP_EXT_MEMCACHED=${PHP_EXT_MEMCACHED} \
+    INSTALL_DB_PGSQL_CLIENT=${INSTALL_DB_PGSQL_CLIENT} \
+    DB_PGSQL_CLIENT_VERSION=${DB_PGSQL_CLIENT_VERSION} \
+    INSTALL_DB_MYSQL_CLIENT=${INSTALL_DB_MYSQL_CLIENT} \
+    PHP_EXT_XDEBUG=${PHP_EXT_XDEBUG}
+RUN mani-php-ext-db.sh --build
+RUN mani-php-ext-images.sh --build
+RUN mani-php-ext-core.sh --build
+
+# JS runtimes (optional)
+COPY common/build/scripts/mani-docker-install-js-runtime.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/mani-docker-install-js-runtime.sh \
+ && JS_RUNTIME_REQUIRE_NODE=${JS_RUNTIME_REQUIRE_NODE} \
+    JS_RUNTIME_NODE_VERSION=${JS_RUNTIME_NODE_VERSION} \
+    JS_RUNTIME_REQUIRE_DENO=${JS_RUNTIME_REQUIRE_DENO} \
+    JS_RUNTIME_REQUIRE_BUN=${JS_RUNTIME_REQUIRE_BUN} \
+    JS_RUNTIME_REQUIRE_YARN=${JS_RUNTIME_REQUIRE_YARN} \
+    JS_RUNTIME_REQUIRE_PNPM=${JS_RUNTIME_REQUIRE_PNPM} \
+    mani-docker-install-js-runtime.sh
+
+# ---------- s6 overlay ----------
+FROM busybox:1.36 AS s6-installer
+ARG S6_OVERLAY_VERSION="v3.1.6.2"
+ARG TARGETARCH
+RUN set -e; \
+  case "${TARGETARCH}" in \
+    amd64) ARCH=x86_64 ;; \
+    arm64) ARCH=aarch64 ;; \
+    arm)   ARCH=arm ;; \
+    *)     ARCH=x86_64 ;; \
+  esac; \
+  wget -qO /tmp/s6-overlay-noarch.tar.xz https://github.com/just-containers/s6-overlay/releases/download/${S6_OVERLAY_VERSION}/s6-overlay-noarch.tar.xz && \
+  wget -qO /tmp/s6-overlay-arch.tar.xz   https://github.com/just-containers/s6-overlay/releases/download/${S6_OVERLAY_VERSION}/s6-overlay-${ARCH}.tar.xz
+
+# ---------- Composer ----------
+FROM composer:latest AS composer
+
+# ---------- Final base (swoole-only) ----------
+FROM base AS final_base
+
+COPY --from=s6-installer /tmp/s6-overlay-*.tar.xz /tmp/
+RUN tar -C / -Jxpf /tmp/s6-overlay-noarch.tar.xz \
+ && tar -C / -Jxpf /tmp/s6-overlay-arch.tar.xz \
+ && rm /tmp/s6-overlay-*.tar.xz
+
+# PHP ini + s6 services + server + sanity/history + healthcheck
+COPY common/runtime/configs/php/                              /usr/local/etc/php/conf.d/
+COPY common/runtime/s6/cont-init.d/                           /etc/cont-init.d/
+COPY common/runtime/s6/cont-finish.d/                         /etc/cont-finish.d/
+COPY common/runtime/s6/variants/swoole/services.d/            /etc/services.d/
+COPY common/runtime/healthchecks/healthcheck-swoole.sh        /usr/local/bin/
+COPY common/runtime/swoole/mani-swoole-server                 /usr/local/bin/mani-swoole-server
+COPY common/runtime/sanity/mani-sanity.sh                     /usr/local/bin/mani-sanity
+COPY common/runtime/profile/zz-history.sh                     /etc/profile.d/zz-history.sh
+
+RUN chmod +x /usr/local/bin/healthcheck-swoole.sh \
+            /usr/local/bin/mani-swoole-server \
+            /usr/local/bin/mani-sanity \
+ && find /etc/cont-init.d /etc/cont-finish.d /etc/services.d -type f -exec dos2unix {} \; \
+ && chmod -R a+rx /etc/cont-init.d /etc/cont-finish.d \
+ && find /etc/services.d -type f -name run -exec chmod a+rx {} \; \
+ && mkdir -p /var/log/{php,swoole} \
+ && chown -R www-data:www-data /var/log/{php,swoole} \
+ && chmod -R 775 /var/log/{php,swoole} \
+ && printf '\n[ -r /etc/profile.d/zz-history.sh ] && . /etc/profile.d/zz-history.sh\n' >> /etc/bash.bashrc
+
+HEALTHCHECK --interval=30s --timeout=5s --retries=5 CMD /usr/local/bin/healthcheck-swoole.sh || exit 1
+
+# Runtime libs (domain scripts in --runtime mode)
+ARG PHP_EXT_SWOOLE=false
+ARG PHP_EXT_INTL=true
+ARG PHP_EXT_ZIP=true
+ARG PHP_EXT_GD=true
+ARG PHP_EXT_IMAGICK=true
+ARG PHP_EXT_VIPS=true
+ARG PHP_EXT_PDO_MYSQL=true
+ARG PHP_EXT_PDO_PGSQL=false
+ARG PHP_EXT_PDO_SQLITE=false
+ARG PHP_EXT_SQLITE=false
+ARG PHP_EXT_MONGODB=false
+ARG PHP_EXT_REDIS=false
+ARG PHP_EXT_MEMCACHED=false
+ARG PHP_EXT_XDEBUG=true
+ARG INSTALL_DB_PGSQL_CLIENT=false
+ARG DB_PGSQL_CLIENT_VERSION=18
+ARG INSTALL_DB_MYSQL_CLIENT=true
+
+ENV PHP_EXT_SWOOLE=${PHP_EXT_SWOOLE} \
+    PHP_EXT_INTL=${PHP_EXT_INTL} \
+    PHP_EXT_ZIP=${PHP_EXT_ZIP} \
+    PHP_EXT_GD=${PHP_EXT_GD} \
+    PHP_EXT_IMAGICK=${PHP_EXT_IMAGICK} \
+    PHP_EXT_VIPS=${PHP_EXT_VIPS} \
+    PHP_EXT_PDO_MYSQL=${PHP_EXT_PDO_MYSQL} \
+    PHP_EXT_PDO_PGSQL=${PHP_EXT_PDO_PGSQL} \
+    PHP_EXT_PDO_SQLITE=${PHP_EXT_PDO_SQLITE} \
+    PHP_EXT_SQLITE=${PHP_EXT_SQLITE} \
+    PHP_EXT_MONGODB=${PHP_EXT_MONGODB} \
+    PHP_EXT_REDIS=${PHP_EXT_REDIS} \
+    PHP_EXT_MEMCACHED=${PHP_EXT_MEMCACHED} \
+    INSTALL_DB_PGSQL_CLIENT=${INSTALL_DB_PGSQL_CLIENT} \
+    DB_PGSQL_CLIENT_VERSION=${DB_PGSQL_CLIENT_VERSION} \
+    INSTALL_DB_MYSQL_CLIENT=${INSTALL_DB_MYSQL_CLIENT} \
+    PHP_EXT_XDEBUG=${PHP_EXT_XDEBUG}
+
+COPY common/build/scripts/mani-php-ext-core.sh   /usr/local/bin/
+COPY common/build/scripts/mani-php-ext-db.sh     /usr/local/bin/
+COPY common/build/scripts/mani-php-ext-images.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/mani-php-ext-*.sh \
+ && mani-php-ext-db.sh --runtime \
+ && mani-php-ext-images.sh --runtime \
+ && mani-php-ext-core.sh --runtime
+
+# ---------- Optional Nginx front ----------
+FROM final_base AS nginx_base
+RUN apt-get update && apt-get install -y --no-install-recommends nginx && rm -rf /var/lib/apt/lists/*
+COPY common/runtime/configs/nginx/                          /etc/nginx/
+COPY common/runtime/healthchecks/healthcheck-nginx.sh       /usr/local/bin/
+COPY common/runtime/s6/variants/nginx-swoole/services.d/    /etc/services.d/
+RUN chmod +x /usr/local/bin/healthcheck-nginx.sh \
+ && find /etc/services.d -type f -name run -exec chmod a+rx {} \; \
+ && mkdir -p /var/log/nginx \
+ && chown -R www-data:www-data /var/log/nginx \
+ && chmod -R 775 /var/log/nginx
+HEALTHCHECK --interval=30s --timeout=5s --retries=5 CMD /usr/local/bin/healthcheck-nginx.sh || exit 1
+
+# ---------- Production (swoole-only) ----------
+FROM final_base AS production
+WORKDIR /var/www/html
+USER root
+COPY --from=build_tools /usr/local/ /usr/local/
+COPY --from=build_tools /etc/apt/sources.list.d/ /etc/apt/sources.list.d/
+COPY --from=composer /usr/bin/composer /usr/local/bin/composer
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader \
+ && rm /usr/local/bin/composer
+COPY . .
+ENTRYPOINT ["/init"]
+
+# ---------- Development (swoole-only) ----------
+FROM final_base AS development
+USER root
+COPY --from=build_tools /usr/local/ /usr/local/
+COPY --from=build_tools /etc/apt/sources.list.d/ /etc/apt/sources.list.d/
+COPY --from=composer /usr/bin/composer /usr/local/bin/composer
+WORKDIR /var/www/html
+EXPOSE 80
+ENTRYPOINT ["/init"]
+
+# ---------- Production (nginx → swoole) ----------
+FROM nginx_base AS production-nginx
+WORKDIR /var/www/html
+USER root
+COPY --from=build_tools /usr/local/ /usr/local/
+COPY --from=build_tools /etc/apt/sources.list.d/ /etc/apt/sources.list.d/
+COPY --from=composer /usr/bin/composer /usr/local/bin/composer
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader \
+ && rm /usr/local/bin/composer
+COPY . .
+ENTRYPOINT ["/init"]
+
+# ---------- Development (nginx → swoole) ----------
+FROM nginx_base AS development-nginx
+USER root
+COPY --from=build_tools /usr/local/ /usr/local/
+COPY --from=build_tools /etc/apt/sources.list.d/ /etc/apt/sources.list.d/
+COPY --from=composer /usr/bin/composer /usr/local/bin/composer
+WORKDIR /var/www/html
+EXPOSE 80
+ENTRYPOINT ["/init"]
+
+---
+
+### FILE: php/8.4/frankenphp/Dockerfile ###
+
+# PHP 8.4 + FrankenPHP (Caddy) — Dev/Prod, s6, same extension installers, healthcheck
+ARG PHP_VERSION=8.4
+# OS: bookworm or alpine
+ARG FrankenPHP_Version=1
+ARG OS=bookworm
+FROM dunglas/frankenphp:${FrankenPHP_Version}-php${PHP_VERSION}-${OS} AS base
+# If this tag ever 404s, try: ghcr.io/dunglas/frankenphp:1-php8.4-bookworm
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    COMPOSER_ALLOW_SUPERUSER=1
+
+SHELL ["/bin/bash","-o","pipefail","-c"]
+
+# Core OS deps (includes dos2unix)
+COPY common/build/scripts/mani-docker-install-system-deps.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/mani-docker-install-system-deps.sh \
+ && mani-docker-install-system-deps.sh
+
+# ---------- Build tools & optional components ----------
+FROM base AS build_tools
+
+# DB Clients + PHP Extensions feature flags (same knobs you already use)
+ARG INSTALL_DB_PGSQL_CLIENT=true
+ARG DB_PGSQL_CLIENT_VERSION=18
+ARG INSTALL_DB_MYSQL_CLIENT=true
+
+ARG PHP_EXT_PDO_PGSQL=true
+ARG PHP_EXT_PDO_MYSQL=true
+ARG PHP_EXT_PDO_SQLITE=false
+ARG PHP_EXT_SQLITE=false
+ARG PHP_EXT_MONGODB=false
+ARG PHP_EXT_REDIS=false
+ARG PHP_EXT_MEMCACHED=false
+
+ARG PHP_EXT_GD=true
+ARG PHP_EXT_IMAGICK=true
+ARG PHP_EXT_VIPS=true
+
+ARG PHP_EXT_XDEBUG=true
+ARG PHP_EXT_INTL=true
+ARG PHP_EXT_SOAP=false
+ARG PHP_EXT_ZIP=true
+ARG PHP_EXT_XSL=false
+ARG PHP_EXT_GMP=false
+ARG PHP_EXT_BCMATH=false
+ARG PHP_EXT_EXIF=false
+ARG PHP_EXT_PCNTL=false
+
+# JS Runtimes
+ARG JS_RUNTIME_NODE_VERSION=22
+ARG JS_RUNTIME_REQUIRE_NODE=true
+ARG JS_RUNTIME_REQUIRE_DENO=false
+ARG JS_RUNTIME_REQUIRE_BUN=false
+ARG JS_RUNTIME_REQUIRE_YARN=false
+ARG JS_RUNTIME_REQUIRE_PNPM=false
+
+# Extension installers (same domain scripts you already have)
+COPY common/build/scripts/mani-php-ext-core.sh   /usr/local/bin/
+COPY common/build/scripts/mani-php-ext-db.sh     /usr/local/bin/
+COPY common/build/scripts/mani-php-ext-images.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/mani-php-ext-*.sh
+
+# Build-time passes
+ENV INSTALL_DB_PGSQL_CLIENT=${INSTALL_DB_PGSQL_CLIENT} \
+    DB_PGSQL_CLIENT_VERSION=${DB_PGSQL_CLIENT_VERSION} \
+    INSTALL_DB_MYSQL_CLIENT=${INSTALL_DB_MYSQL_CLIENT} \
+    PHP_EXT_PDO_PGSQL=${PHP_EXT_PDO_PGSQL} \
+    PHP_EXT_PDO_MYSQL=${PHP_EXT_PDO_MYSQL} \
+    PHP_EXT_PDO_SQLITE=${PHP_EXT_PDO_SQLITE} \
+    PHP_EXT_SQLITE=${PHP_EXT_SQLITE} \
+    PHP_EXT_MONGODB=${PHP_EXT_MONGODB} \
+    PHP_EXT_REDIS=${PHP_EXT_REDIS} \
+    PHP_EXT_MEMCACHED=${PHP_EXT_MEMCACHED}
+RUN mani-php-ext-db.sh --build
+
+ENV PHP_EXT_GD=${PHP_EXT_GD} \
+    PHP_EXT_IMAGICK=${PHP_EXT_IMAGICK} \
+    PHP_EXT_VIPS=${PHP_EXT_VIPS}
+RUN mani-php-ext-images.sh --build
+
+ENV PHP_EXT_INTL=${PHP_EXT_INTL} \
+    PHP_EXT_SOAP=${PHP_EXT_SOAP} \
+    PHP_EXT_ZIP=${PHP_EXT_ZIP} \
+    PHP_EXT_XSL=${PHP_EXT_XSL} \
+    PHP_EXT_GMP=${PHP_EXT_GMP} \
+    PHP_EXT_BCMATH=${PHP_EXT_BCMATH} \
+    PHP_EXT_EXIF=${PHP_EXT_EXIF} \
+    PHP_EXT_PCNTL=${PHP_EXT_PCNTL} \
+    PHP_EXT_XDEBUG=${PHP_EXT_XDEBUG}
+RUN mani-php-ext-core.sh --build
+
+# JS runtimes
+COPY common/build/scripts/mani-docker-install-js-runtime.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/mani-docker-install-js-runtime.sh \
+ && JS_RUNTIME_REQUIRE_NODE=${JS_RUNTIME_REQUIRE_NODE} \
+    JS_RUNTIME_NODE_VERSION=${JS_RUNTIME_NODE_VERSION} \
+    JS_RUNTIME_REQUIRE_DENO=${JS_RUNTIME_REQUIRE_DENO} \
+    JS_RUNTIME_REQUIRE_BUN=${JS_RUNTIME_REQUIRE_BUN} \
+    JS_RUNTIME_REQUIRE_YARN=${JS_RUNTIME_REQUIRE_YARN} \
+    JS_RUNTIME_REQUIRE_PNPM=${JS_RUNTIME_REQUIRE_PNPM} \
+    mani-docker-install-js-runtime.sh
+
+# ---------- s6 overlay (multi-arch) ----------
+FROM busybox:1.36 AS s6-installer
+ARG S6_OVERLAY_VERSION="v3.1.6.2"
+ARG TARGETARCH
+RUN set -e; \
+  case "${TARGETARCH}" in \
+    amd64) ARCH=x86_64 ;; \
+    arm64) ARCH=aarch64 ;; \
+    arm)   ARCH=arm ;; \
+    *)     ARCH=x86_64 ;; \
+  esac; \
+  wget -qO /tmp/s6-overlay-noarch.tar.xz https://github.com/just-containers/s6-overlay/releases/download/${S6_OVERLAY_VERSION}/s6-overlay-noarch.tar.xz && \
+  wget -qO /tmp/s6-overlay-arch.tar.xz   https://github.com/just-containers/s6-overlay/releases/download/${S6_OVERLAY_VERSION}/s6-overlay-${ARCH}.tar.xz
+
+# ---------- Composer ----------
+FROM composer:latest AS composer
+
+# ---------- Final base ----------
+FROM base AS final_base
+
+# s6
+COPY --from=s6-installer /tmp/s6-overlay-*.tar.xz /tmp/
+RUN tar -C / -Jxpf /tmp/s6-overlay-noarch.tar.xz \
+ && tar -C / -Jxpf /tmp/s6-overlay-arch.tar.xz \
+ && rm /tmp/s6-overlay-*.tar.xz
+
+# PHP conf + FrankenPHP (Caddyfile) + s6 services
+COPY common/runtime/configs/php/           /usr/local/etc/php/conf.d/
+COPY common/runtime/configs/frankenphp/    /etc/caddy/
+COPY common/runtime/s6/cont-init.d/         /etc/cont-init.d/
+COPY common/runtime/s6/cont-finish.d/       /etc/cont-finish.d/
+COPY common/runtime/s6/variants/frankenphp/services.d/ /etc/services.d/
+
+# Normalize EOLs and +x for s6
+RUN find /etc/cont-init.d /etc/cont-finish.d /etc/services.d -type f -exec dos2unix {} \; \
+ && chmod -R a+rx /etc/cont-init.d /etc/cont-finish.d \
+ && find /etc/services.d -type f -name run -exec chmod a+rx {} \; \
+ && find /etc/services.d -type f -name finish -exec chmod a+rx {} \; \
+ && find /etc/services.d -type f -path '*/log/run' -exec chmod a+rx {} \; \
+ && mkdir -p /var/log/{php,frankenphp} \
+ && chown -R www-data:www-data /var/log/{php,frankenphp} \
+ && chmod -R 775 /var/log/{php,frankenphp}
+
+
+ENV HOME=/root \
+    XDG_CONFIG_HOME=/etc/caddy \
+    XDG_DATA_HOME=/var/lib/caddy \
+    XDG_STATE_HOME=/var/lib/caddy
+
+RUN mkdir -p /var/lib/caddy /etc/caddy \
+ && chown -R www-data:www-data /var/lib/caddy || true
+ 
+# Healthcheck
+COPY common/runtime/healthchecks/healthcheck-frankenphp.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/healthcheck-frankenphp.sh
+HEALTHCHECK --interval=30s --timeout=5s --retries=5 CMD /usr/local/bin/healthcheck-frankenphp.sh || exit 1
+
+# Runtime libs in final image (domain scripts in --runtime mode)
+ARG INSTALL_DB_PGSQL_CLIENT=true
+ARG DB_PGSQL_CLIENT_VERSION=18
+ARG INSTALL_DB_MYSQL_CLIENT=true
+
+ARG PHP_EXT_PDO_PGSQL=true
+ARG PHP_EXT_PDO_MYSQL=true
+ARG PHP_EXT_PDO_SQLITE=false
+ARG PHP_EXT_SQLITE=false
+ARG PHP_EXT_MONGODB=false
+ARG PHP_EXT_REDIS=false
+ARG PHP_EXT_MEMCACHED=false
+
+ARG PHP_EXT_GD=true
+ARG PHP_EXT_IMAGICK=true
+ARG PHP_EXT_VIPS=true
+
+ARG PHP_EXT_XDEBUG=true
+ARG PHP_EXT_INTL=true
+ARG PHP_EXT_SOAP=false
+ARG PHP_EXT_ZIP=true
+ARG PHP_EXT_XSL=false
+ARG PHP_EXT_GMP=false
+ARG PHP_EXT_BCMATH=false
+ARG PHP_EXT_EXIF=false
+ARG PHP_EXT_PCNTL=false
+
+ENV INSTALL_DB_PGSQL_CLIENT=${INSTALL_DB_PGSQL_CLIENT} \
+    DB_PGSQL_CLIENT_VERSION=${DB_PGSQL_CLIENT_VERSION} \
+    INSTALL_DB_MYSQL_CLIENT=${INSTALL_DB_MYSQL_CLIENT} \
+    PHP_EXT_PDO_PGSQL=${PHP_EXT_PDO_PGSQL} \
+    PHP_EXT_PDO_MYSQL=${PHP_EXT_PDO_MYSQL} \
+    PHP_EXT_PDO_SQLITE=${PHP_EXT_PDO_SQLITE} \
+    PHP_EXT_SQLITE=${PHP_EXT_SQLITE} \
+    PHP_EXT_MONGODB=${PHP_EXT_MONGODB} \
+    PHP_EXT_REDIS=${PHP_EXT_REDIS} \
+    PHP_EXT_MEMCACHED=${PHP_EXT_MEMCACHED} \
+    PHP_EXT_GD=${PHP_EXT_GD} \
+    PHP_EXT_IMAGICK=${PHP_EXT_IMAGICK} \
+    PHP_EXT_VIPS=${PHP_EXT_VIPS} \
+    PHP_EXT_XDEBUG=${PHP_EXT_XDEBUG} \
+    PHP_EXT_INTL=${PHP_EXT_INTL} \
+    PHP_EXT_SOAP=${PHP_EXT_SOAP} \
+    PHP_EXT_ZIP=${PHP_EXT_ZIP} \
+    PHP_EXT_XSL=${PHP_EXT_XSL} \
+    PHP_EXT_GMP=${PHP_EXT_GMP} \
+    PHP_EXT_BCMATH=${PHP_EXT_BCMATH} \
+    PHP_EXT_EXIF=${PHP_EXT_EXIF} \
+    PHP_EXT_PCNTL=${PHP_EXT_PCNTL}
+
+COPY common/build/scripts/mani-php-ext-core.sh   /usr/local/bin/
+COPY common/build/scripts/mani-php-ext-db.sh     /usr/local/bin/
+COPY common/build/scripts/mani-php-ext-images.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/mani-php-ext-*.sh
+
+RUN mani-php-ext-db.sh --runtime
+RUN mani-php-ext-images.sh --runtime
+RUN mani-php-ext-core.sh --runtime
+
+# Sanity tool + bash history timestamping
+COPY common/runtime/sanity/mani-sanity.sh /usr/local/bin/mani-sanity
+COPY common/runtime/profile/zz-history.sh  /etc/profile.d/zz-history.sh
+RUN chmod +x /usr/local/bin/mani-sanity && chmod 644 /etc/profile.d/zz-history.sh \
+ && printf '\n[ -r /etc/profile.d/zz-history.sh ] && . /etc/profile.d/zz-history.sh\n' >> /etc/bash.bashrc
+
+# COPY common/build/scripts/mani-sanity.sh /usr/local/bin/mani-sanity
+# RUN chmod +x /usr/local/bin/mani-sanity
+
+# ---------- Production ----------
+FROM final_base AS production
+WORKDIR /var/www/html
+USER root
+
+COPY --from=build_tools /usr/local/ /usr/local/
+COPY --from=build_tools /etc/apt/sources.list.d/ /etc/apt/sources.list.d/
+COPY --from=composer /usr/bin/composer /usr/local/bin/composer
+
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader \
+ && rm /usr/local/bin/composer
+
+COPY . .
+ENTRYPOINT ["/init"]
+
+# ---------- Development ----------
+FROM final_base AS development
+USER root
+COPY --from=build_tools /usr/local/ /usr/local/
+COPY --from=build_tools /etc/apt/sources.list.d/ /etc/apt/sources.list.d/
+COPY --from=composer /usr/bin/composer /usr/local/bin/composer
+
+WORKDIR /var/www/html
+EXPOSE 80
+ENTRYPOINT ["/init"]
+
+---
+
+### FILE: php/8.4/nginx/Dockerfile ###
+
+# File: php/8.4/nginx/Dockerfile
+# ============================================================================
+# PHP 8.4 + Nginx — Dev/Prod, s6-overlay, domain installers, healthcheck
+# ============================================================================
+ARG PHP_VERSION=8.4
+FROM php:${PHP_VERSION}-fpm-bookworm AS base
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    COMPOSER_ALLOW_SUPERUSER=1
+SHELL ["/bin/bash","-o","pipefail","-c"]
+
+# Core OS deps (includes dos2unix)
+COPY common/build/scripts/mani-docker-install-system-deps.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/mani-docker-install-system-deps.sh \
+ && mani-docker-install-system-deps.sh
+
+# ---------- Build tools & optional components ----------
+FROM base AS build_tools
+
+# DB Clients
+ARG INSTALL_DB_PGSQL_CLIENT=true
+ARG DB_PGSQL_CLIENT_VERSION=18
+ARG INSTALL_DB_MYSQL_CLIENT=true
+
+# PHP Extensions (feature flags)
+ARG PHP_EXT_PDO_PGSQL=true
+ARG PHP_EXT_PDO_MYSQL=true
+ARG PHP_EXT_PDO_SQLITE=false
+ARG PHP_EXT_SQLITE=false
+ARG PHP_EXT_MONGODB=true
+ARG PHP_EXT_REDIS=true
+ARG PHP_EXT_MEMCACHED=true
+
+ARG PHP_EXT_GD=true
+ARG PHP_EXT_IMAGICK=true
+ARG PHP_EXT_VIPS=true
+
+ARG PHP_EXT_XDEBUG=true
+ARG PHP_EXT_INTL=true
+ARG PHP_EXT_SOAP=false
+ARG PHP_EXT_ZIP=true
+ARG PHP_EXT_XSL=false
+ARG PHP_EXT_GMP=false
+ARG PHP_EXT_BCMATH=false
+ARG PHP_EXT_EXIF=false
+ARG PHP_EXT_PCNTL=false
+
+# JS Runtimes
+ARG JS_RUNTIME_NODE_VERSION=22
+ARG JS_RUNTIME_REQUIRE_NODE=true
+ARG JS_RUNTIME_REQUIRE_DENO=false
+ARG JS_RUNTIME_REQUIRE_BUN=false
+ARG JS_RUNTIME_REQUIRE_YARN=false
+ARG JS_RUNTIME_REQUIRE_PNPM=false
+
+# Domain scripts
+COPY common/build/scripts/mani-php-ext-core.sh   /usr/local/bin/
+COPY common/build/scripts/mani-php-ext-db.sh     /usr/local/bin/
+COPY common/build/scripts/mani-php-ext-images.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/mani-php-ext-*.sh
+
+# Build-time: DB stack (repos/clients, -dev, compile/pecl)
+ENV INSTALL_DB_PGSQL_CLIENT=${INSTALL_DB_PGSQL_CLIENT} \
+    DB_PGSQL_CLIENT_VERSION=${DB_PGSQL_CLIENT_VERSION} \
+    INSTALL_DB_MYSQL_CLIENT=${INSTALL_DB_MYSQL_CLIENT} \
+    PHP_EXT_PDO_PGSQL=${PHP_EXT_PDO_PGSQL} \
+    PHP_EXT_PDO_MYSQL=${PHP_EXT_PDO_MYSQL} \
+    PHP_EXT_PDO_SQLITE=${PHP_EXT_PDO_SQLITE} \
+    PHP_EXT_SQLITE=${PHP_EXT_SQLITE} \
+    PHP_EXT_MONGODB=${PHP_EXT_MONGODB} \
+    PHP_EXT_REDIS=${PHP_EXT_REDIS} \
+    PHP_EXT_MEMCACHED=${PHP_EXT_MEMCACHED}
+RUN mani-php-ext-db.sh --build
+
+# Build-time: Image drivers
+ENV PHP_EXT_GD=${PHP_EXT_GD} \
+    PHP_EXT_IMAGICK=${PHP_EXT_IMAGICK} \
+    PHP_EXT_VIPS=${PHP_EXT_VIPS}
+RUN mani-php-ext-images.sh --build
+
+# Build-time: Core non-DB extensions (+ Xdebug install only)
+ENV PHP_EXT_INTL=${PHP_EXT_INTL} \
+    PHP_EXT_SOAP=${PHP_EXT_SOAP} \
+    PHP_EXT_ZIP=${PHP_EXT_ZIP} \
+    PHP_EXT_XSL=${PHP_EXT_XSL} \
+    PHP_EXT_GMP=${PHP_EXT_GMP} \
+    PHP_EXT_BCMATH=${PHP_EXT_BCMATH} \
+    PHP_EXT_EXIF=${PHP_EXT_EXIF} \
+    PHP_EXT_PCNTL=${PHP_EXT_PCNTL} \
+    PHP_EXT_XDEBUG=${PHP_EXT_XDEBUG}
+RUN mani-php-ext-core.sh --build
+
+# JS runtimes
+COPY common/build/scripts/mani-docker-install-js-runtime.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/mani-docker-install-js-runtime.sh \
+ && JS_RUNTIME_REQUIRE_NODE=${JS_RUNTIME_REQUIRE_NODE} \
+    JS_RUNTIME_NODE_VERSION=${JS_RUNTIME_NODE_VERSION} \
+    JS_RUNTIME_REQUIRE_DENO=${JS_RUNTIME_REQUIRE_DENO} \
+    JS_RUNTIME_REQUIRE_BUN=${JS_RUNTIME_REQUIRE_BUN} \
+    JS_RUNTIME_REQUIRE_YARN=${JS_RUNTIME_REQUIRE_YARN} \
+    JS_RUNTIME_REQUIRE_PNPM=${JS_RUNTIME_REQUIRE_PNPM} \
+    mani-docker-install-js-runtime.sh
+
+# ---------- s6 overlay (multi-arch) ----------
+FROM busybox:1.36 AS s6-installer
+ARG S6_OVERLAY_VERSION="v3.1.6.2"
+ARG TARGETARCH
+RUN set -e; \
+  case "${TARGETARCH}" in \
+    amd64) ARCH=x86_64 ;; \
+    arm64) ARCH=aarch64 ;; \
+    arm)   ARCH=arm ;; \
+    *)     ARCH=x86_64 ;; \
+  esac; \
+  wget -qO /tmp/s6-overlay-noarch.tar.xz https://github.com/just-containers/s6-overlay/releases/download/${S6_OVERLAY_VERSION}/s6-overlay-noarch.tar.xz && \
+  wget -qO /tmp/s6-overlay-arch.tar.xz   https://github.com/just-containers/s6-overlay/releases/download/${S6_OVERLAY_VERSION}/s6-overlay-${ARCH}.tar.xz
+
+# ---------- Composer ----------
+FROM composer:latest AS composer
+
+# ---------- Final base ----------
+FROM base AS final_base
+
+# s6
+COPY --from=s6-installer /tmp/s6-overlay-*.tar.xz /tmp/
+RUN tar -C / -Jxpf /tmp/s6-overlay-noarch.tar.xz \
+ && tar -C / -Jxpf /tmp/s6-overlay-arch.tar.xz \
+ && rm /tmp/s6-overlay-*.tar.xz
+
+# Nginx + tools
+RUN apt-get update && apt-get install -y --no-install-recommends nginx \
+ && rm -rf /var/lib/apt/lists/*
+
+# Configs + s6
+COPY common/runtime/configs/php/     /usr/local/etc/php/conf.d/
+COPY common/runtime/configs/nginx/nginx.conf  /etc/nginx/nginx.conf
+COPY common/runtime/configs/nginx/conf.d/     /etc/nginx/conf.d/
+
+COPY common/runtime/s6/cont-init.d/   /etc/cont-init.d/
+COPY common/runtime/s6/cont-finish.d/ /etc/cont-finish.d/
+COPY common/runtime/s6/variants/nginx/services.d/ /etc/services.d/
+
+# Normalize EOLs and ensure +x for s6 scripts
+RUN find /etc/cont-init.d /etc/cont-finish.d /etc/services.d -type f -exec dos2unix {} \; \
+ && chmod -R a+rx /etc/cont-init.d /etc/cont-finish.d \
+ && find /etc/services.d -type f -name run -exec chmod a+rx {} \; \
+ && find /etc/services.d -type f -name finish -exec chmod a+rx {} \; \
+ && find /etc/services.d -type f -path '*/log/run' -exec chmod a+rx {} \;
+
+# Sanity check script + bash history
+COPY common/runtime/sanity/mani-sanity.sh /usr/local/bin/mani-sanity
+COPY common/runtime/profile/zz-history.sh  /etc/profile.d/zz-history.sh
+RUN chmod +x /usr/local/bin/mani-sanity && chmod 644 /etc/profile.d/zz-history.sh \
+ && printf '\n[ -r /etc/profile.d/zz-history.sh ] && . /etc/profile.d/zz-history.sh\n' >> /etc/bash.bashrc
+
+# Healthcheck
+COPY common/runtime/healthchecks/healthcheck-nginx.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/healthcheck-nginx.sh
+HEALTHCHECK --interval=30s --timeout=5s --retries=5 CMD /usr/local/bin/healthcheck-nginx.sh || exit 1
+
+# ---------- Runtime libs in final image ----------
+# Re-declare args and promote to ENV for this stage
+ARG INSTALL_DB_PGSQL_CLIENT=true
+ARG DB_PGSQL_CLIENT_VERSION=18
+ARG INSTALL_DB_MYSQL_CLIENT=true
+
+ARG PHP_EXT_PDO_PGSQL=true
+ARG PHP_EXT_PDO_MYSQL=true
+ARG PHP_EXT_PDO_SQLITE=false
+ARG PHP_EXT_SQLITE=false
+ARG PHP_EXT_MONGODB=true
+ARG PHP_EXT_REDIS=true
+ARG PHP_EXT_MEMCACHED=true
+
+ARG PHP_EXT_GD=true
+ARG PHP_EXT_IMAGICK=true
+ARG PHP_EXT_VIPS=true
+
+ARG PHP_EXT_XDEBUG=true
+ARG PHP_EXT_INTL=true
+ARG PHP_EXT_SOAP=false
+ARG PHP_EXT_ZIP=true
+ARG PHP_EXT_XSL=false
+ARG PHP_EXT_GMP=false
+ARG PHP_EXT_BCMATH=false
+ARG PHP_EXT_EXIF=false
+ARG PHP_EXT_PCNTL=false
+
+ENV INSTALL_DB_PGSQL_CLIENT=${INSTALL_DB_PGSQL_CLIENT} \
+    DB_PGSQL_CLIENT_VERSION=${DB_PGSQL_CLIENT_VERSION} \
+    INSTALL_DB_MYSQL_CLIENT=${INSTALL_DB_MYSQL_CLIENT} \
+    PHP_EXT_PDO_PGSQL=${PHP_EXT_PDO_PGSQL} \
+    PHP_EXT_PDO_MYSQL=${PHP_EXT_PDO_MYSQL} \
+    PHP_EXT_PDO_SQLITE=${PHP_EXT_PDO_SQLITE} \
+    PHP_EXT_SQLITE=${PHP_EXT_SQLITE} \
+    PHP_EXT_MONGODB=${PHP_EXT_MONGODB} \
+    PHP_EXT_REDIS=${PHP_EXT_REDIS} \
+    PHP_EXT_MEMCACHED=${PHP_EXT_MEMCACHED} \
+    PHP_EXT_GD=${PHP_EXT_GD} \
+    PHP_EXT_IMAGICK=${PHP_EXT_IMAGICK} \
+    PHP_EXT_VIPS=${PHP_EXT_VIPS} \
+    PHP_EXT_XDEBUG=${PHP_EXT_XDEBUG} \
+    PHP_EXT_INTL=${PHP_EXT_INTL} \
+    PHP_EXT_SOAP=${PHP_EXT_SOAP} \
+    PHP_EXT_ZIP=${PHP_EXT_ZIP} \
+    PHP_EXT_XSL=${PHP_EXT_XSL} \
+    PHP_EXT_GMP=${PHP_EXT_GMP} \
+    PHP_EXT_BCMATH=${PHP_EXT_BCMATH} \
+    PHP_EXT_EXIF=${PHP_EXT_EXIF} \
+    PHP_EXT_PCNTL=${PHP_EXT_PCNTL}
+
+# Copy domain scripts for runtime pass
+COPY common/build/scripts/mani-php-ext-core.sh   /usr/local/bin/
+COPY common/build/scripts/mani-php-ext-db.sh     /usr/local/bin/
+COPY common/build/scripts/mani-php-ext-images.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/mani-php-ext-*.sh
+
+# Runtime passes (only shared libs and ini toggles)
+RUN mani-php-ext-db.sh --runtime
+RUN mani-php-ext-images.sh --runtime
+RUN mani-php-ext-core.sh --runtime
+
+# ---------- Production ----------
+FROM final_base AS production
+WORKDIR /var/www/html
+USER root
+
+COPY --from=build_tools /usr/local/ /usr/local/
+COPY --from=build_tools /etc/apt/sources.list.d/ /etc/apt/sources.list.d/
+COPY --from=composer /usr/bin/composer /usr/local/bin/composer
+
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader \
+ && rm /usr/local/bin/composer
+
+COPY . .
+EXPOSE 80
+ENTRYPOINT ["/init"]
+
+# ---------- Development ----------
+FROM final_base AS development
+USER root
+COPY --from=build_tools /usr/local/ /usr/local/
+COPY --from=build_tools /etc/apt/sources.list.d/ /etc/apt/sources.list.d/
+COPY --from=composer /usr/bin/composer /usr/local/bin/composer
+
+RUN mkdir -p /var/log/{php,nginx} \
+ && chown -R www-data:www-data /var/log/{php,nginx} \
+ && chmod -R 775 /var/log/{php,nginx}
+
+WORKDIR /var/www/html
+EXPOSE 80
+ENTRYPOINT ["/init"]
+
+---
+
+### FILE: php/8.4/apache/Dockerfile ###
+
+# File: php/8.4/apache/Dockerfile
+# ============================================================================
+# PHP 8.4 + Apache — Dev/Prod, Multi-arch s6, Domain installers, Healthcheck
+# ============================================================================
+ARG PHP_VERSION=8.4
+FROM php:${PHP_VERSION}-apache-bookworm AS base
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    COMPOSER_ALLOW_SUPERUSER=1
+
+SHELL ["/bin/bash","-o","pipefail","-c"]
+
+# Core OS deps (includes dos2unix)
+COPY common/build/scripts/mani-docker-install-system-deps.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/mani-docker-install-system-deps.sh \
+ && mani-docker-install-system-deps.sh
+
+# Apache modules
+RUN a2enmod rewrite headers env dir mime proxy proxy_fcgi setenvif
+
+# ---------- Build tools & optional components ----------
+FROM base AS build_tools
+
+# DB Clients
+ARG INSTALL_DB_PGSQL_CLIENT=true
+ARG DB_PGSQL_CLIENT_VERSION=18
+ARG INSTALL_DB_MYSQL_CLIENT=true
+
+# PHP Extensions (feature flags)
+ARG PHP_EXT_PDO_PGSQL=true
+ARG PHP_EXT_PDO_MYSQL=true
+ARG PHP_EXT_PDO_SQLITE=false
+ARG PHP_EXT_SQLITE=false
+ARG PHP_EXT_MONGODB=true
+ARG PHP_EXT_REDIS=true
+ARG PHP_EXT_MEMCACHED=true
+
+ARG PHP_EXT_GD=true
+ARG PHP_EXT_IMAGICK=true
+ARG PHP_EXT_VIPS=true
+
+ARG PHP_EXT_XDEBUG=true
+ARG PHP_EXT_INTL=true
+ARG PHP_EXT_SOAP=false
+ARG PHP_EXT_ZIP=true
+ARG PHP_EXT_XSL=false
+ARG PHP_EXT_GMP=false
+ARG PHP_EXT_BCMATH=false
+ARG PHP_EXT_EXIF=false
+ARG PHP_EXT_PCNTL=false
+
+# JS Runtimes
+ARG JS_RUNTIME_NODE_VERSION=22
+ARG JS_RUNTIME_REQUIRE_NODE=true
+ARG JS_RUNTIME_REQUIRE_DENO=false
+ARG JS_RUNTIME_REQUIRE_BUN=false
+ARG JS_RUNTIME_REQUIRE_YARN=false
+ARG JS_RUNTIME_REQUIRE_PNPM=false
+
+# Domain scripts
+COPY common/build/scripts/mani-php-ext-core.sh   /usr/local/bin/
+COPY common/build/scripts/mani-php-ext-db.sh     /usr/local/bin/
+COPY common/build/scripts/mani-php-ext-images.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/mani-php-ext-*.sh
+
+# Build-time: DB stack (repos/clients, -dev, compile/pecl)
+ENV INSTALL_DB_PGSQL_CLIENT=${INSTALL_DB_PGSQL_CLIENT} \
+    DB_PGSQL_CLIENT_VERSION=${DB_PGSQL_CLIENT_VERSION} \
+    INSTALL_DB_MYSQL_CLIENT=${INSTALL_DB_MYSQL_CLIENT} \
+    PHP_EXT_PDO_PGSQL=${PHP_EXT_PDO_PGSQL} \
+    PHP_EXT_PDO_MYSQL=${PHP_EXT_PDO_MYSQL} \
+    PHP_EXT_PDO_SQLITE=${PHP_EXT_PDO_SQLITE} \
+    PHP_EXT_SQLITE=${PHP_EXT_SQLITE} \
+    PHP_EXT_MONGODB=${PHP_EXT_MONGODB} \
+    PHP_EXT_REDIS=${PHP_EXT_REDIS} \
+    PHP_EXT_MEMCACHED=${PHP_EXT_MEMCACHED}
+RUN mani-php-ext-db.sh --build
+
+# Build-time: Image drivers
+ENV PHP_EXT_GD=${PHP_EXT_GD} \
+    PHP_EXT_IMAGICK=${PHP_EXT_IMAGICK} \
+    PHP_EXT_VIPS=${PHP_EXT_VIPS}
+RUN mani-php-ext-images.sh --build
+
+# Build-time: Core non-DB extensions (+ Xdebug install only)
+ENV PHP_EXT_INTL=${PHP_EXT_INTL} \
+    PHP_EXT_SOAP=${PHP_EXT_SOAP} \
+    PHP_EXT_ZIP=${PHP_EXT_ZIP} \
+    PHP_EXT_XSL=${PHP_EXT_XSL} \
+    PHP_EXT_GMP=${PHP_EXT_GMP} \
+    PHP_EXT_BCMATH=${PHP_EXT_BCMATH} \
+    PHP_EXT_EXIF=${PHP_EXT_EXIF} \
+    PHP_EXT_PCNTL=${PHP_EXT_PCNTL} \
+    PHP_EXT_XDEBUG=${PHP_EXT_XDEBUG}
+RUN mani-php-ext-core.sh --build
+
+# JS runtimes
+COPY common/build/scripts/mani-docker-install-js-runtime.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/mani-docker-install-js-runtime.sh \
+ && JS_RUNTIME_REQUIRE_NODE=${JS_RUNTIME_REQUIRE_NODE} \
+    JS_RUNTIME_NODE_VERSION=${JS_RUNTIME_NODE_VERSION} \
+    JS_RUNTIME_REQUIRE_DENO=${JS_RUNTIME_REQUIRE_DENO} \
+    JS_RUNTIME_REQUIRE_BUN=${JS_RUNTIME_REQUIRE_BUN} \
+    JS_RUNTIME_REQUIRE_YARN=${JS_RUNTIME_REQUIRE_YARN} \
+    JS_RUNTIME_REQUIRE_PNPM=${JS_RUNTIME_REQUIRE_PNPM} \
+    mani-docker-install-js-runtime.sh
+
+# ---------- s6 overlay (multi-arch) ----------
+FROM busybox:1.36 AS s6-installer
+ARG S6_OVERLAY_VERSION="v3.1.6.2"
+ARG TARGETARCH
+RUN set -e; \
+  case "${TARGETARCH}" in \
+    amd64) ARCH=x86_64 ;; \
+    arm64) ARCH=aarch64 ;; \
+    arm)   ARCH=arm ;; \
+    *)     ARCH=x86_64 ;; \
+  esac; \
+  wget -qO /tmp/s6-overlay-noarch.tar.xz https://github.com/just-containers/s6-overlay/releases/download/${S6_OVERLAY_VERSION}/s6-overlay-noarch.tar.xz && \
+  wget -qO /tmp/s6-overlay-arch.tar.xz   https://github.com/just-containers/s6-overlay/releases/download/${S6_OVERLAY_VERSION}/s6-overlay-${ARCH}.tar.xz
+
+# ---------- Composer ----------
+FROM composer:latest AS composer
+
+# ---------- Final base ----------
+FROM base AS final_base
+
+COPY --from=s6-installer /tmp/s6-overlay-*.tar.xz /tmp/
+RUN tar -C / -Jxpf /tmp/s6-overlay-noarch.tar.xz \
+ && tar -C / -Jxpf /tmp/s6-overlay-arch.tar.xz \
+ && rm /tmp/s6-overlay-*.tar.xz
+
+# Configs + s6 (legacy paths)
+COPY common/runtime/configs/php/     /usr/local/etc/php/conf.d/
+COPY common/runtime/configs/apache/  /etc/apache2/
+COPY common/runtime/s6/cont-init.d/   /etc/cont-init.d/
+COPY common/runtime/s6/cont-finish.d/ /etc/cont-finish.d/
+COPY common/runtime/s6/variants/apache/services.d/ /etc/services.d/
+
+# Normalize EOLs and ensure +x for s6 scripts
+RUN find /etc/cont-init.d /etc/cont-finish.d /etc/services.d -type f -exec dos2unix {} \; \
+ && chmod -R a+rx /etc/cont-init.d /etc/cont-finish.d \
+ && find /etc/services.d -type f -name run -exec chmod a+rx {} \; \
+ && find /etc/services.d -type f -name finish -exec chmod a+rx {} \; \
+ && find /etc/services.d -type f -path '*/log/run' -exec chmod a+rx {} \;
+# && printf '%s\n' '#!/bin/sh' 'exec /command/s6-log n10 s100000 T /var/log/apache' > /etc/services.d/apache/log/run \
+# && chmod +x /etc/services.d/apache/log/run
+
+COPY common/runtime/sanity/mani-sanity.sh /usr/local/bin/mani-sanity
+COPY common/runtime/profile/zz-history.sh  /etc/profile.d/zz-history.sh
+RUN chmod +x /usr/local/bin/mani-sanity && chmod 644 /etc/profile.d/zz-history.sh \
+ && printf '\n[ -r /etc/profile.d/zz-history.sh ] && . /etc/profile.d/zz-history.sh\n' >> /etc/bash.bashrc
+
+# Healthcheck
+COPY common/runtime/healthchecks/healthcheck-apache.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/healthcheck-apache.sh
+HEALTHCHECK --interval=30s --timeout=5s --retries=5 CMD /usr/local/bin/healthcheck-apache.sh || exit 1
+
+# ---------- Runtime libs in final image (domain scripts in --runtime mode) ----------
+# Re-declare args and promote to ENV for this stage
+ARG INSTALL_DB_PGSQL_CLIENT=true
+ARG DB_PGSQL_CLIENT_VERSION=18
+ARG INSTALL_DB_MYSQL_CLIENT=true
+
+ARG PHP_EXT_PDO_PGSQL=true
+ARG PHP_EXT_PDO_MYSQL=true
+ARG PHP_EXT_PDO_SQLITE=false
+ARG PHP_EXT_SQLITE=false
+ARG PHP_EXT_MONGODB=true
+ARG PHP_EXT_REDIS=true
+ARG PHP_EXT_MEMCACHED=true
+
+ARG PHP_EXT_GD=true
+ARG PHP_EXT_IMAGICK=true
+ARG PHP_EXT_VIPS=true
+
+ARG PHP_EXT_XDEBUG=true
+ARG PHP_EXT_INTL=true
+ARG PHP_EXT_SOAP=false
+ARG PHP_EXT_ZIP=true
+ARG PHP_EXT_XSL=false
+ARG PHP_EXT_GMP=false
+ARG PHP_EXT_BCMATH=false
+ARG PHP_EXT_EXIF=false
+ARG PHP_EXT_PCNTL=false
+
+ENV INSTALL_DB_PGSQL_CLIENT=${INSTALL_DB_PGSQL_CLIENT} \
+    DB_PGSQL_CLIENT_VERSION=${DB_PGSQL_CLIENT_VERSION} \
+    INSTALL_DB_MYSQL_CLIENT=${INSTALL_DB_MYSQL_CLIENT} \
+    PHP_EXT_PDO_PGSQL=${PHP_EXT_PDO_PGSQL} \
+    PHP_EXT_PDO_MYSQL=${PHP_EXT_PDO_MYSQL} \
+    PHP_EXT_PDO_SQLITE=${PHP_EXT_PDO_SQLITE} \
+    PHP_EXT_SQLITE=${PHP_EXT_SQLITE} \
+    PHP_EXT_MONGODB=${PHP_EXT_MONGODB} \
+    PHP_EXT_REDIS=${PHP_EXT_REDIS} \
+    PHP_EXT_MEMCACHED=${PHP_EXT_MEMCACHED} \
+    PHP_EXT_GD=${PHP_EXT_GD} \
+    PHP_EXT_IMAGICK=${PHP_EXT_IMAGICK} \
+    PHP_EXT_VIPS=${PHP_EXT_VIPS} \
+    PHP_EXT_XDEBUG=${PHP_EXT_XDEBUG} \
+    PHP_EXT_INTL=${PHP_EXT_INTL} \
+    PHP_EXT_SOAP=${PHP_EXT_SOAP} \
+    PHP_EXT_ZIP=${PHP_EXT_ZIP} \
+    PHP_EXT_XSL=${PHP_EXT_XSL} \
+    PHP_EXT_GMP=${PHP_EXT_GMP} \
+    PHP_EXT_BCMATH=${PHP_EXT_BCMATH} \
+    PHP_EXT_EXIF=${PHP_EXT_EXIF} \
+    PHP_EXT_PCNTL=${PHP_EXT_PCNTL}
+
+# Copy domain scripts for runtime pass
+COPY common/build/scripts/mani-php-ext-core.sh   /usr/local/bin/
+COPY common/build/scripts/mani-php-ext-db.sh     /usr/local/bin/
+COPY common/build/scripts/mani-php-ext-images.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/mani-php-ext-*.sh
+
+# Runtime passes (only shared libs and ini toggles)
+RUN mani-php-ext-db.sh --runtime
+RUN mani-php-ext-images.sh --runtime
+RUN mani-php-ext-core.sh --runtime
+
+# ---------- Production ----------
+FROM final_base AS production
+WORKDIR /var/www/html
+USER root
+
+COPY --from=build_tools /usr/local/ /usr/local/
+COPY --from=build_tools /etc/apt/sources.list.d/ /etc/apt/sources.list.d/
+COPY --from=composer /usr/bin/composer /usr/local/bin/composer
+
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader \
+ && rm /usr/local/bin/composer
+
+COPY . .
+ENTRYPOINT ["/init"]
+
+# ---------- Development ----------
+FROM final_base AS development
+USER root
+COPY --from=build_tools /usr/local/ /usr/local/
+COPY --from=build_tools /etc/apt/sources.list.d/ /etc/apt/sources.list.d/
+COPY --from=composer /usr/bin/composer /usr/local/bin/composer
+
+RUN mkdir -p /var/log/{php,apache2,frankenphp,nginx,swoole} \
+ && chown -R www-data:www-data /var/log/{php,apache2,frankenphp,nginx,swoole} \
+ && chmod -R 775 /var/log/{php,apache2,frankenphp,nginx,swoole}
+
+WORKDIR /var/www/html
+EXPOSE 80
+ENTRYPOINT ["/init"]
+
+---
+
+### FILE: php/base/Dockerfile ###
+
+# ==============================================================================
+# MANI Base PHP Environment (base/Dockerfile)
+#
+# Description:
+#   This Dockerfile builds the foundational "toolbox" image. It starts from a
+#   minimal official PHP CLI image and then uses our custom installer scripts
+#   to add a comprehensive set of development tools, including a full suite of
+#   PHP extensions, Node.js via NVM, and Composer.
+#
+#   This image is NOT intended to be run directly. Instead, it serves as a
+#   heavily cached base layer for your final, runnable images (e.g., Apache,
+#   Nginx, FrankenPHP).
+#
+# Build Example:
+#   docker build . -f base/Dockerfile \
+#     --build-arg PHP_VERSION=8.4 \
+#     --build-arg NODE_VERSION=lts \
+#     -t my-php-base:8.4
+# ==============================================================================
+
+# Use an ARG to define the PHP version. This makes the Dockerfile a reusable template.
+ARG PHP_VERSION=8.4
+# Start from the official PHP CLI image. It's lean and perfect for a base.
+FROM php:${PHP_VERSION}-cli-bookworm
+
+LABEL maintainer="mani"
+
+# --- Build-Time Arguments ---
+# Define configurable versions for our tools. These can be overridden during the build.
+### JS Runtime config
+ARG INSTALL_NODE_JS=true
+ARG INSTALL_DENO=false
+ARG INSTALL_BUN=false
+ARG INSTALL_YARN=false
+ARG INSTALL_PNPM=false
+ARG NODE_VERSION=lts
+
+ARG INSTALL_DB_PG_CLIENT=true
+ARG INSTALL_DB_MYSQL_CLIENT=true
+ARG INSTALL_DB_MONGODB=false
+ARG INSTALL_DB_REDIS=false
+ARG INSTALL_DB_MEMCACHED=false
+
+ARG DB_MYSQL_CLIENT_VERSION=8
+ARG DB_PG_CLIENT_VERSION=16
+
+
+ARG DB_PG_EXTENSIONS="pdo_pgsql "
+ARG DB_MYSQL_EXTENSIONS="pdo_mysql mysqli"
+ARG DB_MONGO_DB_EXTENSIONS="mongodb"
+ARG DB_REDIS_EXTENSIONS="redis"
+ARG DB_MEMCACHED_EXTENSIONS="memcached"
+
+
+ARG INSTALL_PHP_EXTENSIONS=true
+ARG PHP_EXTENSIONS="opcache pcntl pdo_mysql pdo_pgsql redis zip"
+
+ARG INSTALL_REDIS=true
+ARG INSTALL_MEMCACHED=true
+ARG INSTALL_MONGODB=true
+ARG INSTALL_IMAGICK=true
+ARG INSTALL_VIPS=true
+ARG INSTALL_XDEBUG=true
+ARG INSTALL_COMPOSER=true
+
+
+ARG INSTALL_IMAGIC = true
+ARG INSTALL_VIPS = true
+ARG INSTALL_GD = true
+ARG INSTALL_GD_EXT_CONFIG="--with-freetype --with-jpeg --with-webp --with-xpm --with-tiff --with-png --with-bmp --with-gd"
+
+ARG HANDLE_EXTRA_DEPENDENCIES=
+#ARG HANDLE_EXTRA_DEPENDENCIES="...."
+
+
+# A known-good commit hash for Imagick to ensure reproducible builds.
+ARG IMAGICK_COMMIT="7088edc353f53c4bc644573a79cdcd67a726ae16"
+
+# --- Environment Variables ---
+# Set environment variables that will be available in this image and any
+# images built FROM it.
+ENV NVM_DIR /usr/local/nvm
+ENV DEBIAN_FRONTEND noninteractive
+
+# --- Build Process ---
+
+# 1. Copy our entire script library into the image's executable path.
+# This invalidates the cache if ANY script changes, which is what we want.
+COPY common/scripts/ /usr/local/bin/
+# Ensure all scripts are executable.
+RUN chmod +x /usr/local/bin/*
+
+# 2. Run each installer script in a separate layer for optimal caching.
+# Each RUN command creates a distinct layer. If a script doesn't change,
+# Docker will reuse the cached layer from the previous build, making subsequent
+# builds much faster.
+
+# Layer: Core system tools (changes least often)
+RUN mani-docker-install-system-deps.sh
+
+# Layer: Dependencies for PHP extensions
+RUN mani-docker-install-php-ext-deps.sh ${PG_CLIENT_VERSION}...  can't the scripts see the args automatically... or should we use env isntead of args?
+
+# Layer: The PHP extensions themselves
+RUN mani-docker-install-php-extensions.sh ${IMAGICK_COMMIT}
+
+# Layer: Node.js environment (changes more often than PHP extensions)
+RUN mani-docker-install-node.sh ${NODE_VERSION}
+
+# Layer: Composer (changes least often, but needs to be after PHP is fully configured)
+COPY --from=composer:latest /usr/local/bin/composer /usr/local/bin/composer
+
+# --- Finalization ---
+
+# Set a default working directory.
+WORKDIR /var/www/html
+
+# This is just a signal that the build is complete. This image is meant to be
+# used as a base via "FROM my-php-base:8.4", not run directly.
+CMD ["php", "-v"]
+
+
+---
+
+### FILE: grabber.sh ###
+
+#!/bin/bash
+
+# ==============================================================================
+# grabber.sh
+#
+# A robust script to create a snapshot of a directory structure and file
+# contents into a single text file. It's useful for providing project context
+# to LLMs or for creating a comprehensive text-based project archive.
+#
+# Author: Gemini
+# Version: 1.0.1
+# ==============================================================================
+
+# --- Configuration: Default values ---
+# These can be overridden by command-line arguments.
+DEFAULT_PATH="."
+DEFAULT_OUTPUT="directory_snapshot.txt"
+# Common directories to ignore by default. Pipe-separated.
+DEFAULT_IGNORE_DIRS=".git|node_modules|dist|build|target|vendor|__pycache__"
+# Common file patterns/names to ignore by default. Pipe-separated.
+DEFAULT_IGNORE_FILES="*.log|*.lock|*.env|package-lock.json|yarn.lock"
+
+# --- Help Message Function ---
+# Displays how to use the script.
+show_help() {
+    cat << EOF
+Usage: $(basename "$0") [PATH] [OPTIONS]
+
+Generates a snapshot of a directory, including a file tree and the contents of all
+non-ignored files, into a single .txt file.
+
+Arguments:
+  PATH                  The path to the directory to scan.
+                        (Default: current directory)
+
+Options:
+  --ignoreDir "dir1|dir2"   Pipe-separated list of directory names to ignore (case-insensitive).
+                            (Default: "$DEFAULT_IGNORE_DIRS")
+  --ignoreFiles "pat1|pat2" Pipe-separated list of file patterns to ignore (case-insensitive).
+                            (Default: "$DEFAULT_IGNORE_FILES")
+  --output "filename.txt"   The name for the output file.
+                            (Default: "$DEFAULT_OUTPUT")
+  -h, --help                Show this help message and exit.
+EOF
+}
+
+# --- Argument Parsing ---
+# Set variables from defaults
+TARGET_PATH="$DEFAULT_PATH"
+IGNORE_DIRS="$DEFAULT_IGNORE_DIRS"
+IGNORE_FILES="$DEFAULT_IGNORE_FILES"
+OUTPUT_FILE="$DEFAULT_OUTPUT"
+
+# Handle the optional positional argument for the path first.
+# This allows the user to specify the path without a flag, e.g., `grabber.sh /my/project`
+if [[ -n "$1" && ! "$1" =~ ^-- && -d "$1" ]]; then
+    TARGET_PATH="$1"
+    shift # Consume the argument so the loop below doesn't see it
+fi
+
+# Loop through remaining arguments to parse options
+while [[ $# -gt 0 ]]; do
+    key="$1"
+    case $key in
+        --ignoreDir)
+            IGNORE_DIRS="$2"
+            shift; shift # Consume option and its value
+            ;;
+        --ignoreFiles)
+            IGNORE_FILES="$2"
+            shift; shift
+            ;;
+        --output)
+            OUTPUT_FILE="$2"
+            shift; shift
+            ;;
+        -h|--help)
+            show_help
+            exit 0
+            ;;
+        *)
+            echo "Error: Unknown option: $1" >&2
+            show_help
+            exit 1
+            ;;
+    esac
+done
+
+# --- Pre-flight Checks ---
+# Ensure the 'tree' command is available, as it's crucial for the script.
+if ! command -v tree &> /dev/null; then
+    echo "Error: 'tree' command is not installed. Please install it to use this script." >&2
+    echo "On Debian/Ubuntu: sudo apt-get install tree" >&2
+    echo "On macOS (with Homebrew): brew install tree" >&2
+    echo "On Fedora/CentOS: sudo dnf install tree" >&2
+    exit 1
+fi
+
+# --- Main Script Logic ---
+echo "Creating snapshot of '$TARGET_PATH'..."
+
+# 1. Start with a clean output file and add a descriptive header.
+# The curly braces group the commands to redirect their combined output to the file.
+{
+    echo "=================================================="
+    echo " Directory Snapshot"
+    echo "=================================================="
+    echo "Source Path:   $(realpath "$TARGET_PATH")"
+    echo "Generated on:  $(date)"
+    echo "Ignored Dirs:  $IGNORE_DIRS"
+    echo "Ignored Files: $IGNORE_FILES"
+    echo "--------------------------------------------------"
+    echo -e "\n### DIRECTORY TREE ###\n"
+} > "$OUTPUT_FILE"
+
+# 2. Generate and append the directory tree.
+# -a: Show all files (including hidden ones).
+# -F: Append indicators (/, *, @) to names.
+# -I: Provide a pipe-separated pattern list to ignore.
+# The combined ignore list is passed to tree.
+# CRITICAL FIX: Add the output file itself to the ignore list.
+tree -a -F -I "$IGNORE_DIRS|$IGNORE_FILES|$OUTPUT_FILE" "$TARGET_PATH" >> "$OUTPUT_FILE"
+echo "" >> "$OUTPUT_FILE" # Add some space after the tree
+
+# 3. Find all relevant files and append their content.
+echo "Appending file contents..."
+
+# Build the `find` command arguments dynamically to handle ignore patterns.
+find_args=("$TARGET_PATH")
+
+# CRITICAL FIX: Exclude the output file itself from being processed.
+# We use -name for an exact match on the output file's name.
+find_args+=(-not -name "$OUTPUT_FILE")
+
+# Add directory ignore patterns to the find command arguments.
+# We split the string by '|' into an array.
+IFS='|' read -ra DIRS_TO_IGNORE <<< "$IGNORE_DIRS"
+for dir in "${DIRS_TO_IGNORE[@]}"; do
+    if [ -n "$dir" ]; then
+        # Exclude paths containing the directory name and the directory itself.
+        # -ipath and -iname are for case-insensitive matching.
+        find_args+=(-not \( -ipath "*/$dir/*" -o -iname "$dir" \))
+    fi
+done
+
+# Add file ignore patterns to the find command arguments.
+IFS='|' read -ra FILES_TO_IGNORE <<< "$IGNORE_FILES"
+for file in "${FILES_TO_IGNORE[@]}"; do
+    if [ -n "$file" ]; then
+        # Exclude files matching the pattern (case-insensitive).
+        find_args+=(-not -iname "$file")
+    fi
+done
+
+# Execute the find command and process each found file.
+# -print0 and `read -d $'\0'` make this safe for filenames with spaces or special characters.
+find "${find_args[@]}" -type f -print0 | while IFS= read -r -d $'\0' file; do
+    # Get a cleaner, relative path for the file header.
+    relative_path="${file#$TARGET_PATH/}"
+    if [[ "$TARGET_PATH" == "." ]]; then
+        relative_path="${file#./}"
+    fi
+
+    # Append the file's content with a clear header to the output file.
+    {
+        echo "---"
+        echo -e "\n### FILE: $relative_path ###\n"
+        # Using `cat` to add the file content.
+        # The -vET flags can be useful to make non-printing characters visible,
+        # preventing binary files from corrupting the output.
+        # cat -vET "$file"
+        cat "$file"
+        echo "" # Ensure there's a newline at the end of the file content
+    } >> "$OUTPUT_FILE"
+done
+
+# --- Finalization ---
+echo "Snapshot complete! Output written to '$OUTPUT_FILE'."
+echo "Total lines in output: $(wc -l < "$OUTPUT_FILE")"
+
+
+---
+
+### FILE: common/runtime/swoole/mani-swoole-server ###
+
+#!/usr/bin/env php
+<?php
+/**
+ * Swoole mini server with safe static handling and dev hot-reload.
+ * Env:
+ *   SWOOLE_HOST (default 0.0.0.0)
+ *   SWOOLE_PORT (default 80)
+ *   SWOOLE_DOCUMENT_ROOT (default /var/www/html/public)
+ *   SWOOLE_WORKER_NUM ("auto" or int)
+ *   SWOOLE_WATCH (1 => opcache_reset() on each request)
+ */
+
+declare(strict_types=1);
+
+$host    = getenv('SWOOLE_HOST') ?: '0.0.0.0';
+$port    = (int) (getenv('SWOOLE_PORT') ?: 80);
+$docroot = rtrim(getenv('SWOOLE_DOCUMENT_ROOT') ?: '/var/www/html/public', '/');
+$workers = getenv('SWOOLE_WORKER_NUM') === 'auto' ? swoole_cpu_num() : (int) getenv('SWOOLE_WORKER_NUM');
+$watch   = (getenv('SWOOLE_WATCH') ?: '0') === '1';
+
+if (!extension_loaded('openswoole') && !extension_loaded('swoole')) {
+    // STDERR, not STDOUT
+    fwrite(STDERR, "[swoole] extension missing\n");
+    exit(1);
+}
+
+$server = new Swoole\Http\Server($host, $port);
+$server->set([
+    'worker_num'            => max(1, $workers ?: (int) shell_exec('nproc 2>/dev/null') ?: 1),
+    'max_request'           => (int) (getenv('SWOOLE_MAX_REQUESTS') ?: 10000),
+    // IMPORTANT: disabled so we never serve PHP as text
+    'enable_static_handler' => false,
+    'http_parse_post'       => true,
+    'http_compression'      => (bool) (int) (getenv('SWOOLE_HTTP_COMPRESSION') ?: 1),
+    'buffer_output_size'    => 4 * 1024 * 1024,
+    'package_max_length'    => 32 * 1024 * 1024,
+    'reload_async'          => true,
+]);
+
+function is_static_path(string $path): bool {
+    return (bool) preg_match('~\.(?:css|js|png|jpe?g|gif|ico|svg|webp|avif|woff2?|ttf|eot|map)$~i', $path);
+}
+function content_type_for(string $path): string {
+    static $map = [
+        'css'=>'text/css','js'=>'application/javascript','png'=>'image/png','jpg'=>'image/jpeg','jpeg'=>'image/jpeg',
+        'gif'=>'image/gif','svg'=>'image/svg+xml','ico'=>'image/x-icon','webp'=>'image/webp','avif'=>'image/avif',
+        'woff'=>'font/woff','woff2'=>'font/woff2','ttf'=>'font/ttf','eot'=>'application/vnd.ms-fontobject','map'=>'application/json'
+    ];
+    $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+    return $map[$ext] ?? (mime_content_type($path) ?: 'application/octet-stream');
+}
+
+$server->on('request', function (Swoole\Http\Request $req, Swoole\Http\Response $res) use ($docroot, $watch) {
+    if ($watch && function_exists('opcache_reset')) {
+        // Dev: nuke entire cache every request so changes always show
+        @opcache_reset();
+    }
+
+    $uri  = urldecode($req->server['request_uri'] ?? '/');
+    $path = realpath($docroot . ($uri === '/' ? '/index.html' : $uri));
+
+    // Serve allowed static assets
+    if ($path && str_starts_with($path, $docroot) && is_file($path) && is_static_path($path)) {
+        $res->header('Content-Type', content_type_for($path));
+        if (strtoupper($req->server['request_method'] ?? 'GET') === 'HEAD') {
+            $res->end('');
+            return;
+        }
+        $res->sendfile($path);
+        return;
+    }
+
+    // Dynamic through public/index.php
+    $index = $docroot . '/index.php';
+    if (!is_file($index)) {
+        $res->status(404);
+        $res->header('Content-Type', 'text/plain; charset=UTF-8');
+        $res->end("index.php not found\n");
+        return;
+    }
+
+    // Bridge input
+    $_GET     = $req->get ?? [];
+    $_POST    = $req->post ?? [];
+    $_COOKIE  = $req->cookie ?? [];
+    $_FILES   = $req->files ?? [];
+    $_SERVER  = array_merge($_SERVER, [
+        'REQUEST_METHOD'  => $req->server['request_method'] ?? 'GET',
+        'REQUEST_URI'     => $req->server['request_uri'] ?? '/',
+        'QUERY_STRING'    => $req->server['query_string'] ?? '',
+        'REMOTE_ADDR'     => $req->server['remote_addr'] ?? '',
+        'SERVER_PROTOCOL' => $req->server['server_protocol'] ?? 'HTTP/1.1',
+        'HTTP_HOST'       => $req->header['host'] ?? '',
+        'HTTPS'           => (!empty($req->header['x-forwarded-proto']) && $req->header['x-forwarded-proto']==='https') ? 'on' : '',
+        'SERVER_SOFTWARE' => 'swoole',
+        'DOCUMENT_ROOT'   => $docroot,
+        'SCRIPT_FILENAME' => $index,
+        'SCRIPT_NAME'     => '/index.php',
+        'PHP_SELF'        => '/index.php',
+    ]);
+    foreach (($req->header ?? []) as $k => $v) {
+        $_SERVER['HTTP_' . strtoupper(str_replace('-', '_', $k))] = $v;
+    }
+
+    // Run entry script isolated in an output buffer
+    ob_start();
+    try {
+        require $index;
+        $content = ob_get_clean();
+
+        // Copy PHP headers set by the app to Swoole
+        $phpHeaders = headers_list();
+        $sentContentType = false;
+        foreach ($phpHeaders as $h) {
+            [$name, $val] = array_map('trim', explode(':', $h, 2));
+            if ($name !== '') {
+                if (strcasecmp($name, 'Content-Type') === 0) $sentContentType = true;
+                $res->header($name, $val);
+            }
+        }
+        if (!$sentContentType) {
+            // default only if app didn’t set one
+            $res->header('Content-Type', 'text/html; charset=UTF-8');
+        }
+
+        if (strtoupper($req->server['request_method'] ?? 'GET') === 'HEAD') {
+            $res->end('');
+            return;
+        }
+        $res->end($content);
+    } catch (Throwable $e) {
+        ob_end_clean();
+        $res->status(500);
+        $res->header('Content-Type', 'text/plain; charset=UTF-8');
+        $res->end("Unhandled exception:\n".$e);
+    }
+});
+
+// Do NOT echo anything here.
+// If you really want a note, use error_log('Swoole listening on ...');
+$server->start();
+---
+
+### FILE: common/runtime/healthchecks/healthcheck-nginx.sh ###
+
+#!/bin/sh
+set -e
+curl -fsS http://127.0.0.1:80/ > /dev/null
+
+---
+
+### FILE: common/runtime/healthchecks/healthcheck-apache.sh ###
+
+#!/bin/sh
+set -e
+curl -fsS http://127.0.0.1:80/ > /dev/null
+---
+
+### FILE: common/runtime/healthchecks/healthcheck-frankenphp.sh ###
+
+#!/bin/sh
+set -e
+curl -fsS http://127.0.0.1:80/ > /dev/null
+
+---
+
+### FILE: common/runtime/healthchecks/healthcheck-swoole.sh ###
+
+#!/bin/sh
+set -e
+HOST="${SWOOLE_HOST:-127.0.0.1}"
+PORT="${SWOOLE_PORT:-80}"
+curl -fsS "http://${HOST}:${PORT}/" >/dev/null
+
+---
+
+### FILE: common/runtime/sanity/mani-sanity.sh ###
+
+#!/bin/sh
+
+# Portable system sanity report (BusyBox/GNU friendly)
+# this is nailed by chatgpt
+set -e
+
+p() { printf " - %-26s %s\n" "$1" "$2"; }
+
+echo "===== SYSTEM ====="
+p "Hostname" "$(hostname)"
+p "OS" "$(awk -F= '/^PRETTY_NAME=/{gsub(/"/,"");print $2}' /etc/os-release 2>/dev/null || echo Debian)"
+p "Kernel" "$(uname -srmo 2>/dev/null || uname -a)"
+p "Time (UTC)" "$(date -u '+%Y-%m-%d %H:%M:%S')"
+p "Timezone" "$(readlink -f /etc/localtime 2>/dev/null | sed 's#.*/zoneinfo/##' || echo UTC)"
+p "CPU (nproc)" "$(nproc 2>/dev/null || getconf _NPROCESSORS_ONLN)"
+
+# Memory (free -h if present; fallback to /proc/meminfo)
+if command -v free >/dev/null 2>&1; then
+  line="$(free -h 2>/dev/null | awk 'NR==2{print $2" total, "$3" used, "$4" free"}')"
+  [ -n "$line" ] || line="$(free | awk 'NR==2{printf "%.0fMB total, %.0fMB used, %.0fMB free", $2/1024, $3/1024, $4/1024}')"
+  p "Mem (free -h)" "$line"
+else
+  total=$(awk '/MemTotal/{printf "%.0fMB",$2/1024}' /proc/meminfo)
+  avail=$(awk '/MemAvailable/{printf "%.0fMB",$2/1024}' /proc/meminfo)
+  p "Mem (proc)" "$total total, $avail available"
+fi
+
+# Disk
+if command -v df >/dev/null 2>&1; then
+  dline="$(df -h /var/www/html 2>/dev/null | awk 'NR==2{print $2" total, "$4" free"}')"
+  [ -n "$dline" ] && p "Disk /var/www/html" "$dline"
+fi
+
+p "User" "$(id -un) (uid=$(id -u), gid=$(id -g))"
+p "PUID/PGID env" "${PUID:--}/${PGID:--}"
+
+echo "===== S6 & SERVICES ====="
+ov="$(ls -d /package/admin/s6-overlay-* 2>/dev/null | head -n1 || true)"
+ver=""; [ -n "$ov" ] && ver="${ov##*/s6-overlay-}"
+p "s6 overlay" "${ver:-present}"
+sv="$(ls /etc/services.d 2>/dev/null | paste -sd, - || true)"
+p "services.d" "${sv:-none}"
+echo " - processes:"
+printf "  %-3s %-15s %s\n" PID COMMAND COMMAND
+ps -o pid= -o comm= -o args= | awk 'NR<=200{printf "  %-3s %-15s %s\n",$1,$2,$3" "$4" "$5}'
+
+echo "===== APACHE ====="
+if command -v apache2ctl >/dev/null 2>&1; then
+  p "Apache" "$(apache2ctl -v | awk -F/ '/Server version/{print $2}')"
+else
+  echo " - Apache not present"
+fi
+
+echo "===== PHP ====="
+php -v | head -n1
+p "INI files" "/usr/local/etc/php/conf.d"
+echo " - conf.d:"; ls -1 /usr/local/etc/php/conf.d 2>/dev/null | sed 's/^/   * /'
+echo " - loaded extensions:"
+php -r 'foreach (get_loaded_extensions() as $e) printf("   * %-20s %s\n",$e,phpversion($e)?:PHP_VERSION);'
+if php -m | grep -qi xdebug; then
+  echo " - xdebug:"
+  php -i | awk -F"=> " '/^xdebug\./{printf("   * %-24s %s\n",$1,$2)}' | sort
+fi
+
+echo "===== COMPOSER ====="
+if command -v composer >/dev/null 2>&1; then
+  composer --version
+  p "Vendor dir" "$( [ -d vendor ] && echo vendor || echo '(none)' )"
+else
+  echo " - Composer not installed"
+fi
+
+echo "===== JS RUNTIMES ====="
+for b in node npm pnpm yarn deno bun; do
+  if command -v "$b" >/dev/null 2>&1; then
+    v="$($b --version 2>/dev/null | head -n1)"
+    [ -z "$v" ] && v="$($b -v 2>/dev/null | head -n1)"
+    p "$b" "$v"
+  fi
+done
+
+echo "===== SWOOLE RUNTIME ====="
+if php -m | grep -qiE '^openswoole$|^swoole$'; then
+  p "Swoole" "$(php -r 'echo phpversion("openswoole")?:phpversion("swoole")?:"unknown";')"
+  p "Document root" "${SWOOLE_DOCUMENT_ROOT:-/var/www/html/public}"
+  p "Host" "${SWOOLE_HOST:-localhost}"
+  p "Port" "${SWOOLE_PORT:-9501}"
+  p "Worker num" "${SWOOLE_WORKER_NUM:-auto}"
+  p "Max requests" "${SWOOLE_MAX_REQUESTS:-unlimited}"
+  p "Static handler" "$( [ "${SWOOLE_STATIC:-1}" = "1" ] && echo enabled || echo disabled )"
+else
+  echo " - Swoole / OpenSwoole not installed"
+fi
+
+echo "===== FRANKENPHP ====="
+if command -v frankenphp >/dev/null 2>&1; then
+  v="$(frankenphp --version 2>/dev/null | head -n1)"
+  [ -z "$v" ] && v="present"
+  printf " - %-26s %s\n" "frankenphp" "$v"
+else
+  echo " - not present"
+fi
+
+
+echo "===== DB CLIENTS ====="
+for d in mysql psql redis-cli mongosh mongo memcached; do
+  if command -v "$d" >/dev/null 2>&1; then
+    p "$d" "$($d --version 2>/dev/null | head -n1)"
+  fi
+done
+
+echo "===== ENV (selected) ====="
+for k in APP_ENV PUID PGID XDEBUG_MODE XDEBUG_CLIENT_HOST DB_HOST DB_PORT REDIS_HOST REDIS_PORT; do
+  v="$(printenv "$k" 2>/dev/null || true)"; [ -n "$v" ] && echo "$k=$v"
+done
+
+echo "===== PATH ====="
+echo "$PATH" | tr ':' '\n' | sed 's/^/ - /'
+echo
+echo "OK"
+
+---
+
+### FILE: common/runtime/s6/cont-init.d/20-overlay.sh ###
+
+#!/command/with-contenv sh
+# Lightweight, POSIX sh; no bashisms.
+set -e
+
+OVERLAY_DIR="${OVERLAY_DIR:-/opt/overlay}"
+log() { echo "[overlay] $*"; }
+
+[ -d "$OVERLAY_DIR" ] || { log "no overlay at $OVERLAY_DIR"; exit 0; }
+
+# ---------- PHP conf.d overrides ----------
+if [ -d "$OVERLAY_DIR/php/conf.d" ]; then
+  for f in "$OVERLAY_DIR"/php/conf.d/*.ini; do
+    [ -f "$f" ] || continue
+    dst="/usr/local/etc/php/conf.d/$(basename "$f")"
+    cp -f "$f" "$dst"
+    chmod 644 "$dst" || true
+    log "php/conf.d -> $(basename "$f")"
+  done
+fi
+
+# ---------- PHP-FPM pool overrides (if FPM present) ----------
+if [ -d /usr/local/etc/php-fpm.d ] && [ -d "$OVERLAY_DIR/php/pool.d" ]; then
+  for f in "$OVERLAY_DIR"/php/pool.d/*.conf; do
+    [ -f "$f" ] || continue
+    cp -f "$f" "/usr/local/etc/php-fpm.d/$(basename "$f")"
+    log "php-fpm/pool.d -> $(basename "$f")"
+  done
+fi
+
+# ---------- Nginx conf.d overrides (if Nginx present) ----------
+if [ -d /etc/nginx ] && [ -d "$OVERLAY_DIR/nginx/conf.d" ]; then
+  for f in "$OVERLAY_DIR"/nginx/conf.d/*.conf; do
+    [ -f "$f" ] || continue
+    cp -f "$f" "/etc/nginx/conf.d/$(basename "$f")"
+    log "nginx/conf.d -> $(basename "$f")"
+  done
+fi
+
+# ---------- FrankenPHP / Caddy overrides (if present) ----------
+if command -v caddy >/dev/null 2>&1; then
+  [ -f "$OVERLAY_DIR/frankenphp/Caddyfile" ] && {
+    cp -f "$OVERLAY_DIR/frankenphp/Caddyfile" /etc/caddy/Caddyfile.custom
+    log "frankenphp: Caddyfile.custom installed"
+  }
+  [ -d "$OVERLAY_DIR/frankenphp/snippets" ] && {
+    mkdir -p /etc/caddy/snippets
+    cp -rf "$OVERLAY_DIR/frankenphp/snippets/." /etc/caddy/snippets/
+    log "frankenphp: snippets installed"
+  }
+fi
+
+# ---------- s6 services (add or override) ----------
+if [ -d "$OVERLAY_DIR/services.d" ]; then
+  for svc in "$OVERLAY_DIR"/services.d/*; do
+    [ -d "$svc" ] || continue
+    name="$(basename "$svc")"
+    rm -rf "/etc/services.d/$name"
+    cp -a "$svc" "/etc/services.d/$name"
+    find "/etc/services.d/$name" -type f -name run -exec chmod +x {} \; || true
+    find "/etc/services.d/$name" -type f -path '*/log/run' -exec chmod +x {} \; || true
+    log "services.d -> $name"
+  done
+fi
+
+# ---------- extra cont-init steps (run after base init) ----------
+if [ -d "$OVERLAY_DIR/cont-init.d" ]; then
+  for s in "$OVERLAY_DIR"/cont-init.d/*; do
+    [ -f "$s" ] || continue
+    chmod +x "$s" || true
+    log "running cont-init: $(basename "$s")"
+    "$s"
+  done
+fi
+
+# ---------- runtime apt installs (dev-friendly) ----------
+# Also honors EXTRA_APT_PACKAGES="git jq ..."
+if [ -s "$OVERLAY_DIR/apt/packages.txt" ] || [ -n "${EXTRA_APT_PACKAGES:-}" ]; then
+  log "installing apt packages from overlay (dev/use with care)"
+  apt-get update
+  if [ -s "$OVERLAY_DIR/apt/packages.txt" ]; then
+    xargs -a "$OVERLAY_DIR/apt/packages.txt" -r apt-get install -y --no-install-recommends
+  fi
+  if [ -n "${EXTRA_APT_PACKAGES:-}" ]; then
+    # shellcheck disable=SC2086
+    apt-get install -y --no-install-recommends $EXTRA_APT_PACKAGES
+  fi
+  rm -rf /var/lib/apt/lists/*
+fi
+
+# ---------- CA certs ----------
+if [ -d "$OVERLAY_DIR/certs" ]; then
+  mkdir -p /usr/local/share/ca-certificates
+  find "$OVERLAY_DIR/certs" -type f -name '*.crt' -exec cp -f {} /usr/local/share/ca-certificates/ \;
+  update-ca-certificates || true
+  log "CA certificates updated"
+fi
+
+# ---------- deletions (power tool) ----------
+# Put relative paths in remove/list, e.g.:
+#   usr/local/etc/php/conf.d/92-docker-php-ext-xdebug.ini
+if [ -s "$OVERLAY_DIR/remove/list" ]; then
+  while IFS= read -r rel; do
+    [ -n "$rel" ] || continue
+    rm -rf "/$rel" && log "removed /$rel" || true
+  done < "$OVERLAY_DIR/remove/list"
+fi
+
+log "done"
+exit 0
+
+---
+
+### FILE: common/runtime/s6/cont-init.d/10-init.sh ###
+
+#!/command/with-contenv /bin/bash
+
+set -euo pipefail
+echo "cont-init:v4 map www-data to host PUID/PGID, fix perms, setup history"
+
+# map IDs
+if [[ -n "${PUID:-}" ]]; then
+  cu="$(id -u www-data)"; [[ "$cu" != "$PUID" ]] && usermod -o -u "$PUID" www-data
+fi
+if [[ -n "${PGID:-}" ]]; then
+  cg="$(id -g www-data)"; [[ "$cg" != "$PGID" ]] && groupmod -o -g "$PGID" www-data
+fi
+
+# writable dirs
+for d in /var/www/html/storage /var/www/html/bootstrap/cache; do
+  [[ -d "$d" ]] || continue
+  chown -R www-data:www-data "$d" || true
+  chmod -R ug+rwX "$d" || true
+done
+
+# per-project persistent bash history (within bind-mounted workspace)
+HISTDIR="/var/www/html/.container-history"
+mkdir -p "$HISTDIR"
+chown -R "${PUID:-33}:${PGID:-33}" "$HISTDIR" || true
+ln -sf "$HISTDIR/bash_history" /root/.bash_history
+if [[ -d /var/www ]]; then ln -sf "$HISTDIR/bash_history" /var/www/.bash_history || true; fi
+
+# auto-load history profile for interactive shells
+if ! grep -q 'zz-history.sh' /etc/bash.bashrc 2>/dev/null; then
+  echo '[ -r /etc/profile.d/zz-history.sh ] && . /etc/profile.d/zz-history.sh' >> /etc/bash.bashrc
+fi
+
+# disable queue worker unless enabled
+[[ "${ENABLE_QUEUE_WORKER:-false}" = "true" ]] || rm -rf /etc/services.d/queue-worker || true
+
+echo "cont-init:v4 done"
+
+---
+
+### FILE: common/runtime/s6/variants/swoole/services.d/swoole/type ###
+
+longrun
+---
+
+### FILE: common/runtime/s6/variants/swoole/services.d/swoole/log/run ###
+
+#!/bin/sh
+exec /command/s6-log n10 s100000 T /var/log/swoole
+
+---
+
+### FILE: common/runtime/s6/variants/swoole/services.d/swoole/run ###
+
+#!/bin/sh
+set -e
+
+: "${SWOOLE_HOST:=0.0.0.0}"
+: "${SWOOLE_PORT:=80}"
+: "${SWOOLE_DOCUMENT_ROOT:=/var/www/html/public}"
+: "${SWOOLE_WORKER_NUM:=auto}"
+: "${SWOOLE_STATIC:=1}"
+: "${ENABLE_OCTANE:=false}"
+: "${SWOOLE_WATCH:=0}"
+: "${DISABLE_XDEBUG_IN_SWOOLE:=1}"
+
+# Optional: ensure Xdebug is off for Swoole workers unless you explicitly enable it
+if [ "$DISABLE_XDEBUG_IN_SWOOLE" = "1" ]; then
+  for f in /usr/local/etc/php/conf.d/*xdebug*.ini; do
+    [ -f "$f" ] && mv "$f" "${f}.disabled" || true
+  done
+fi
+
+if [ "$ENABLE_OCTANE" = "true" ] && [ -f /var/www/html/artisan ]; then
+  echo "----> Starting Laravel Octane (Swoole)..."
+  exec /usr/bin/s6-setuidgid www-data \
+    php -d opcache.enable_cli=0 /var/www/html/artisan octane:start \
+      --server=swoole --host="$SWOOLE_HOST" --port="$SWOOLE_PORT" \
+      --workers="${SWOOLE_WORKER_NUM:-auto}" ${OCTANE_ARGS:-}
+fi
+
+if php -m | grep -qiE '^openswoole$|^swoole$'; then
+  echo "----> Starting Swoole HTTP server..."
+  if [ "$SWOOLE_WATCH" = "1" ]; then
+    # Dev: force OPcache off at the CLI level so edits show instantly
+    exec /usr/bin/s6-setuidgid www-data \
+      php -d opcache.enable_cli=0 /usr/local/bin/mani-swoole-server
+  else
+    exec /usr/bin/s6-setuidgid www-data \
+      php /usr/local/bin/mani-swoole-server
+  fi
+fi
+
+echo "[swoole] extension not loaded; sleeping"
+exec tail -f /dev/null
+
+---
+
+### FILE: common/runtime/s6/variants/frankenphp/services.d/frankenphp/log/run ###
+
+#!/bin/sh
+exec /command/s6-log n10 s100000 T /var/log/frankenphp
+
+---
+
+### FILE: common/runtime/s6/variants/frankenphp/services.d/frankenphp/run ###
+
+#!/bin/sh
+set -e
+: "${HOME:=/root}"
+: "${XDG_CONFIG_HOME:=/etc/caddy}"
+: "${XDG_DATA_HOME:=/var/lib/caddy}"
+: "${XDEBUG_MODE:=off}"
+export HOME XDG_CONFIG_HOME XDG_DATA_HOME XDEBUG_MODE
+exec /usr/local/bin/frankenphp run --config /etc/caddy/Caddyfile --adapter caddyfile
+
+---
+
+### FILE: common/runtime/s6/variants/nginx/services.d/php-fpm/type ###
+
+longrun
+---
+
+### FILE: common/runtime/s6/variants/nginx/services.d/php-fpm/finish ###
+
+#!/bin/sh
+exit 0
+---
+
+### FILE: common/runtime/s6/variants/nginx/services.d/php-fpm/log/run ###
+
+#!/bin/sh
+mkdir -p /var/log/php
+exec /command/s6-log n10 s100000 T /var/log/php
+
+---
+
+### FILE: common/runtime/s6/variants/nginx/services.d/php-fpm/run ###
+
+#!/bin/sh
+
+set -e
+echo "----> Starting PHP-FPM service..."
+# The 'exec' command is crucial for S6 to properly supervise the process.
+# '-F' or '--nodaemonize' tells PHP-FPM to run in the foreground.
+exec php-fpm -F
+---
+
+### FILE: common/runtime/s6/variants/nginx/services.d/nginx/type ###
+
+longrun
+---
+
+### FILE: common/runtime/s6/variants/nginx/services.d/nginx/finish ###
+
+
+---
+
+### FILE: common/runtime/s6/variants/nginx/services.d/nginx/log/run ###
+
+#!/bin/sh
+exec /command/s6-log n10 s100000 T /var/log/nginx
+
+---
+
+### FILE: common/runtime/s6/variants/nginx/services.d/nginx/run ###
+
+#!/bin/sh
+set -e
+echo "----> Starting Nginx service..."
+# ensure pid dir
+mkdir -p /run/nginx
+exec nginx -g 'daemon off;'
+
+---
+
+### FILE: common/runtime/s6/variants/nginx/services.d/queue-worker/run ###
+
+#!/command/with-contenv bash
+set -euo pipefail
+if [[ ! -f /var/www/html/artisan ]]; then
+  echo "[queue-worker] artisan not found; sleeping"
+  exec tail -f /dev/null
+fi
+echo "----> Starting Laravel queue worker..."
+exec /usr/bin/s6-setuidgid www-data \
+  php /var/www/html/artisan queue:work --verbose --tries=3 --timeout=90
+
+---
+
+### FILE: common/runtime/s6/variants/nginx-swoole/services.d/swoole/run ###
+
+#!/bin/sh
+set -e
+: "${SWOOLE_HOST:=127.0.0.1}"
+: "${SWOOLE_PORT:=9501}"                 # nginx proxies to this
+: "${SWOOLE_DOCUMENT_ROOT:=/var/www/html/public}"
+: "${SWOOLE_WORKER_NUM:=auto}"
+: "${SWOOLE_STATIC:=1}"
+: "${ENABLE_OCTANE:=false}"
+
+if [ "$ENABLE_OCTANE" = "true" ] && [ -f /var/www/html/artisan ]; then
+  echo "----> Starting Laravel Octane (Swoole) on ${SWOOLE_HOST}:${SWOOLE_PORT}..."
+  exec /command/s6-setuidgid www-data \
+    php /var/www/html/artisan octane:start \
+      --server=swoole --host="$SWOOLE_HOST" --port="$SWOOLE_PORT" \
+      ${OCTANE_ARGS:-}
+fi
+
+if php -m | grep -qiE '^openswoole$|^swoole$'; then
+  echo "----> Starting Swoole HTTP (nginx front) on ${SWOOLE_HOST}:${SWOOLE_PORT}"
+  exec /command/s6-setuidgid www-data /usr/local/bin/mani-swoole-server
+fi
+
+echo "[swoole] extension not loaded; sleeping"
+exec tail -f /dev/null
+
+---
+
+### FILE: common/runtime/s6/variants/nginx-swoole/services.d/nginx/run ###
+
+#!/bin/sh
+set -e
+echo "----> Starting Nginx..."
+exec /usr/sbin/nginx -g 'daemon off;'
+
+---
+
+### FILE: common/runtime/s6/variants/apache/services.d/queue-worker/run ###
+
+#!/command/with-contenv bash
+set -euo pipefail
+
+# If service directory exists (not removed by cont-init), we run the worker
+if [[ ! -f /var/www/html/artisan ]]; then
+  echo "[queue-worker] artisan not found; sleeping"
+  exec tail -f /dev/null
+fi
+
+echo "----> Starting Laravel queue worker..."
+exec /usr/bin/s6-setuidgid mani \
+  php /var/www/html/artisan queue:work --verbose --tries=3 --timeout=90
+
+---
+
+### FILE: common/runtime/s6/variants/apache/services.d/apache/type ###
+
+longrun
+---
+
+### FILE: common/runtime/s6/variants/apache/services.d/apache/finish ###
+
+
+---
+
+### FILE: common/runtime/s6/variants/apache/services.d/apache/log/run ###
+
+#!/bin/sh
+exec /command/s6-log n10 s100000 T /var/log/apache2
+
+---
+
+### FILE: common/runtime/s6/variants/apache/services.d/apache/run ###
+
+#!/bin/sh
+set -e
+
+. /etc/apache2/envvars
+
+echo "----> Starting Apache2 service..."
+
+# The 'exec' command is crucial. It replaces the shell process with the
+# apache2ctl process. This ensures that Apache becomes the direct child
+# of the S6 supervisor, allowing S6 to correctly manage its lifecycle
+# and receive its signals (like for shutdown).
+exec /usr/sbin/apache2ctl -D FOREGROUND
+
+---
+
+### FILE: common/runtime/s6/env/APP_ENV ###
+
+
+---
+
+### FILE: common/runtime/s6/cont-finish.d/99-shutdown-log.sh ###
+
+#!/bin/sh
+exit 0
+---
+
+### FILE: common/runtime/profile/zz-history.sh ###
+
+#!/usr/bin/env bash
+# Persistent per-project shell history (within the mounted workspace)
+HISTDIR="${CONTAINER_HISTORY_DIR:-/var/www/html/.container-history}"
+HISTFILE="${HISTDIR}/bash_history"
+mkdir -p "$HISTDIR" 2>/dev/null || true
+
+export HISTFILE
+export HISTSIZE="${HISTSIZE:-50000}"
+export HISTFILESIZE="${HISTFILESIZE:-100000}"
+export HISTCONTROL=ignoreboth:erasedups
+export HISTIGNORE="ls:bg:fg:history:clear"
+
+# Append, and sync on every prompt so parallel shells share history
+shopt -s histappend 2>/dev/null || true
+case "${PROMPT_COMMAND:-}" in
+  *"history -a"*) ;; # already configured
+  *) PROMPT_COMMAND="history -a; history -n${PROMPT_COMMAND:+; $PROMPT_COMMAND}";;
+esac
+
+---
+
+### FILE: common/runtime/configs/frankenphp/Caddyfile ###
+
+{
+    order php_server before file_server
+    # auto_https off  # no TLS inside dev container
+}
+
+:80 {
+    root * /var/www/html/public
+    encode zstd gzip
+
+    # Serve PHP via FrankenPHP (no php-fpm needed)
+    php_server
+
+    try_files {path} {path}/ /index.php?{query}
+    file_server
+
+    log {
+        output file /var/log/frankenphp/access.log
+        level INFO
+    }
+}
+
+---
+
+### FILE: common/runtime/configs/php/90-docker-custom.ini ###
+
+; =============================================================================
+; MANI PHP Configuration (php.ini)
+;
+; Description:
+;   This is a general-purpose PHP configuration file optimized for a modern
+;   development environment. It prioritizes clear error reporting and provides
+;   sensible defaults for performance and resource limits.
+; =============================================================================
+
+; --- Core Settings ---
+engine = On
+short_open_tag = Off
+precision = 14
+output_buffering = 4096
+zlib.output_compression = Off
+implicit_flush = Off
+serialize_precision = -1
+disable_functions =
+disable_classes =
+
+; --- Error Reporting (Development Focus) ---
+; Report all errors, and display them directly in the output.
+; For production, 'display_errors' should be 'Off' and 'log_errors' should be 'On'.
+display_errors = On
+display_startup_errors = On
+error_reporting = E_ALL
+log_errors = On
+error_log = /dev/stderr ; Send errors to stderr so Docker can log them
+html_errors = On
+
+; --- Resource Limits ---
+; Sensible defaults for a local development environment.
+max_execution_time = 300
+max_input_time = 60
+memory_limit = 512M
+
+; --- File Uploads ---
+; Allow for larger file uploads, common in development.
+post_max_size = 100M
+upload_max_filesize = 100M
+max_file_uploads = 20
+
+; --- Opcache Settings ---
+; Opcache is crucial for performance, even in development.
+; These settings are a good balance for dev, avoiding overly aggressive caching.
+opcache.enable = 1
+opcache.enable_cli = 1
+opcache.memory_consumption = 128
+opcache.interned_strings_buffer = 8
+opcache.max_accelerated_files = 10000
+opcache.revalidate_freq = 2 ; In dev, check for file changes every 2 seconds
+opcache.fast_shutdown = 1
+
+; --- Session Handling ---
+session.save_handler = files
+session.save_path = "/tmp"
+session.use_cookies = 1
+session.cookie_httponly = 1
+
+; --- Date & Time ---
+; It's best practice to explicitly set the timezone.
+date.timezone = UTC
+
+; --- Assertions ---
+; Enable assertions and have them throw exceptions.
+zend.assertions = 1
+assert.exception = 1
+
+---
+
+### FILE: common/runtime/configs/php/92-docker-php-ext-xdebug.ini ###
+
+; =============================================================================
+; MANI Xdebug Configuration (20-xdebug.ini)
+;
+; Description:
+;   Configures Xdebug 3 for a typical Docker development workflow.
+;   It enables both development helpers (like improved var_dump) and step
+;   debugging.
+; =============================================================================
+
+[xdebug]
+; --- Core Settings ---
+; This enables Xdebug's functionality. It must be 'zend_extension', not 'extension'.
+zend_extension=xdebug
+
+; --- Mode Configuration ---
+; 'develop': Enables development helpers (e.g., enhanced var_dump).
+; 'debug': Enables step debugging.
+; You can enable multiple modes by separating them with a comma.
+xdebug.mode = develop,debug
+
+; --- Step Debugger Settings ---
+; 'yes': The debugger will try to connect to your IDE on every request.
+;        This is very convenient for development.
+; 'trigger': The debugger only activates if a specific trigger is present
+;            (e.g., a browser cookie or query parameter). Better for performance.
+xdebug.start_with_request = yes
+
+; --- Connection Settings ---
+; 'host.docker.internal' is a special DNS name that Docker provides for
+; containers to connect back to the host machine where your IDE is running.
+xdebug.client_host = host.docker.internal
+
+; The standard port for Xdebug to connect on. Ensure your IDE is listening on this port.
+xdebug.client_port = 9003
+
+; --- Output Settings ---
+; Set a high value to prevent var_dump() from truncating large arrays/objects.
+xdebug.var_display_max_depth = 10
+xdebug.var_display_max_children = 256
+xdebug.var_display_max_data = 1024
+
+---
+
+### FILE: common/runtime/configs/nginx/nginx.conf ###
+
+user www-data;
+worker_processes auto;
+pid /run/nginx.pid;
+
+include /etc/nginx/modules-enabled/*.conf;
+
+events {
+    worker_connections 1024;
+    multi_accept on;
+}
+
+http {
+    server_tokens off;
+
+    include /etc/nginx/mime.types;
+    default_type application/octet-stream;
+
+    sendfile on;
+    tcp_nopush on;
+    tcp_nodelay on;
+    keepalive_timeout 65;
+    types_hash_max_size 2048;
+
+    # server_names_hash_bucket_size 128;
+    # client_header_buffer_size 32k;
+    # large_client_header_buffers 4 32k;
+    # file size or body
+    client_max_body_size 50m;
+
+
+    access_log /var/log/nginx/access.log;
+    error_log /var/log/nginx/error.log warn;
+
+    gzip on;
+    gzip_types text/plain text/css application/json application/javascript application/xml+rss image/svg+xml;
+    gzip_min_length 1024;
+    gzip_disable "msie6";
+    # gzip_vary on;
+    # gzip_proxied any;
+    # gzip_comp_level 6;
+    # gzip_buffers 16 8k;
+    # gzip_http_version 1.1;
+    # gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+
+
+    include /etc/nginx/conf.d/*.conf;
+}
+
+---
+
+### FILE: common/runtime/configs/nginx/conf.d/default.conf ###
+
+# File: common/runtime/configs/nginx/default.conf
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    server_name _;
+
+    root /var/www/html/public;
+    index index.php index.html index.htm;
+
+    client_max_body_size 64m;
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location ~ \.php$ {
+        include fastcgi_params;
+        fastcgi_pass 127.0.0.1:9000;
+        fastcgi_index index.php;
+        # fastcgi_pass unix:/var/run/php-fpm.sock;
+        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+        # fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_param DOCUMENT_ROOT $realpath_root;
+        # fastcgi_read_timeout 300;
+    }
+
+    # Disallow access to . files, except .well-known (for Let's Encrypt)
+    location ~ /\.(?!well-known).* {
+        deny all;
+    }
+
+    location ~* \.(jpg|jpeg|gif|png|css|js|ico|svg|woff2?)$ {
+        expires 7d;
+        access_log off;
+        add_header Cache-Control "public";
+    }
+
+    location ~ /\.ht {
+        deny all;
+    }
+    location ~ /(app|bootstrap|config|database|resources|routes)/ {
+        deny all;
+    }
+
+    # Security headers for production
+    # add_header X-Frame-Options "DENY";
+    # add_header X-Content-Type-Options "nosniff";
+    # add_header X-XSS-Protection "1; mode=block";
+    # add_header Referrer-Policy "no-referrer-when-downgrade";
+    # server_tokens off;
+}
+
+---
+
+### FILE: common/runtime/configs/swoole-nginx/nginx.conf ###
+
+user www-data;
+worker_processes auto;
+pid /run/nginx.pid;
+
+include /etc/nginx/modules-enabled/*.conf;
+
+events {
+    worker_connections 1024;
+    multi_accept on;
+}
+
+http {
+    server_tokens off;
+
+    include /etc/nginx/mime.types;
+    default_type application/octet-stream;
+
+    sendfile on;
+    tcp_nopush on;
+    tcp_nodelay on;
+    keepalive_timeout 65;
+    types_hash_max_size 2048;
+
+    # server_names_hash_bucket_size 128;
+    # client_header_buffer_size 32k;
+    # large_client_header_buffers 4 32k;
+    # file size or body
+    client_max_body_size 50m;
+
+
+    access_log /var/log/nginx/access.log;
+    error_log /var/log/nginx/error.log warn;
+
+    gzip on;
+    gzip_types text/plain text/css application/json application/javascript application/xml+rss image/svg+xml;
+    gzip_min_length 1024;
+    gzip_disable "msie6";
+    # gzip_vary on;
+    # gzip_proxied any;
+    # gzip_comp_level 6;
+    # gzip_buffers 16 8k;
+    # gzip_http_version 1.1;
+    # gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+
+
+    include /etc/nginx/conf.d/*.conf;
+}
+
+---
+
+### FILE: common/runtime/configs/swoole-nginx/conf.d/default.conf ###
+
+# File: common/runtime/configs/nginx/default.conf
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    server_name _;
+
+    root /var/www/html/public;
+    index index.php index.html index.htm;
+
+    client_max_body_size 64m;
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location ~ \.php$ {
+        include fastcgi_params;
+        fastcgi_pass 127.0.0.1:9000;
+        fastcgi_index index.php;
+        # fastcgi_pass unix:/var/run/php-fpm.sock;
+        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+        # fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_param DOCUMENT_ROOT $realpath_root;
+        # fastcgi_read_timeout 300;
+    }
+
+    # Disallow access to . files, except .well-known (for Let's Encrypt)
+    location ~ /\.(?!well-known).* {
+        deny all;
+    }
+
+    location ~* \.(jpg|jpeg|gif|png|css|js|ico|svg|woff2?)$ {
+        expires 7d;
+        access_log off;
+        add_header Cache-Control "public";
+    }
+
+    location ~ /\.ht {
+        deny all;
+    }
+    location ~ /(app|bootstrap|config|database|resources|routes)/ {
+        deny all;
+    }
+
+    # Security headers for production
+    # add_header X-Frame-Options "DENY";
+    # add_header X-Content-Type-Options "nosniff";
+    # add_header X-XSS-Protection "1; mode=block";
+    # add_header Referrer-Policy "no-referrer-when-downgrade";
+    # server_tokens off;
+}
+
+---
+
+### FILE: common/runtime/configs/swoole-nginx/conf.d/swoole.conf ###
+
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    server_name _;
+
+    # Serve static straight from Nginx
+    root /var/www/html/public;
+    index index.php index.html;
+
+    # Everything else goes to Swoole
+    location / {
+        # proxy_set_header Host               $host;
+        # proxy_set_header X-Real-IP          $remote_addr;
+        # proxy_set_header X-Forwarded-For    $proxy_add_x_forwarded_for;
+        # proxy_set_header X-Forwarded-Proto  $scheme;
+        # proxy_http_version 1.1;
+        # proxy_buffering on;
+        # proxy_read_timeout 300;
+        # proxy_pass http://127.0.0.1:9501;
+        try_files $uri @swoole;
+    }
+
+    location @swoole {
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $remote_addr;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_pass http://127.0.0.1:9501;
+    }
+
+    # location ~* \.(?:css|js|png|jpe?g|gif|ico|svg|woff2?|ttf|map)$ {
+    location ~* \.(?:css|js|png|jpe?g|gif|svg|ico|webp|bmp|woff2?|ttf|eot|mp4)$ {
+        expires 7d;
+        access_log off;
+        add_header Cache-Control "public";
+        try_files $uri =404;
+    }
+
+    location ~ /\. {
+        deny all;
+    }
+}
+
+
+
+---
+
+### FILE: common/runtime/configs/apache/apache2.conf ###
+
+ServerRoot "/etc/apache2"
+ServerName localhost
+ServerAdmin webmaster@localhost
+
+
+Mutex file:${APACHE_LOCK_DIR} default
+PidFile ${APACHE_PID_FILE}
+Timeout 300
+KeepAlive On
+MaxKeepAliveRequests 100
+KeepAliveTimeout 5
+
+User ${APACHE_RUN_USER}
+Group ${APACHE_RUN_GROUP}
+
+# HostnameLookups Off
+AccessFileName .htaccess
+
+<Directory /var/www/html/public>
+    Options Indexes FollowSymLinks
+    AllowOverride All
+    Require all granted
+</Directory>
+
+
+ErrorLog ${APACHE_LOG_DIR}/error.log
+CustomLog ${APACHE_LOG_DIR}/access.log combined
+LogLevel warn
+
+# Include module configuration:
+Include ports.conf
+IncludeOptional mods-enabled/*.load
+IncludeOptional mods-enabled/*.conf
+IncludeOptional conf-enabled/*.conf
+IncludeOptional sites-enabled/*.conf
+
+
+<FilesMatch "^\.ht">
+	Require all denied
+</FilesMatch>
+
+LogFormat "%v:%p %h %l %u %t \"%r\" %>s %O \"%{Referer}i\" \"%{User-Agent}i\"" vhost_combined
+LogFormat "%h %l %u %t \"%r\" %>s %O \"%{Referer}i\" \"%{User-Agent}i\"" combined
+LogFormat "%h %l %u %t \"%r\" %>s %O" common
+LogFormat "%{Referer}i -> %U" referer
+LogFormat "%{User-agent}i" agent
+
+# Include the virtual host configurations:
+IncludeOptional sites-enabled/*.conf
+
+# Include generic snippets of statements
+IncludeOptional conf-enabled/*.conf
+<IfModule mod_dir.c>
+    DirectoryIndex index.php index.html index.cgi index.pl index.xhtml index.htm
+</IfModule>
+
+---
+
+### FILE: common/runtime/configs/apache/sites-available/000-default.conf ###
+
+# =============================================================================
+# MANI Apache Default Virtual Host (000-default.conf)
+#
+# Description:
+#   Configures the default website. It points to a 'public' subdirectory,
+#   which is the standard for modern PHP frameworks like Laravel and Symfony.
+# =============================================================================
+
+<VirtualHost *:80>
+    ServerAdmin webmaster@localhost
+    DocumentRoot /var/www/html/public
+
+    <Directory /var/www/html/public>
+        Options Indexes FollowSymLinks
+        AllowOverride All
+        Require all granted
+    </Directory>
+
+    ErrorLog ${APACHE_LOG_DIR}/error.log
+    CustomLog ${APACHE_LOG_DIR}/access.log combined
+
+    <Directory /var/www/html>
+        Require all denied
+    </Directory>
+    <Directory /var/www/html/public>
+        Require all granted
+    </Directory>
+
+</VirtualHost>
+
+---
+
+### FILE: common/build/oldy/mani-docker-install-php-ext-deps-image-drivers.sh ###
+
+#!/bin/sh
+set -e
+export DEBIAN_FRONTEND=noninteractive
+: "${PHP_EXT_GD:=false}"
+: "${PHP_EXT_IMAGICK:=false}"
+: "${PHP_EXT_VIPS:=false}"
+PKGS=""
+add(){ echo " $PKGS " | grep -q " $1 " || PKGS="$PKGS $1"; }
+
+[ "$PHP_EXT_GD" = "true" ] && add "libpng-dev libjpeg62-turbo-dev libfreetype6-dev libwebp-dev libxpm-dev"
+[ "$PHP_EXT_IMAGICK" = "true" ] && add "libmagickwand-dev libmagickcore-6.q16-6-extra imagemagick"
+[ "$PHP_EXT_VIPS" = "true" ] && add "libvips-dev libvips-tools"
+
+[ -z "$PKGS" ] && exit 0
+apt-get update && apt-get install -y --no-install-recommends $PKGS
+apt-get clean && rm -rf /var/lib/apt/lists/*
+
+---
+
+### FILE: common/build/oldy/mani-docker-install-php-ext-deps.sh ###
+
+#!/bin/sh
+# ============================================================================
+# mani-docker-install-php-ext-deps.sh (v2.1)
+# - Conditional, expanded deps for PECL/ext builds
+# ============================================================================
+set -e
+export DEBIAN_FRONTEND=noninteractive
+PACKAGES_TO_INSTALL=""
+add_pkg() { echo " $PACKAGES_TO_INSTALL " | grep -q " $1 " || PACKAGES_TO_INSTALL="$PACKAGES_TO_INSTALL $1"; }
+
+# Inputs
+: "${PHP_EXT_PDO_PGSQL:=false}"
+: "${PHP_EXT_PDO_MYSQL:=false}"
+: "${PHP_EXT_MONGODB:=false}"
+: "${PHP_EXT_REDIS:=false}"
+: "${PHP_EXT_MEMCACHED:=false}"
+: "${PHP_EXT_GD:=false}"
+: "${PHP_EXT_IMAGICK:=false}"
+: "${PHP_EXT_VIPS:=false}"
+: "${PHP_EXT_INTL:=false}"
+: "${PHP_EXT_SOAP:=false}"
+: "${PHP_EXT_ZIP:=false}"
+: "${PHP_EXT_XSL:=false}"
+: "${PHP_EXT_GMP:=false}"
+
+[ "$PHP_EXT_PDO_PGSQL" = "true" ] && add_pkg libpq-dev
+[ "$PHP_EXT_GD" = "true" ] && add_pkg "libpng-dev libjpeg-dev libjpeg62-turbo-dev libfreetype6-dev libwebp-dev libxpm-dev"
+[ "$PHP_EXT_IMAGICK" = "true" ] && add_pkg "libmagickwand-dev imagemagick ghostscript libmagickcore-6.q16-6-extra"
+[ "$PHP_EXT_VIPS" = "true" ] && add_pkg "libvips-dev libvips-tools"
+[ "$PHP_EXT_REDIS" = "true" ] && add_pkg zlib1g-dev
+if [ "$PHP_EXT_MEMCACHED" = "true" ]; then
+  add_pkg "libmemcached-dev zlib1g-dev libzstd-dev libevent-dev"
+fi
+[ "$PHP_EXT_MONGODB" = "true" ] && add_pkg libssl-dev
+[ "$PHP_EXT_INTL" = "true" ] && add_pkg libicu-dev
+[ "$PHP_EXT_SOAP" = "true" ] && add_pkg libxml2-dev
+[ "$PHP_EXT_ZIP" = "true" ] && add_pkg libzip-dev
+[ "$PHP_EXT_XSL" = "true" ] && add_pkg libxslt1-dev
+[ "$PHP_EXT_GMP" = "true" ] && add_pkg libgmp-dev
+
+# Common build tools (if not already)
+add_pkg "pkg-config autoconf libonig-dev libreadline-dev libsqlite3-dev libcurl4-openssl-dev fswatch"
+
+if [ -z "$PACKAGES_TO_INSTALL" ]; then
+  echo "----> No PHP extension dependencies required. Skipping."
+  exit 0
+fi
+
+echo "----> 1. Updating package lists..." && apt-get update
+
+echo "----> 2. Installing PHP build dependencies:" && echo "$PACKAGES_TO_INSTALL"
+# shellcheck disable=SC2086
+apt-get install -y --no-install-recommends $PACKAGES_TO_INSTALL
+
+echo "----> 3. Cleaning up apt cache..."
+apt-get clean && rm -rf /var/lib/apt/lists/*
+
+echo "----> PHP extension dependencies installed successfully."
+---
+
+### FILE: common/build/oldy/mani-docker-install-php-ext-deps-db.sh ###
+
+#!/bin/sh
+set -e
+export DEBIAN_FRONTEND=noninteractive
+: "${PHP_EXT_PDO_PGSQL:=false}"
+: "${PHP_EXT_PDO_MYSQL:=false}"
+PKGS=""
+add(){ echo " $PKGS " | grep -q " $1 " || PKGS="$PKGS $1"; }
+
+[ "$PHP_EXT_PDO_PGSQL" = "true" ] && add libpq-dev
+# mysql pdo uses base headers in official image; no extra -dev needed
+
+[ -z "$PKGS" ] && exit 0
+apt-get update && apt-get install -y --no-install-recommends $PKGS
+apt-get clean && rm -rf /var/lib/apt/lists/*
+
+---
+
+### FILE: common/build/oldy/mani-docker-install-php-ext-runtime.sh ###
+
+#!/bin/sh
+# ==============================================================================
+# Installs ONLY runtime shared libraries needed by enabled PHP extensions.
+# Debian Bookworm package names.
+# ==============================================================================
+set -e
+export DEBIAN_FRONTEND=noninteractive
+
+# Defaults
+: "${PHP_EXT_GD:=false}"
+: "${PHP_EXT_IMAGICK:=false}"
+: "${PHP_EXT_VIPS:=false}"
+: "${PHP_EXT_MEMCACHED:=false}"
+: "${PHP_EXT_MONGODB:=false}"
+: "${PHP_EXT_REDIS:=false}"
+
+PKGS=""
+
+add() { echo " $PKGS " | grep -q " $1 " || PKGS="$PKGS $1"; }
+
+# gd (libpng16.so.16 missing, plus jpeg/freetype/webp/xpm)
+[ "$PHP_EXT_GD" = "true" ] && add "libpng16-16 libjpeg62-turbo libfreetype6 libwebp7 libxpm4"
+
+# imagick (MagickWand/Core)
+[ "$PHP_EXT_IMAGICK" = "true" ] && add "libmagickwand-6.q16-6 libmagickcore-6.q16-6-extra imagemagick"
+
+# vips (libvips.so.42)
+[ "$PHP_EXT_VIPS" = "true" ] && add "libvips42 libvips-tools"
+
+# memcached runtime deps
+[ "$PHP_EXT_MEMCACHED" = "true" ] && add "libmemcached11 libzstd1 libevent-2.1-7"
+
+# mongodb often relies on libssl3 (present on bookworm base, keep resilient)
+[ "$PHP_EXT_MONGODB" = "true" ] && add "libssl3"
+
+# (redis has no extra runtime deps)
+
+[ -z "$PKGS" ] && exit 0
+
+apt-get update
+# shellcheck disable=SC2086
+apt-get install -y --no-install-recommends $PKGS
+apt-get clean && rm -rf /var/lib/apt/lists/*
+
+---
+
+### FILE: common/build/scripts/mani-php-ext-images.sh ###
+
+# File: common/build/scripts/mani-php-ext-images.sh
+#!/bin/sh
+# ==============================================================================
+# Domain: IMAGE/GRAPHICS EXTENSIONS (GD, Imagick, Vips)
+# Modes:
+#   --build   : install -dev, compile gd, pecl install imagick/vips
+#   --runtime : install runtime libs (no -dev)
+# Controlled by env: PHP_EXT_GD, PHP_EXT_IMAGICK, PHP_EXT_VIPS
+# ==============================================================================
+set -e
+MODE="${1:---build}"
+export DEBIAN_FRONTEND=noninteractive
+
+if [ "$MODE" = "--build" ]; then
+  PKG=""
+  add(){ echo " $PKG " | grep -q " $1 " || PKG="$PKG $1"; }
+
+  if [ "${PHP_EXT_GD:-false}" = "true" ]; then
+    add "libpng-dev libjpeg62-turbo-dev libfreetype6-dev libwebp-dev libxpm-dev"
+  fi
+  [ "${PHP_EXT_IMAGICK:-false}" = "true" ] && add "libmagickwand-dev libmagickcore-6.q16-6-extra imagemagick"
+  [ "${PHP_EXT_VIPS:-false}" = "true" ]    && add "libvips-dev libvips-tools"
+
+  [ -n "$PKG" ] && { apt-get update && apt-get install -y --no-install-recommends $PKG && apt-get clean && rm -rf /var/lib/apt/lists/*; }
+
+  [ "${PHP_EXT_GD:-false}" = "true" ] && { docker-php-ext-configure gd --enable-gd --with-freetype --with-jpeg --with-webp && docker-php-ext-install -j"$(nproc)" gd; } || true
+  [ "${PHP_EXT_IMAGICK:-false}" = "true" ] && { pecl install imagick && docker-php-ext-enable imagick; } || true
+  [ "${PHP_EXT_VIPS:-false}" = "true" ]    && { pecl install vips && docker-php-ext-enable vips; } || true
+
+  exit 0
+fi
+
+# RUNTIME libs
+PKG=""
+add(){ echo " $PKG " | grep -q " $1 " || PKG="$PKG $1"; }
+
+[ "${PHP_EXT_GD:-false}" = "true" ]       && add "libpng16-16 libjpeg62-turbo libfreetype6 libwebp7 libxpm4"
+[ "${PHP_EXT_IMAGICK:-false}" = "true" ]  && add "libmagickwand-6.q16-6 libmagickcore-6.q16-6-extra imagemagick"
+[ "${PHP_EXT_VIPS:-false}" = "true" ]     && add "libvips42 libvips-tools"
+
+[ -n "$PKG" ] && { apt-get update && apt-get install -y --no-install-recommends $PKG && apt-get clean && rm -rf /var/lib/apt/lists/*; }
+
+---
+
+### FILE: common/build/scripts/mani-php-ext-core.sh ###
+
+# File: common/build/scripts/mani-php-ext-core.sh
+#!/bin/sh
+# Domain: CORE PHP EXTENSIONS
+# Modes: --build (compile/pecl) | --runtime (runtime libs + ini toggles)
+set -e
+MODE="${1:---build}"
+export DEBIAN_FRONTEND=noninteractive
+
+if [ "$MODE" = "--build" ]; then
+  PKG=""
+  add(){ echo " $PKG " | grep -q " $1 " || PKG="$PKG $1"; }
+
+  [ "${PHP_EXT_INTL:-false}" = "true" ]   && add "libicu-dev"
+  [ "${PHP_EXT_SOAP:-false}" = "true" ]   && add "libxml2-dev"
+  [ "${PHP_EXT_ZIP:-false}" = "true" ]    && add "libzip-dev"
+  [ "${PHP_EXT_XSL:-false}" = "true" ]    && add "libxslt1-dev"
+  [ "${PHP_EXT_GMP:-false}" = "true" ]    && add "libgmp-dev"
+
+  [ -n "$PKG" ] && { apt-get update && apt-get install -y --no-install-recommends $PKG && apt-get clean && rm -rf /var/lib/apt/lists/*; }
+
+  docker-php-ext-install -j"$(nproc)" opcache
+  [ "${PHP_EXT_INTL:-false}" = "true" ]   && docker-php-ext-install -j"$(nproc)" intl || true
+  [ "${PHP_EXT_SOAP:-false}" = "true" ]   && docker-php-ext-install -j"$(nproc)" soap || true
+  [ "${PHP_EXT_ZIP:-false}" = "true" ]    && docker-php-ext-install -j"$(nproc)" zip  || true
+  [ "${PHP_EXT_XSL:-false}" = "true" ]    && docker-php-ext-install -j"$(nproc)" xsl  || true
+  [ "${PHP_EXT_GMP:-false}" = "true" ]    && docker-php-ext-install -j"$(nproc)" gmp  || true
+  [ "${PHP_EXT_BCMATH:-false}" = "true" ] && docker-php-ext-install -j"$(nproc)" bcmath || true
+  [ "${PHP_EXT_EXIF:-false}" = "true" ]   && docker-php-ext-install -j"$(nproc)" exif || true
+  [ "${PHP_EXT_PCNTL:-false}" = "true" ]  && docker-php-ext-install -j"$(nproc)" pcntl || true
+
+  # Xdebug: install only; ini controls activation at runtime
+  [ "${PHP_EXT_XDEBUG:-true}" = "true" ] && pecl install xdebug || true
+
+  # Swoole / OpenSwoole (optional)
+  if [ "${PHP_EXT_SWOOLE:-false}" = "true" ]; then
+    # try OpenSwoole first (preferred), then Swoole
+    (pecl install -o -f openswoole && docker-php-ext-enable openswoole) || \
+    (pecl install -o -f swoole      && docker-php-ext-enable swoole)
+  fi
+  
+  exit 0
+fi
+
+# RUNTIME
+PKG=""
+add(){ echo " $PKG " | grep -q " $1 " || PKG="$PKG $1"; }
+
+[ "${PHP_EXT_INTL:-false}" = "true" ] && add "libicu72"
+[ "${PHP_EXT_SOAP:-false}" = "true" ] && add "libxml2"
+[ "${PHP_EXT_ZIP:-false}" = "true" ]  && add "libzip4"
+[ "${PHP_EXT_XSL:-false}" = "true" ]  && add "libxslt1.1"
+[ "${PHP_EXT_GMP:-false}" = "true" ]  && add "libgmp10"
+
+[ -n "$PKG" ] && { apt-get update && apt-get install -y --no-install-recommends $PKG && apt-get clean && rm -rf /var/lib/apt/lists/*; }
+
+# If Xdebug disabled, drop ini to avoid loader warning
+[ "${PHP_EXT_XDEBUG:-true}" = "true" ] || rm -f /usr/local/etc/php/conf.d/92-docker-php-ext-xdebug.ini || true
+
+
+
+echo "----> Core PHP extensions installed successfully."
+
+---
+
+### FILE: common/build/scripts/mani-docker-install-js-runtime.sh ###
+
+#!/bin/bash
+# ============================================================================
+# mani-docker-install-js-runtime.sh (v3.0)
+# - Deterministic NVM install, Corepack activation, PATH fixes via symlinks
+# - Safe version echo (no outer-shell expansion), idempotent
+# ============================================================================
+set -euo pipefail
+
+: "${JS_RUNTIME_NODE_VERSION:=lts}"
+: "${JS_RUNTIME_REQUIRE_NODE:=true}"
+: "${JS_RUNTIME_REQUIRE_DENO:=false}"
+: "${JS_RUNTIME_REQUIRE_BUN:=false}"
+: "${JS_RUNTIME_REQUIRE_YARN:=false}"
+: "${JS_RUNTIME_REQUIRE_PNPM:=false}"
+
+install_node() {
+  echo "----> Installing Node.js (version: ${JS_RUNTIME_NODE_VERSION})..."
+  export NVM_DIR="/usr/local/nvm"
+  mkdir -p "$NVM_DIR"
+  if [ ! -s "$NVM_DIR/nvm.sh" ]; then
+    curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+  fi
+
+  bash -lc "\
+    export NVM_DIR=$NVM_DIR && \
+    . \"$NVM_DIR/nvm.sh\" && \
+    nvm install \"$JS_RUNTIME_NODE_VERSION\" && \
+    nvm alias default \"$JS_RUNTIME_NODE_VERSION\" && \
+    nvm use default && \
+    corepack enable && \
+    echo '      Node version: ' \"\$(node -v)\" && \
+    echo '      npm version:  ' \"\$(npm -v)\" && \
+    ln -sf \"\$(nvm which node)\" /usr/local/bin/node && \
+    ln -sf \"\$(dirname \$(nvm which node))/npm\" /usr/local/bin/npm && \
+    ln -sf \"\$(dirname \$(nvm which node))/npx\" /usr/local/bin/npx \
+  "
+}
+
+install_deno() {
+  echo "----> Installing Deno..."
+  if [ ! -x /usr/local/bin/deno ]; then
+    curl -fsSL https://deno.land/x/install/install.sh | sh
+    ln -sf /root/.deno/bin/deno /usr/local/bin/deno
+  fi
+}
+
+install_bun() {
+  echo "----> Installing Bun..."
+  if [ ! -x /usr/local/bin/bun ]; then
+    curl -fsSL https://bun.sh/install | bash
+    ln -sf /root/.bun/bin/bun /usr/local/bin/bun
+  fi
+}
+
+install_yarn() {
+  
+  bash -lc "
+    export NVM_DIR=/usr/local/nvm && \
+    . \"$NVM_DIR/nvm.sh\" && \
+    if command -v yarn >/dev/null 2>&1; then
+      echo '----> Skipping Yarn: already installed (version: ' \"\$(yarn --version)\" ')';
+    elif command -v npm >/dev/null 2>&1; then
+      echo '----> Installing Yarn via npm...';
+      npm install -g yarn && \
+      echo '      Yarn version: ' \"\$(yarn --version)\";
+    else
+      echo '      Skipping Yarn: npm not available';
+    fi
+  "
+}
+
+install_pnpm() {
+  bash -lc "\
+    export NVM_DIR=/usr/local/nvm && \
+    . \"$NVM_DIR/nvm.sh\" && \
+    if command -v corepack >/dev/null; then \
+      echo '----> Activating pnpm via Corepack...'; \
+      corepack prepare pnpm@latest --activate && \
+      echo '      pnpm version: ' \"\$(pnpm --version)\"; \
+    elif command -v npm >/dev/null; then \
+      echo '----> Installing pnpm via npm...'; \
+      npm install -g pnpm && \
+      echo '      pnpm version: ' \"\$(pnpm --version)\"; \
+    else \
+      echo '      Skipping pnpm: npm not available'; \
+    fi \
+  "
+}
+
+echo "----> Checking which JS runtimes to install..."
+[ "$JS_RUNTIME_REQUIRE_NODE" = "true" ] && install_node
+[ "$JS_RUNTIME_REQUIRE_DENO" = "true" ] && install_deno
+[ "$JS_RUNTIME_REQUIRE_BUN"  = "true" ] && install_bun
+
+if [ "$JS_RUNTIME_REQUIRE_NODE" = "true" ]; then
+  [ "$JS_RUNTIME_REQUIRE_YARN" = "true" ] && install_yarn
+  [ "$JS_RUNTIME_REQUIRE_PNPM" = "true" ] && install_pnpm
+fi
+
+
+# Add all relevant paths to the system profile to make them available in all shells
+# This ensures that when you 'docker exec' into the container, the commands are available.
+# echo "
+# # Add JS Runtime Paths
+# export NVM_DIR=\"/usr/local/nvm\"
+# [ -s \"\$NVM_DIR/nvm.sh\" ] && . \"\$NVM_DIR/nvm.sh\"
+# export DENO_INSTALL=\"/root/.deno\"
+# export PATH=\"\$DENO_INSTALL/bin:\$PATH\"
+# export BUN_INSTALL=\"/root/.bun\"
+# export PATH=\"\$BUN_INSTALL/bin:\$PATH\"
+# " > /etc/profile.d/js_runtimes.sh
+
+# Do not rely on /etc/profile.d inside containers; symlinks above guarantee availability.
+echo "----> JS runtime installation complete."
+
+---
+
+### FILE: common/build/scripts/mani-php-ext-db.sh ###
+
+# common/build/scripts/mani-php-ext-db.sh
+#!/bin/sh
+# ==============================================================================
+# Domain: DATABASE CLIENTS & EXTENSIONS (MySQL, PostgreSQL, SQLite, Redis, Memcached, MongoDB)
+# Modes:
+#   --build   : add repos if needed, install -dev, compile/pecl, clients
+#   --runtime : install runtime libs only (no -dev)
+# NOTE: fixed default arg parsing (MODE), grep-free add(), optional DEBUG tracing
+# ==============================================================================
+set -eu
+MODE="${1:---build}"
+export DEBIAN_FRONTEND=noninteractive
+[ "${DEBUG:-0}" = "1" ] && set -x && (env | grep -E '^(INSTALL_DB|DB_PGSQL|PHP_EXT_)' | sort || true)
+
+# safe dedup without grep (avoids set -e pitfalls)
+add() {
+  case " ${PKG:-} " in *" $1 "*) ;; *) PKG="${PKG:-} $1" ;; esac
+}
+
+if [ "$MODE" = "--build" ]; then
+  # Repos & clients
+  if [ "${INSTALL_DB_PGSQL_CLIENT:-false}" = "true" ]; then
+    apt-get update && apt-get install -y curl gnupg lsb-release && \
+    curl -sS https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor -o /usr/share/keyrings/postgresql-key.gpg && \
+    echo "deb [signed-by=/usr/share/keyrings/postgresql-key.gpg] http://apt.postgresql.org/pub/repos/apt/ $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list && \
+    apt-get update && apt-get install -y "postgresql-client-${DB_PGSQL_CLIENT_VERSION:-18}"
+  fi
+  if [ "${INSTALL_DB_MYSQL_CLIENT:-false}" = "true" ]; then
+    apt-get update && apt-get install -y default-mysql-client
+  fi
+
+  # Build deps
+  PKG=""
+  [ "${PHP_EXT_PDO_PGSQL:-false}" = "true" ] && add libpq-dev
+  if [ "${PHP_EXT_MEMCACHED:-false}" = "true" ]; then
+    add libmemcached-dev; add zlib1g-dev; add libzstd-dev; add libevent-dev
+  fi
+  [ "${PHP_EXT_MONGODB:-false}" = "true" ] && add libssl-dev
+  if [ "${PHP_EXT_SQLITE:-false}" = "true" ] || [ "${PHP_EXT_PDO_SQLITE:-false}" = "true" ]; then
+    add libsqlite3-dev
+  fi
+  if [ -n "${PKG:-}" ]; then
+    apt-get update && apt-get install -y --no-install-recommends $PKG && apt-get clean && rm -rf /var/lib/apt/lists/*
+  fi
+
+  # Core ext compile
+  [ "${PHP_EXT_PDO_MYSQL:-false}" = "true" ]  && docker-php-ext-install -j"$(nproc)" pdo_mysql || true
+  [ "${PHP_EXT_PDO_PGSQL:-false}" = "true" ]  && docker-php-ext-install -j"$(nproc)" pdo_pgsql || true
+  [ "${PHP_EXT_SQLITE:-false}" = "true" ]     && docker-php-ext-install -j"$(nproc)" sqlite3   || true
+  [ "${PHP_EXT_PDO_SQLITE:-false}" = "true" ] && docker-php-ext-install -j"$(nproc)" pdo_sqlite || true
+
+  # PECL ext
+  [ "${PHP_EXT_REDIS:-false}" = "true" ]      && { pecl install -o -f redis     && docker-php-ext-enable redis; }     || true
+  [ "${PHP_EXT_MEMCACHED:-false}" = "true" ]  && { pecl install -o -f memcached && docker-php-ext-enable memcached; } || true
+  [ "${PHP_EXT_MONGODB:-false}" = "true" ]    && { pecl install -o -f mongodb   && docker-php-ext-enable mongodb; }   || true
+  exit 0
+fi
+
+# --runtime: libs only
+PKG=""
+[ "${PHP_EXT_PDO_PGSQL:-false}" = "true" ] && add libpq5
+if [ "${PHP_EXT_MEMCACHED:-false}" = "true" ]; then
+  add libmemcached11; add libzstd1; add libevent-2.1-7
+fi
+[ "${PHP_EXT_MONGODB:-false}" = "true" ] && add libssl3
+if [ "${PHP_EXT_SQLITE:-false}" = "true" ] || [ "${PHP_EXT_PDO_SQLITE:-false}" = "true" ]; then
+  add libsqlite3-0
+fi
+if [ -n "${PKG:-}" ]; then
+  apt-get update && apt-get install -y --no-install-recommends $PKG && apt-get clean && rm -rf /var/lib/apt/lists/*
+fi
+
+---
+
+### FILE: common/build/scripts/mani-docker-install-system-deps.sh ###
+
+#!/bin/sh
+set -e
+export DEBIAN_FRONTEND=noninteractive
+apt-get update
+apt-get install -y --no-install-recommends \
+  apt-transport-https ca-certificates gnupg lsb-release curl git nano zip unzip \
+  gosu procps sqlite3 libcap2-bin libzip-dev libssl-dev build-essential \
+  pkg-config autoconf dnsutils locales locales-all acl dos2unix
+apt-get clean && rm -rf /var/lib/apt/lists/*
+echo "----> System dependencies installed successfully."
+
+---
+
+### FILE: public/index.php ###
+
+<?php
+echo "<h1>Hello World</h1>";
+echo phpinfo();
+
+---
+
+### FILE: public/34.php ###
+
+<?php
+
+echo "<h1>Hello Swoole sds f</h1>";
+
+?>
+
+---
+
+### FILE: public/text.txt ###
+
+asdasda asdasdaas dasf
+
+---
+
+### FILE: .container-history/bash_history ###
+
+curl -I localhost
+px aux
+ps aux
+mani-sanity
+exit
+history 
+ps aux
+nginx -t && nginx -T | head -n 60
+curl -I localhost
+mani-sanity
+mani-sanity
+history
+exit
+mani-sanity
+exit
+mani-sanity
+php -v
+curl localhost
+
+---
+
+### FILE: scripts/lint-shell.sh ###
+
+
+---
+
+### FILE: scripts/smoke.sh ###
+
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Usage: scripts/smoke.sh php/8.4/nginx/Dockerfile development 8088
+DF="${1:-php/8.4/nginx/Dockerfile}"
+TARGET="${2:-development}"
+PORT="${3:-8088}"
+TAG="mani-smoke-$(basename "$(dirname "$DF")")-$(basename "$(dirname "$(dirname "$DF")")")-$TARGET-$$"
+
+echo "==> Building $TAG from $DF ($TARGET)"
+docker build -f "$DF" --target "$TARGET" -t "$TAG" .
+
+cid=""
+cleanup() { [[ -n "$cid" ]] && docker rm -f "$cid" >/dev/null 2>&1 || true; }
+trap cleanup EXIT
+
+echo "==> Running on :$PORT"
+cid=$(docker run -d -p "$PORT:80" -v "$PWD:/var/www/html" --name "$TAG" "$TAG")
+# wait for port
+for i in {1..30}; do
+  if curl -sS "http://localhost:$PORT" >/dev/null; then break; fi
+  sleep 1
+done
+
+echo "==> HTTP probe"
+curl -sS -D - "http://localhost:$PORT" -o /dev/null | sed -n '1,10p'
+
+echo "==> Sanity"
+docker exec -it "$cid" mani-sanity || true
+
+echo "==> PHP extensions"
+docker exec -it "$cid" php -m | sed -n '1,200p'
+
+echo "==> OK"
+
+---
+
+### FILE: scripts/ci-matrix.sh ###
+
+#!/usr/bin/env bash
+set -euo pipefail
+
+VERSIONS=(8.2 8.3 8.4)
+VARIANTS=(apache nginx frankenphp swoole)
+TARGET=development
+PORT_BASE=9000
+
+for v in "${VERSIONS[@]}"; do
+#   for var in "${VARIANTS[@]}"; do
+#     DF="php/$v/$var/Dockerfile"
+#     [[ -f "$DF" ]] || { echo "skip $DF"; continue; }
+#     PORT=$((PORT_BASE++))
+#     echo "---- $v/$var -> $PORT ----"
+#     bash scripts/smoke.sh "$DF" "$TARGET" "$PORT"
+#   done
+done
+
+---
+
+### FILE: scripts/validate-s6.sh ###
+
+#!/usr/bin/env bash
+set -euo pipefail
+err=0
+
+# executable bits
+while IFS= read -r -d '' f; do
+  if [[ ! -x "$f" ]]; then
+    echo "FIXME: not executable: $f"
+    err=1
+  fi
+done < <(find common/runtime/s6 -type f \( -name run -o -name finish \) -print0)
+
+# service types present
+while IFS= read -r -d '' d; do
+  if [[ ! -f "$d/type" ]]; then
+    echo "FIXME: missing type file in $d"
+    err=1
+  fi
+done < <(find common/runtime/s6/variants -maxdepth 3 -type d -name '[a-z]*' -path '*/services.d/*' -print0)
+
+# CRLF check
+if git ls-files -z | xargs -0 file | grep -E "CRLF|CR line terminators" >/dev/null 2>&1; then
+  echo "WARN: CRLF found in repo. Convert to LF for s6 scripts."
+fi
+
+exit $err
+
+---
+
+### FILE: scripts/lint-dockerfiles.sh ###
+
+#!/usr/bin/env bash
+set -euo pipefail
+# Lightweight checks without hadolint
+fail=0
+while IFS= read -r -d '' df; do
+  grep -q '^FROM ' "$df" || { echo "Dockerfile missing FROM: $df"; fail=1; }
+  grep -q 'SHELL \["/bin/bash"' "$df" || echo "INFO: consider Bash shell for pipefail in $df"
+done < <(find php -name Dockerfile -print0)
+
+exit $fail
+
+---
+
+### FILE: docker-compose.test.yml ###
+
+# ==============================================================================
+# MANI Project - Docker Compose Test Environment
+#
+# Description:
+#   This file defines a complete development stack for the MANI PHP environment.
+#   It builds the specified PHP image and runs it alongside common services
+#   like a database and cache. All settings are configurable via a `.env` file.
+#
+# Usage:
+#   1. Create a `.env` file from the `.env.example` template.
+#   2. Customize the `.env` file with your desired build arguments and ports.
+#   3. Run `docker-compose -f docker-compose.test.yml up --build`
+# ==============================================================================
+services:
+  # The main application service, built from our custom Dockerfile
+  app:
+    container_name: mani-app-apache
+    build:
+      context: .
+      #dockerfile: php/8.4/apache/Dockerfile
+      dockerfile: php/8.4/nginx/Dockerfile
+      target: development
+      args:
+        # --- Build-Time Arguments ---
+        # These arguments control what gets installed in the image.
+        # They are all read from the .env file, with sensible defaults.
+
+        # --- JS Runtime Configuration ---
+        JS_RUNTIME_REQUIRE_NODE: ${JS_RUNTIME_REQUIRE_NODE:-true}
+        JS_RUNTIME_NODE_VERSION: ${JS_RUNTIME_NODE_VERSION:-22}
+        JS_RUNTIME_REQUIRE_DENO: ${JS_RUNTIME_REQUIRE_DENO:-true}
+        JS_RUNTIME_REQUIRE_BUN: ${JS_RUNTIME_REQUIRE_BUN:-true}
+        JS_RUNTIME_REQUIRE_YARN: ${JS_RUNTIME_REQUIRE_YARN:-true}
+        JS_RUNTIME_REQUIRE_PNPM: ${JS_RUNTIME_REQUIRE_PNPM:-true}
+
+        # --- Database Client & Extension Configuration ---
+        # NOTE: The logic has been simplified to apply defaults directly.
+        INSTALL_DB_PGSQL_CLIENT: ${INSTALL_POSTGRES_STACK:-false}
+        DB_PGSQL_CLIENT_VERSION: ${DB_PGSQL_CLIENT_VERSION:-17}
+        INSTALL_DB_MYSQL_CLIENT: ${INSTALL_MYSQL_STACK:-true}
+        PHP_EXT_PDO_PGSQL: ${INSTALL_POSTGRES_STACK:-false}
+        PHP_EXT_PDO_MYSQL: ${INSTALL_MYSQL_STACK:-true}
+
+        # --- Other PHP Extension Configuration ---
+        PHP_EXT_MONGODB: ${PHP_EXT_MONGODB:-false}
+        PHP_EXT_REDIS: ${PHP_EXT_REDIS:-false}
+        PHP_EXT_SWOOLE: ${PHP_EXT_SWOOLE:-true}
+        PHP_EXT_MEMCACHED: ${PHP_EXT_MEMCACHED:-false}
+        PHP_EXT_GD: ${PHP_EXT_GD:-true}
+        PHP_EXT_IMAGICK: ${PHP_EXT_IMAGICK:-true}
+        PHP_EXT_VIPS: ${PHP_EXT_VIPS:-true}
+        PHP_EXT_XDEBUG: ${PHP_EXT_XDEBUG:-true}
+
+    ports:
+      - "${APP_PORT:-8081}:80"
+    volumes:
+      # Mount your application code into the container for live development.
+      - .:/var/www/html
+      # - ./xyz:/opt/overlay:ro  
+      # Optional: ad-hoc apt installs at runtime (dev only)
+      # EXTRA_APT_PACKAGES: "git jq"
+    
+    # healthcheck:
+      # test: ["CMD", "/usr/local/bin/healthcheck-apache.sh"]
+      # interval: 30s
+      # timeout: 3s
+      # retries: 5
+    environment:
+      # --- Run-Time Environment Variables ---
+      # These variables configure the running container.
+      PUID: ${PUID:-1000}
+      PGID: ${PGID:-1000}
+      SWOOLE_WATCH: "1"
+      ENABLE_QUEUE_WORKER: ${ENABLE_QUEUE_WORKER:-false}
+
+      DISABLE_XDEBUG_IN_SWOOLE: ${DISABLE_XDEBUG_IN_SWOOLE:-1}
+      SWOOLE_WORKER_NUM: auto
+      SWOOLE_MAX_REQUESTS: "20000"
+      SWOOLE_HTTP_COMPRESSION: "1"
+
+      XDEBUG_MODE: ${XDEBUG_MODE:-off}
+      XDEBUG_CLIENT_HOST: ${XDEBUG_CLIENT_HOST:-host.docker.internal}
+      # Pass connection details for other services
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: ${DB_DATABASE:-laravel}
+      DB_USERNAME: ${DB_USERNAME:-user}
+      DB_PASSWORD: ${DB_PASSWORD:-password}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    # depends_on:
+    #   - db
+    #   - redis
+    networks:
+      - maninet
+
+# MySQL Database Service
+# db:
+#   image: mysql:8.0
+#   container_name: mani-db-mysql
+#   ports:
+#     - "${DB_PORT:-3306}:3306"
+#   environment:
+#     MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-secret}
+#     MYSQL_DATABASE: ${DB_DATABASE:-laravel}
+#     MYSQL_USER: ${DB_USERNAME:-user}
+#     MYSQL_PASSWORD: ${DB_PASSWORD:-password}
+#   volumes:
+#     - db_data:/var/lib/mysql
+#   networks:
+#     - maninet
+
+# Redis Cache Service
+# redis:
+#   image: redis:alpine
+#   container_name: mani-cache-redis
+#   ports:
+#     - "${REDIS_PORT:-6379}:6379"
+#   networks:
+#     - maninet
+
+# Define the shared network for all services
+networks:
+  maninet:
+    driver: bridge
+
+# Define the persistent volume for the database
+volumes:
+  db_data:
+    driver: local
+
