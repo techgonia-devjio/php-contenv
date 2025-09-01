@@ -1,0 +1,22 @@
+#!/bin/sh
+# ==============================================================================
+# S6 Service Script for Apache2
+#
+# Description:
+#   This script is executed by the S6 process manager to start the Apache
+#   web server. It ensures that the environment is correctly set up and that
+#   Apache runs in the foreground so S6 can properly supervise it.
+# ==============================================================================
+
+set -e
+
+# Source the Apache environment variables to ensure paths are set correctly.
+. /etc/apache2/envvars
+
+echo "----> Starting Apache2 service..."
+
+# The 'exec' command is crucial. It replaces the shell process with the
+# apache2ctl process. This ensures that Apache becomes the direct child
+# of the S6 supervisor, allowing S6 to correctly manage its lifecycle
+# and receive its signals (like for shutdown).
+exec /usr/sbin/apache2ctl -D FOREGROUND

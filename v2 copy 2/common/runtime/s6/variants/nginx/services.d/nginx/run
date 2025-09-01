@@ -1,0 +1,10 @@
+#!/bin/sh
+# ==============================================================================
+# S6 Service Script for Nginx
+# ==============================================================================
+
+set -e
+echo "----> Starting Nginx service..."
+# The 'exec' command is crucial for S6 to properly supervise the process.
+# '-g "daemon off;"' tells Nginx to run in the foreground.
+exec nginx -g "daemon off;"

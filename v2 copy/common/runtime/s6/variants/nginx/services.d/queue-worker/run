@@ -1,0 +1,33 @@
+#!/command/with-contenv bash
+# ==============================================================================
+# S6 Service Script for Laravel Queue Worker
+#
+# Description:
+#   This script runs a standard Laravel queue worker. It is enabled by setting
+#   the ENABLE_QUEUE_WORKER environment variable to "true".
+# ==============================================================================
+
+set -e
+
+# Exit immediately if the queue worker is not explicitly enabled.
+# This makes the service opt-in.
+if [ "${ENABLE_QUEUE_WORKER}" != "true" ]; then
+    # S6 requires a service to run something, so we use 's6-svscan-log'
+    # which is a no-op that logs a message and exits cleanly.
+    exec s6-svscan-log -n1 -- 'Queue worker is disabled. Exiting.'
+fi
+
+# Check if the artisan file exists before trying to run the worker.
+if [ ! -f /var/www/html/artisan ]; then
+    exec s6-svscan-log -n1 -- 'Artisan file not found. Disabling queue worker.'
+fi
+
+echo "----> Starting Laravel queue worker..."
+
+# Execute the artisan queue:work command as the 'mani' user.
+# The 'exec' command is crucial for proper process supervision by S6.
+exec /usr/bin/s6-setuidgid mani \
+    php /var/www/html/artisan queue:work \
+        --verbose \
+        --tries=3 \
+        --timeout=90

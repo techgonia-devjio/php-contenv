@@ -1,0 +1,6 @@
+# FILE: common/runtime/s6/variants/apache/services.d/apache/log/run
+#!/bin/sh
+# s6 logging: rotate and keep last 10 files
+# Logs are already redirected to stdout/stderr by vhost config,
+# but keeping this in case you switch to file-based logs later.
+exec /command/s6-log n10 s100000 T /var/log/apache

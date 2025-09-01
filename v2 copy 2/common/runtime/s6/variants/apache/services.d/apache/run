@@ -1,0 +1,12 @@
+#!/bin/sh
+set -e
+
+. /etc/apache2/envvars
+
+echo "----> Starting Apache2 service..."
+
+# The 'exec' command is crucial. It replaces the shell process with the
+# apache2ctl process. This ensures that Apache becomes the direct child
+# of the S6 supervisor, allowing S6 to correctly manage its lifecycle
+# and receive its signals (like for shutdown).
+exec /usr/sbin/apache2ctl -D FOREGROUND

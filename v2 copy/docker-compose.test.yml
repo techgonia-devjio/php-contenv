@@ -1,0 +1,112 @@
+# ==============================================================================
+# MANI Project - Docker Compose Test Environment
+#
+# Description:
+#   This file defines a complete development stack for the MANI PHP environment.
+#   It builds the specified PHP image and runs it alongside common services
+#   like a database and cache. All settings are configurable via a `.env` file.
+#
+# Usage:
+#   1. Create a `.env` file from the `.env.example` template.
+#   2. Customize the `.env` file with your desired build arguments and ports.
+#   3. Run `docker-compose -f docker-compose.test.yml up --build`
+# ==============================================================================
+services:
+  # The main application service, built from our custom Dockerfile
+  app:
+    container_name: mani-app-apache
+    build:
+      context: .
+      dockerfile: php/8.4/apache/Dockerfile
+      target: development
+      args:
+        # --- Build-Time Arguments ---
+        # These arguments control what gets installed in the image.
+        # They are all read from the .env file, with sensible defaults.
+
+        # --- JS Runtime Configuration ---
+        JS_RUNTIME_REQUIRE_NODE: ${JS_RUNTIME_REQUIRE_NODE:-true}
+        JS_RUNTIME_NODE_VERSION: ${JS_RUNTIME_NODE_VERSION:-22}
+        JS_RUNTIME_REQUIRE_DENO: ${JS_RUNTIME_REQUIRE_DENO:-true}
+        JS_RUNTIME_REQUIRE_BUN: ${JS_RUNTIME_REQUIRE_BUN:-true}
+        JS_RUNTIME_REQUIRE_YARN: ${JS_RUNTIME_REQUIRE_YARN:-true}
+        JS_RUNTIME_REQUIRE_PNPM: ${JS_RUNTIME_REQUIRE_PNPM:-true}
+
+        # --- Database Client & Extension Configuration ---
+        # NOTE: The logic has been simplified to apply defaults directly.
+        INSTALL_DB_PGSQL_CLIENT: ${INSTALL_POSTGRES_STACK:-false}
+        DB_PGSQL_CLIENT_VERSION: ${DB_PGSQL_CLIENT_VERSION:-17}
+        INSTALL_DB_MYSQL_CLIENT: ${INSTALL_MYSQL_STACK:-true}
+        PHP_EXT_PDO_PGSQL: ${INSTALL_POSTGRES_STACK:-false}
+        PHP_EXT_PDO_MYSQL: ${INSTALL_MYSQL_STACK:-true}
+
+        # --- Other PHP Extension Configuration ---
+        PHP_EXT_MONGODB: ${PHP_EXT_MONGODB:-false}
+        PHP_EXT_REDIS: ${PHP_EXT_REDIS:-false}
+        PHP_EXT_MEMCACHED: ${PHP_EXT_MEMCACHED:-false}
+        PHP_EXT_GD: ${PHP_EXT_GD:-true}
+        PHP_EXT_IMAGICK: ${PHP_EXT_IMAGICK:-true}
+        PHP_EXT_VIPS: ${PHP_EXT_VIPS:-true}
+        PHP_EXT_XDEBUG: ${PHP_EXT_XDEBUG:-true}
+
+    ports:
+      - "${APP_PORT:-8080}:80"
+    volumes:
+      # Mount your application code into the container for live development.
+      - .:/var/www/html
+    environment:
+      # --- Run-Time Environment Variables ---
+      # These variables configure the running container.
+      INSTALL_MYSQL_STACK: ${INSTALL_MYSQL_STACK:-false}
+      INSTALL_POSTGRES_STACK: ${INSTALL_POSTGRES_STACK:-false}
+      PUID: ${PUID:-1000}
+      PGID: ${PGID:-1000}
+      ENABLE_QUEUE_WORKER: ${ENABLE_QUEUE_WORKER:-false}
+      # Pass connection details for other services
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: ${DB_DATABASE:-laravel}
+      DB_USERNAME: ${DB_USERNAME:-user}
+      DB_PASSWORD: ${DB_PASSWORD:-password}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    # depends_on:
+    #   - db
+    #   - redis
+    networks:
+      - maninet
+
+# MySQL Database Service
+# db:
+#   image: mysql:8.0
+#   container_name: mani-db-mysql
+#   ports:
+#     - "${DB_PORT:-3306}:3306"
+#   environment:
+#     MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-secret}
+#     MYSQL_DATABASE: ${DB_DATABASE:-laravel}
+#     MYSQL_USER: ${DB_USERNAME:-user}
+#     MYSQL_PASSWORD: ${DB_PASSWORD:-password}
+#   volumes:
+#     - db_data:/var/lib/mysql
+#   networks:
+#     - maninet
+
+# Redis Cache Service
+# redis:
+#   image: redis:alpine
+#   container_name: mani-cache-redis
+#   ports:
+#     - "${REDIS_PORT:-6379}:6379"
+#   networks:
+#     - maninet
+
+# Define the shared network for all services
+networks:
+  maninet:
+    driver: bridge
+
+# Define the persistent volume for the database
+volumes:
+  db_data:
+    driver: local
