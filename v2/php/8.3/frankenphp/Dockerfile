@@ -1,6 +1,8 @@
-
-ARG PHP_VERSION=8.4
-FROM php:${PHP_VERSION}-apache-bookworm AS base
+ARG PHP_VERSION=8.3
+ARG FrankenPHP_Version=1
+ARG OS=bookworm
+FROM dunglas/frankenphp:${FrankenPHP_Version}-php${PHP_VERSION}-${OS} AS base
+# If this tag ever 404s, try: ghcr.io/dunglas/frankenphp:1-php8.4-bookworm
 
 ENV DEBIAN_FRONTEND=noninteractive \
     COMPOSER_ALLOW_SUPERUSER=1
@@ -12,25 +14,21 @@ COPY common/build/scripts/mani-docker-install-system-deps.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/mani-docker-install-system-deps.sh \
  && mani-docker-install-system-deps.sh
 
-# Apache modules
-RUN a2enmod rewrite headers env dir mime proxy proxy_fcgi setenvif
-
 # ---------- Build tools & optional components ----------
 FROM base AS build_tools
 
-# DB Clients
+# DB Clients + PHP Extensions feature flags (same knobs you already use)
 ARG INSTALL_DB_PGSQL_CLIENT=false
 ARG DB_PGSQL_CLIENT_VERSION=18
 ARG INSTALL_DB_MYSQL_CLIENT=false
 
-# PHP Extensions (feature flags)
 ARG PHP_EXT_PDO_PGSQL=false
 ARG PHP_EXT_PDO_MYSQL=false
 ARG PHP_EXT_PDO_SQLITE=false
 ARG PHP_EXT_SQLITE=false
 ARG PHP_EXT_MONGODB=false
 ARG PHP_EXT_REDIS=false
-ARG PHP_EXT_MEMCACHED=true
+ARG PHP_EXT_MEMCACHED=false
 
 ARG PHP_EXT_GD=true
 ARG PHP_EXT_IMAGICK=true
@@ -54,13 +52,13 @@ ARG JS_RUNTIME_REQUIRE_BUN=false
 ARG JS_RUNTIME_REQUIRE_YARN=false
 ARG JS_RUNTIME_REQUIRE_PNPM=false
 
-# Domain scripts
+# Extension installers (same domain scripts you already have)
 COPY common/build/scripts/mani-php-ext-core.sh   /usr/local/bin/
 COPY common/build/scripts/mani-php-ext-db.sh     /usr/local/bin/
 COPY common/build/scripts/mani-php-ext-images.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/mani-php-ext-*.sh
 
-# Build-time: DB stack (repos/clients, -dev, compile/pecl)
+# Build-time passes
 ENV INSTALL_DB_PGSQL_CLIENT=${INSTALL_DB_PGSQL_CLIENT} \
     DB_PGSQL_CLIENT_VERSION=${DB_PGSQL_CLIENT_VERSION} \
     INSTALL_DB_MYSQL_CLIENT=${INSTALL_DB_MYSQL_CLIENT} \
@@ -73,13 +71,11 @@ ENV INSTALL_DB_PGSQL_CLIENT=${INSTALL_DB_PGSQL_CLIENT} \
     PHP_EXT_MEMCACHED=${PHP_EXT_MEMCACHED}
 RUN mani-php-ext-db.sh --build
 
-# Build-time: Image drivers
 ENV PHP_EXT_GD=${PHP_EXT_GD} \
     PHP_EXT_IMAGICK=${PHP_EXT_IMAGICK} \
     PHP_EXT_VIPS=${PHP_EXT_VIPS}
 RUN mani-php-ext-images.sh --build
 
-# Build-time: Core non-DB extensions (+ Xdebug install only)
 ENV PHP_EXT_INTL=${PHP_EXT_INTL} \
     PHP_EXT_SOAP=${PHP_EXT_SOAP} \
     PHP_EXT_ZIP=${PHP_EXT_ZIP} \
@@ -122,39 +118,41 @@ FROM composer:latest AS composer
 # ---------- Final base ----------
 FROM base AS final_base
 
+# s6
 COPY --from=s6-installer /tmp/s6-overlay-*.tar.xz /tmp/
 RUN tar -C / -Jxpf /tmp/s6-overlay-noarch.tar.xz \
  && tar -C / -Jxpf /tmp/s6-overlay-arch.tar.xz \
  && rm /tmp/s6-overlay-*.tar.xz
 
-# Configs + s6 (legacy paths)
-COPY common/runtime/configs/php/     /usr/local/etc/php/conf.d/
-COPY common/runtime/configs/apache/  /etc/apache2/
-COPY common/runtime/s6/cont-init.d/   /etc/cont-init.d/
-COPY common/runtime/s6/cont-finish.d/ /etc/cont-finish.d/
-COPY common/runtime/s6/variants/apache/services.d/ /etc/services.d/
+# PHP conf + FrankenPHP (Caddyfile) + s6 services
+COPY common/runtime/configs/php/           /usr/local/etc/php/conf.d/
+COPY common/runtime/configs/frankenphp/    /etc/caddy/
+COPY common/runtime/s6/cont-init.d/         /etc/cont-init.d/
+COPY common/runtime/s6/cont-finish.d/       /etc/cont-finish.d/
+COPY common/runtime/s6/variants/frankenphp/services.d/ /etc/services.d/
 
-# Normalize EOLs and ensure +x for s6 scripts
+# Normalize EOLs and +x for s6
 RUN find /etc/cont-init.d /etc/cont-finish.d /etc/services.d -type f -exec dos2unix {} \; \
  && chmod -R a+rx /etc/cont-init.d /etc/cont-finish.d \
  && find /etc/services.d -type f -name run -exec chmod a+rx {} \; \
  && find /etc/services.d -type f -name finish -exec chmod a+rx {} \; \
- && find /etc/services.d -type f -path '*/log/run' -exec chmod a+rx {} \;
-# && printf '%s\n' '#!/bin/sh' 'exec /command/s6-log n10 s100000 T /var/log/apache' > /etc/services.d/apache/log/run \
-# && chmod +x /etc/services.d/apache/log/run
+ && find /etc/services.d -type f -path '*/log/run' -exec chmod a+rx {} \; 
 
-COPY common/runtime/sanity/mani-sanity.sh /usr/local/bin/mani-sanity
-COPY common/runtime/profile/zz-history.sh  /etc/profile.d/zz-history.sh
-RUN chmod +x /usr/local/bin/mani-sanity && chmod 644 /etc/profile.d/zz-history.sh \
- && printf '\n[ -r /etc/profile.d/zz-history.sh ] && . /etc/profile.d/zz-history.sh\n' >> /etc/bash.bashrc
 
+ENV HOME=/root \
+    XDG_CONFIG_HOME=/etc/caddy \
+    XDG_DATA_HOME=/var/lib/caddy \
+    XDG_STATE_HOME=/var/lib/caddy
+
+RUN mkdir -p /var/lib/caddy /etc/caddy \
+ && chown -R www-data:www-data /var/lib/caddy || true
+ 
 # Healthcheck
-COPY common/runtime/healthchecks/healthcheck-apache.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/healthcheck-apache.sh
-HEALTHCHECK --interval=30s --timeout=5s --retries=5 CMD /usr/local/bin/healthcheck-apache.sh || exit 1
+COPY common/runtime/healthchecks/healthcheck-frankenphp.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/healthcheck-frankenphp.sh
+HEALTHCHECK --interval=30s --timeout=5s --retries=5 CMD /usr/local/bin/healthcheck-frankenphp.sh || exit 1
 
-# ---------- Runtime libs in final image (domain scripts in --runtime mode) ----------
-# Re-declare args and promote to ENV for this stage
+# Runtime libs in final image (domain scripts in --runtime mode)
 ARG INSTALL_DB_PGSQL_CLIENT=true
 ARG DB_PGSQL_CLIENT_VERSION=18
 ARG INSTALL_DB_MYSQL_CLIENT=true
@@ -163,9 +161,9 @@ ARG PHP_EXT_PDO_PGSQL=true
 ARG PHP_EXT_PDO_MYSQL=true
 ARG PHP_EXT_PDO_SQLITE=false
 ARG PHP_EXT_SQLITE=false
-ARG PHP_EXT_MONGODB=true
-ARG PHP_EXT_REDIS=true
-ARG PHP_EXT_MEMCACHED=true
+ARG PHP_EXT_MONGODB=false
+ARG PHP_EXT_REDIS=false
+ARG PHP_EXT_MEMCACHED=false
 
 ARG PHP_EXT_GD=true
 ARG PHP_EXT_IMAGICK=true
@@ -173,13 +171,13 @@ ARG PHP_EXT_VIPS=true
 
 ARG PHP_EXT_XDEBUG=true
 ARG PHP_EXT_INTL=true
-ARG PHP_EXT_SOAP=false
+ARG PHP_EXT_SOAP=true
 ARG PHP_EXT_ZIP=true
-ARG PHP_EXT_XSL=false
-ARG PHP_EXT_GMP=false
-ARG PHP_EXT_BCMATH=false
-ARG PHP_EXT_EXIF=false
-ARG PHP_EXT_PCNTL=false
+ARG PHP_EXT_XSL=true
+ARG PHP_EXT_GMP=true
+ARG PHP_EXT_BCMATH=true
+ARG PHP_EXT_EXIF=true
+ARG PHP_EXT_PCNTL=true
 
 ENV INSTALL_DB_PGSQL_CLIENT=${INSTALL_DB_PGSQL_CLIENT} \
     DB_PGSQL_CLIENT_VERSION=${DB_PGSQL_CLIENT_VERSION} \
@@ -204,16 +202,23 @@ ENV INSTALL_DB_PGSQL_CLIENT=${INSTALL_DB_PGSQL_CLIENT} \
     PHP_EXT_EXIF=${PHP_EXT_EXIF} \
     PHP_EXT_PCNTL=${PHP_EXT_PCNTL}
 
-# Copy domain scripts for runtime pass
 COPY common/build/scripts/mani-php-ext-core.sh   /usr/local/bin/
 COPY common/build/scripts/mani-php-ext-db.sh     /usr/local/bin/
 COPY common/build/scripts/mani-php-ext-images.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/mani-php-ext-*.sh
 
-# Runtime passes (only shared libs and ini toggles)
 RUN mani-php-ext-db.sh --runtime
 RUN mani-php-ext-images.sh --runtime
 RUN mani-php-ext-core.sh --runtime
+
+# Sanity tool + bash history timestamping
+COPY common/runtime/sanity/mani-sanity.sh /usr/local/bin/mani-sanity
+COPY common/runtime/profile/zz-history.sh  /etc/profile.d/zz-history.sh
+RUN chmod +x /usr/local/bin/mani-sanity && chmod 644 /etc/profile.d/zz-history.sh \
+ && printf '\n[ -r /etc/profile.d/zz-history.sh ] && . /etc/profile.d/zz-history.sh\n' >> /etc/bash.bashrc
+
+# COPY common/build/scripts/mani-sanity.sh /usr/local/bin/mani-sanity
+# RUN chmod +x /usr/local/bin/mani-sanity
 
 # ---------- Production ----------
 FROM final_base AS production
@@ -238,9 +243,9 @@ COPY --from=build_tools /usr/local/ /usr/local/
 COPY --from=build_tools /etc/apt/sources.list.d/ /etc/apt/sources.list.d/
 COPY --from=composer /usr/bin/composer /usr/local/bin/composer
 
-RUN mkdir -p /var/log/{php,apache2,frankenphp,nginx} \
- && chown -R www-data:www-data /var/log/{php,apache2,frankenphp,nginx} \
- && chmod -R 775 /var/log/{php,apache2,frankenphp,nginx}
+RUN mkdir -p /var/log/{php,frankenphp} \
+ && chown -R www-data:www-data /var/log/{php,frankenphp} \
+ && chmod -R 775 /var/log/{php,frankenphp}
 
 WORKDIR /var/www/html
 EXPOSE 80

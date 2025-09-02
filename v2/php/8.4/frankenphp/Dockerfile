@@ -1,4 +1,3 @@
-# PHP 8.4 + FrankenPHP (Caddy) — Dev/Prod, s6, same extension installers, healthcheck
 ARG PHP_VERSION=8.4
 # OS: bookworm or alpine
 ARG FrankenPHP_Version=1
@@ -138,10 +137,7 @@ RUN find /etc/cont-init.d /etc/cont-finish.d /etc/services.d -type f -exec dos2u
  && chmod -R a+rx /etc/cont-init.d /etc/cont-finish.d \
  && find /etc/services.d -type f -name run -exec chmod a+rx {} \; \
  && find /etc/services.d -type f -name finish -exec chmod a+rx {} \; \
- && find /etc/services.d -type f -path '*/log/run' -exec chmod a+rx {} \; \
- && mkdir -p /var/log/{php,frankenphp} \
- && chown -R www-data:www-data /var/log/{php,frankenphp} \
- && chmod -R 775 /var/log/{php,frankenphp}
+ && find /etc/services.d -type f -path '*/log/run' -exec chmod a+rx {} \; 
 
 
 ENV HOME=/root \
@@ -158,12 +154,12 @@ RUN chmod +x /usr/local/bin/healthcheck-frankenphp.sh
 HEALTHCHECK --interval=30s --timeout=5s --retries=5 CMD /usr/local/bin/healthcheck-frankenphp.sh || exit 1
 
 # Runtime libs in final image (domain scripts in --runtime mode)
-ARG INSTALL_DB_PGSQL_CLIENT=true
+ARG INSTALL_DB_PGSQL_CLIENT=false
 ARG DB_PGSQL_CLIENT_VERSION=18
-ARG INSTALL_DB_MYSQL_CLIENT=true
+ARG INSTALL_DB_MYSQL_CLIENT=false
 
-ARG PHP_EXT_PDO_PGSQL=true
-ARG PHP_EXT_PDO_MYSQL=true
+ARG PHP_EXT_PDO_PGSQL=false
+ARG PHP_EXT_PDO_MYSQL=false
 ARG PHP_EXT_PDO_SQLITE=false
 ARG PHP_EXT_SQLITE=false
 ARG PHP_EXT_MONGODB=false
@@ -176,13 +172,13 @@ ARG PHP_EXT_VIPS=true
 
 ARG PHP_EXT_XDEBUG=true
 ARG PHP_EXT_INTL=true
-ARG PHP_EXT_SOAP=false
+ARG PHP_EXT_SOAP=true
 ARG PHP_EXT_ZIP=true
-ARG PHP_EXT_XSL=false
-ARG PHP_EXT_GMP=false
-ARG PHP_EXT_BCMATH=false
-ARG PHP_EXT_EXIF=false
-ARG PHP_EXT_PCNTL=false
+ARG PHP_EXT_XSL=true
+ARG PHP_EXT_GMP=true
+ARG PHP_EXT_BCMATH=true
+ARG PHP_EXT_EXIF=true
+ARG PHP_EXT_PCNTL=true
 
 ENV INSTALL_DB_PGSQL_CLIENT=${INSTALL_DB_PGSQL_CLIENT} \
     DB_PGSQL_CLIENT_VERSION=${DB_PGSQL_CLIENT_VERSION} \
@@ -247,6 +243,10 @@ USER root
 COPY --from=build_tools /usr/local/ /usr/local/
 COPY --from=build_tools /etc/apt/sources.list.d/ /etc/apt/sources.list.d/
 COPY --from=composer /usr/bin/composer /usr/local/bin/composer
+
+RUN mkdir -p /var/log/{php,frankenphp} \
+ && chown -R www-data:www-data /var/log/{php,frankenphp} \
+ && chmod -R 775 /var/log/{php,frankenphp}
 
 WORKDIR /var/www/html
 EXPOSE 80

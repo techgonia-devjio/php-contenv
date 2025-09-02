@@ -1,18 +1,6 @@
 #!/bin/bash
 
-# ==============================================================================
-# grabber.sh
-#
-# A robust script to create a snapshot of a directory structure and file
-# contents into a single text file. It's useful for providing project context
-# to LLMs or for creating a comprehensive text-based project archive.
-#
-# Author: Gemini
-# Version: 1.0.1
-# ==============================================================================
-
-# --- Configuration: Default values ---
-# These can be overridden by command-line arguments.
+# usage:  ./grabber.sh . --ignoreDir ".git|.venv|.container-history" --ignoreFiles "*.txt|LICENSE|grabber.sh" --output "snapshot.txt"
 DEFAULT_PATH="."
 DEFAULT_OUTPUT="directory_snapshot.txt"
 # Common directories to ignore by default. Pipe-separated.
@@ -96,11 +84,10 @@ if ! command -v tree &> /dev/null; then
     exit 1
 fi
 
-# --- Main Script Logic ---
+## ----- Main Execution -----
+
 echo "Creating snapshot of '$TARGET_PATH'..."
 
-# 1. Start with a clean output file and add a descriptive header.
-# The curly braces group the commands to redirect their combined output to the file.
 {
     echo "=================================================="
     echo " Directory Snapshot"
@@ -113,32 +100,18 @@ echo "Creating snapshot of '$TARGET_PATH'..."
     echo -e "\n### DIRECTORY TREE ###\n"
 } > "$OUTPUT_FILE"
 
-# 2. Generate and append the directory tree.
-# -a: Show all files (including hidden ones).
-# -F: Append indicators (/, *, @) to names.
-# -I: Provide a pipe-separated pattern list to ignore.
-# The combined ignore list is passed to tree.
-# CRITICAL FIX: Add the output file itself to the ignore list.
 tree -a -F -I "$IGNORE_DIRS|$IGNORE_FILES|$OUTPUT_FILE" "$TARGET_PATH" >> "$OUTPUT_FILE"
-echo "" >> "$OUTPUT_FILE" # Add some space after the tree
+echo "" >> "$OUTPUT_FILE"
 
-# 3. Find all relevant files and append their content.
 echo "Appending file contents..."
 
-# Build the `find` command arguments dynamically to handle ignore patterns.
 find_args=("$TARGET_PATH")
 
-# CRITICAL FIX: Exclude the output file itself from being processed.
-# We use -name for an exact match on the output file's name.
 find_args+=(-not -name "$OUTPUT_FILE")
 
-# Add directory ignore patterns to the find command arguments.
-# We split the string by '|' into an array.
 IFS='|' read -ra DIRS_TO_IGNORE <<< "$IGNORE_DIRS"
 for dir in "${DIRS_TO_IGNORE[@]}"; do
     if [ -n "$dir" ]; then
-        # Exclude paths containing the directory name and the directory itself.
-        # -ipath and -iname are for case-insensitive matching.
         find_args+=(-not \( -ipath "*/$dir/*" -o -iname "$dir" \))
     fi
 done
@@ -152,23 +125,15 @@ for file in "${FILES_TO_IGNORE[@]}"; do
     fi
 done
 
-# Execute the find command and process each found file.
-# -print0 and `read -d $'\0'` make this safe for filenames with spaces or special characters.
 find "${find_args[@]}" -type f -print0 | while IFS= read -r -d $'\0' file; do
-    # Get a cleaner, relative path for the file header.
     relative_path="${file#$TARGET_PATH/}"
     if [[ "$TARGET_PATH" == "." ]]; then
         relative_path="${file#./}"
     fi
 
-    # Append the file's content with a clear header to the output file.
     {
         echo "---"
         echo -e "\n### FILE: $relative_path ###\n"
-        # Using `cat` to add the file content.
-        # The -vET flags can be useful to make non-printing characters visible,
-        # preventing binary files from corrupting the output.
-        # cat -vET "$file"
         cat "$file"
         echo "" # Ensure there's a newline at the end of the file content
     } >> "$OUTPUT_FILE"

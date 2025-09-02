@@ -1,7 +1,3 @@
-# File: php/8.4/nginx/Dockerfile
-# ============================================================================
-# PHP 8.4 + Nginx — Dev/Prod, s6-overlay, domain installers, healthcheck
-# ============================================================================
 ARG PHP_VERSION=8.4
 FROM php:${PHP_VERSION}-fpm-bookworm AS base
 
@@ -18,17 +14,17 @@ RUN chmod +x /usr/local/bin/mani-docker-install-system-deps.sh \
 FROM base AS build_tools
 
 # DB Clients
-ARG INSTALL_DB_PGSQL_CLIENT=true
+ARG INSTALL_DB_PGSQL_CLIENT=false
 ARG DB_PGSQL_CLIENT_VERSION=18
-ARG INSTALL_DB_MYSQL_CLIENT=true
+ARG INSTALL_DB_MYSQL_CLIENT=false
 
 # PHP Extensions (feature flags)
-ARG PHP_EXT_PDO_PGSQL=true
-ARG PHP_EXT_PDO_MYSQL=true
+ARG PHP_EXT_PDO_PGSQL=false
+ARG PHP_EXT_PDO_MYSQL=false
 ARG PHP_EXT_PDO_SQLITE=false
 ARG PHP_EXT_SQLITE=false
-ARG PHP_EXT_MONGODB=true
-ARG PHP_EXT_REDIS=true
+ARG PHP_EXT_MONGODB=false
+ARG PHP_EXT_REDIS=false
 ARG PHP_EXT_MEMCACHED=true
 
 ARG PHP_EXT_GD=true

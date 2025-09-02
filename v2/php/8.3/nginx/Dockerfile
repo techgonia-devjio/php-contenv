@@ -1,19 +1,14 @@
-
-ARG PHP_VERSION=8.4
-FROM php:${PHP_VERSION}-apache-bookworm AS base
+ARG PHP_VERSION=8.3
+FROM php:${PHP_VERSION}-fpm-bookworm AS base
 
 ENV DEBIAN_FRONTEND=noninteractive \
     COMPOSER_ALLOW_SUPERUSER=1
-
 SHELL ["/bin/bash","-o","pipefail","-c"]
 
 # Core OS deps (includes dos2unix)
 COPY common/build/scripts/mani-docker-install-system-deps.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/mani-docker-install-system-deps.sh \
  && mani-docker-install-system-deps.sh
-
-# Apache modules
-RUN a2enmod rewrite headers env dir mime proxy proxy_fcgi setenvif
 
 # ---------- Build tools & optional components ----------
 FROM base AS build_tools
@@ -122,17 +117,24 @@ FROM composer:latest AS composer
 # ---------- Final base ----------
 FROM base AS final_base
 
+# s6
 COPY --from=s6-installer /tmp/s6-overlay-*.tar.xz /tmp/
 RUN tar -C / -Jxpf /tmp/s6-overlay-noarch.tar.xz \
  && tar -C / -Jxpf /tmp/s6-overlay-arch.tar.xz \
  && rm /tmp/s6-overlay-*.tar.xz
 
-# Configs + s6 (legacy paths)
+# Nginx + tools
+RUN apt-get update && apt-get install -y --no-install-recommends nginx \
+ && rm -rf /var/lib/apt/lists/*
+
+# Configs + s6
 COPY common/runtime/configs/php/     /usr/local/etc/php/conf.d/
-COPY common/runtime/configs/apache/  /etc/apache2/
+COPY common/runtime/configs/nginx/nginx.conf  /etc/nginx/nginx.conf
+COPY common/runtime/configs/nginx/conf.d/     /etc/nginx/conf.d/
+
 COPY common/runtime/s6/cont-init.d/   /etc/cont-init.d/
 COPY common/runtime/s6/cont-finish.d/ /etc/cont-finish.d/
-COPY common/runtime/s6/variants/apache/services.d/ /etc/services.d/
+COPY common/runtime/s6/variants/nginx/services.d/ /etc/services.d/
 
 # Normalize EOLs and ensure +x for s6 scripts
 RUN find /etc/cont-init.d /etc/cont-finish.d /etc/services.d -type f -exec dos2unix {} \; \
@@ -140,20 +142,19 @@ RUN find /etc/cont-init.d /etc/cont-finish.d /etc/services.d -type f -exec dos2u
  && find /etc/services.d -type f -name run -exec chmod a+rx {} \; \
  && find /etc/services.d -type f -name finish -exec chmod a+rx {} \; \
  && find /etc/services.d -type f -path '*/log/run' -exec chmod a+rx {} \;
-# && printf '%s\n' '#!/bin/sh' 'exec /command/s6-log n10 s100000 T /var/log/apache' > /etc/services.d/apache/log/run \
-# && chmod +x /etc/services.d/apache/log/run
 
+# Sanity check script + bash history
 COPY common/runtime/sanity/mani-sanity.sh /usr/local/bin/mani-sanity
 COPY common/runtime/profile/zz-history.sh  /etc/profile.d/zz-history.sh
 RUN chmod +x /usr/local/bin/mani-sanity && chmod 644 /etc/profile.d/zz-history.sh \
  && printf '\n[ -r /etc/profile.d/zz-history.sh ] && . /etc/profile.d/zz-history.sh\n' >> /etc/bash.bashrc
 
 # Healthcheck
-COPY common/runtime/healthchecks/healthcheck-apache.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/healthcheck-apache.sh
-HEALTHCHECK --interval=30s --timeout=5s --retries=5 CMD /usr/local/bin/healthcheck-apache.sh || exit 1
+COPY common/runtime/healthchecks/healthcheck-nginx.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/healthcheck-nginx.sh
+HEALTHCHECK --interval=30s --timeout=5s --retries=5 CMD /usr/local/bin/healthcheck-nginx.sh || exit 1
 
-# ---------- Runtime libs in final image (domain scripts in --runtime mode) ----------
+# ---------- Runtime libs in final image ----------
 # Re-declare args and promote to ENV for this stage
 ARG INSTALL_DB_PGSQL_CLIENT=true
 ARG DB_PGSQL_CLIENT_VERSION=18
@@ -229,6 +230,7 @@ RUN composer install --no-dev --prefer-dist --no-interaction --optimize-autoload
  && rm /usr/local/bin/composer
 
 COPY . .
+EXPOSE 80
 ENTRYPOINT ["/init"]
 
 # ---------- Development ----------
@@ -238,9 +240,9 @@ COPY --from=build_tools /usr/local/ /usr/local/
 COPY --from=build_tools /etc/apt/sources.list.d/ /etc/apt/sources.list.d/
 COPY --from=composer /usr/bin/composer /usr/local/bin/composer
 
-RUN mkdir -p /var/log/{php,apache2,frankenphp,nginx} \
- && chown -R www-data:www-data /var/log/{php,apache2,frankenphp,nginx} \
- && chmod -R 775 /var/log/{php,apache2,frankenphp,nginx}
+RUN mkdir -p /var/log/{php,nginx} \
+ && chown -R www-data:www-data /var/log/{php,nginx} \
+ && chmod -R 775 /var/log/{php,nginx}
 
 WORKDIR /var/www/html
 EXPOSE 80

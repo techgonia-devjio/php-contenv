@@ -82,31 +82,6 @@ services:
     networks:
       - maninet
 
-# MySQL Database Service
-# db:
-#   image: mysql:8.0
-#   container_name: mani-db-mysql
-#   ports:
-#     - "${DB_PORT:-3306}:3306"
-#   environment:
-#     MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-secret}
-#     MYSQL_DATABASE: ${DB_DATABASE:-laravel}
-#     MYSQL_USER: ${DB_USERNAME:-user}
-#     MYSQL_PASSWORD: ${DB_PASSWORD:-password}
-#   volumes:
-#     - db_data:/var/lib/mysql
-#   networks:
-#     - maninet
-
-# Redis Cache Service
-# redis:
-#   image: redis:alpine
-#   container_name: mani-cache-redis
-#   ports:
-#     - "${REDIS_PORT:-6379}:6379"
-#   networks:
-#     - maninet
-
 # Define the shared network for all services
 networks:
   maninet:

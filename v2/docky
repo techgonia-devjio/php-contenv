@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# docky — v2.3 (submodule-internal config + DOCKY_REPLACE_* placeholders)
-# deps: docker compose v2, yq v4, (optional) envsubst from gettext
+# docky — v2.0
+# deps: docker compose, yq v4, (optional) envsubst from gettext
 set -euo pipefail
 
 # ---------------- paths / config ----------------
@@ -8,14 +8,19 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SUBMODULE_DIR="${SCRIPT_DIR}"
 PROJECT_ROOT="$(pwd)"
 
-DOCKY_CONFIG="${SUBMODULE_DIR}/docky.yml"            # read-only, shipped in submodule
+# Use project-level config if it exists, otherwise fall back to submodule default
+if [ -f "${PROJECT_ROOT}/docky.yml" ]; then
+  DOCKY_CONFIG="${PROJECT_ROOT}/docky.yml"
+else
+  DOCKY_CONFIG="${SUBMODULE_DIR}/docky.yml"
+fi
+
 STUBS_DIR="${SUBMODULE_DIR}/stubs/services"
 COMPOSE_OUT="${PROJECT_ROOT}/docker-compose.yml"
-
-SNIPPETS_DIR_DEFAULT=".docker-snippets"     # project-side snippets root
+PROJECT_OVERLAYS_DIR_DEFAULT=".docker/overlays"
+SNIPPETS_DIR_DEFAULT=".docker-snippets"
 SNIPPETS_PHP_SUBDIR="php"
-
-ANSWERS_FILE="${PROJECT_ROOT}/.docky.answers.yml"    # project-side persisted choices
+ANSWERS_FILE="${PROJECT_ROOT}/.docky.answers.yml"
 
 # ---------------- utils ----------------
 die(){ echo "✗ $*" >&2; exit 1; }
@@ -26,7 +31,6 @@ ok(){ echo "✓ $*"; }
 need(){ command -v "$1" >/dev/null 2>&1 || die "missing dependency: $1"; }
 yq_raw(){ yq -r "$1" "$2"; }
 have_envsubst(){ command -v envsubst >/dev/null 2>&1; }
-
 is_tty(){ [[ -t 0 ]] && [[ -t 1 ]]; }
 
 load_dotenv(){
@@ -44,18 +48,12 @@ doctor(){
   docker compose version >/dev/null 2>&1 || die "Docker Compose v2 not found (need 'docker compose')."
   ok "docker: $(docker --version | cut -d' ' -f3- | sed 's/,//')"
   ok "compose: $(docker compose version | head -n1)"
-
   need yq
   yq --version | grep -q 'version 4.' || warn "yq v4 strongly recommended; found: $(yq --version)"
-
   if have_envsubst; then ok "envsubst present"; else warn "envsubst not found; --envsubst will be unavailable"; fi
-
   [ -f "$DOCKY_CONFIG" ] || die "config not found: $DOCKY_CONFIG"
+  ok "using config: ${DOCKY_CONFIG#$PROJECT_ROOT/}"
   [ -d "$STUBS_DIR" ] || die "stubs dir missing: $STUBS_DIR"
-
-  local sdir; sdir="$(yq_raw '.vars.DOCKER_SNIPPETS_DIR // "'"$SNIPPETS_DIR_DEFAULT"'"' "$DOCKY_CONFIG")"
-  [ -d "$PROJECT_ROOT/$sdir" ] && ok "snippets dir: $sdir" || info "snippets dir will be created on demand: $sdir"
-
   ok "doctor looks good."
 }
 
@@ -63,7 +61,7 @@ doctor(){
 ans_get(){
   local key="$1"
   [ -f "$ANSWERS_FILE" ] || { echo ""; return 0; }
-  yq -r '.["'"$key"'"] // empty' "$ANSWERS_FILE"
+  yq -r ".[\"$key\"] // empty" "$ANSWERS_FILE"
 }
 
 ans_set(){
@@ -71,7 +69,7 @@ ans_set(){
   if [ ! -f "$ANSWERS_FILE" ]; then
     printf "{}\n" > "$ANSWERS_FILE"
   fi
-  yq -i '.["'"$key"'"] = "'"$val"'"' "$ANSWERS_FILE"
+  yq -i ".[\"$key\"] = \"$val\"" "$ANSWERS_FILE"
 }
 
 ans_show(){
@@ -91,7 +89,7 @@ ans_reset(){
 # ---------------- stubs merge pipeline ----------------
 collect_stub_files(){
   mapfile -t _names < <(yq -r '.stubs[]? // empty' "$DOCKY_CONFIG")
-  [ "${#_names[@]}" -gt 0 ] || die "no stubs selected in submodule docky.yml (.stubs)"
+  [ "${#_names[@]}" -gt 0 ] || die "no stubs selected in docky.yml (.stubs)"
   local app=() rest=()
   for n in "${_names[@]}"; do
     local p="${STUBS_DIR}/${n}.yml"
@@ -128,24 +126,49 @@ patch_app_from_config(){
 }
 
 patch_overlays_mount(){
-  local count; count="$(yq_raw '(.overlays // []) | length' "$DOCKY_CONFIG")"
-  [ "$count" -gt 0 ] || { cat; return 0; }
-  local src="./$(realpath --relative-to="$PROJECT_ROOT" "$SUBMODULE_DIR")/overlays"
-  yq -y --arg vol "${src}:/opt/overlay:ro" '
-    .services.app.volumes = ((.services.app.volumes // []) + [$vol])
-  '
+  local names; mapfile -t names < <(yq -r '.overlays[]? // empty' "$DOCKY_CONFIG")
+  [ "${#names[@]}" -gt 0 ] || { cat; return 0; }
+
+  local proj_dir_rel; proj_dir_rel="$(yq_raw '.vars.DOCKER_PROJECT_OVERLAYS_DIR // "'"$PROJECT_OVERLAYS_DIR_DEFAULT"'"' "$DOCKY_CONFIG")"
+  local proj_dir_abs="${PROJECT_ROOT}/${proj_dir_rel#./}"
+  local sub_dir_abs="${SUBMODULE_DIR}/overlays"
+  local sub_dir_rel="./$(realpath --relative-to="$PROJECT_ROOT" "$sub_dir_abs")"
+
+  local exprs=() odirs=()
+  for n in "${names[@]}"; do
+    local mount_src=""
+    # Project overlay takes precedence
+    if [ -d "${proj_dir_abs}/$n" ]; then
+      mount_src="${proj_dir_rel}/$n"
+    # Fallback to submodule overlay
+    elif [ -d "${sub_dir_abs}/$n" ]; then
+      mount_src="${sub_dir_rel}/$n"
+    else
+      continue
+    fi
+    local mount_dest="/opt/overlay/${n}"
+    exprs+=( ".services.app.volumes += [\"${mount_src}:${mount_dest}:ro\"]" )
+    odirs+=( "${mount_dest}" )
+  done
+
+  if ((${#exprs[@]})); then
+    yq -y "${exprs[@]/#/-e }" - |
+    yq -y --arg odirs "$(IFS=:; echo "${odirs[*]}")" '
+        .services.app.environment = ((.services.app.environment // {}) * {"OVERLAY_DIRS": $odirs})
+      '
+  else
+    cat
+  fi
 }
 
 collect_snippet_volume_lines(){
   local root; root="$(yq_raw '.vars.DOCKER_SNIPPETS_DIR // "'"$SNIPPETS_DIR_DEFAULT"'"' "$DOCKY_CONFIG")"
   local phpdir="${PROJECT_ROOT}/${root}/${SNIPPETS_PHP_SUBDIR}"
   [ -d "$phpdir" ] || return 0
-  # shellcheck disable=SC2044
-  for f in $(find "$phpdir" -maxdepth 1 -type f -name '*.ini' 2>/dev/null | sort); do
-    local base rel dest
-    base="$(basename "$f")"
-    rel="./$(realpath --relative-to="$PROJECT_ROOT" "$f")"
-    dest="/usr/local/etc/php/conf.d/${base}"
+  for f in "$phpdir"/*.ini; do
+    [ -f "$f" ] || continue
+    local rel="./$(realpath --relative-to="$PROJECT_ROOT" "$f")"
+    local dest="/usr/local/etc/php/conf.d/$(basename "$f")"
     printf "%s:%s\n" "$rel" "$dest"
   done
 }
@@ -156,7 +179,7 @@ patch_snippet_volumes(){
   [ "${#lines[@]}" -gt 0 ] || { cat; return 0; }
   local exprs=()
   for m in "${lines[@]}"; do
-    exprs+=( '.services.app.volumes = ((.services.app.volumes // []) + ["'"$m"'"])' )
+    exprs+=( ".services.app.volumes += [\"$m\"]" )
   done
   yq -y "${exprs[@]/#/-e }" -
 }
@@ -174,27 +197,17 @@ patch_extras(){
   '
 }
 
-ensure_env_hint(){
-  local net; net="$(yq_raw '.project.network // "dockynet"' "$DOCKY_CONFIG")"
-  local envf="${PROJECT_ROOT}/.env"
-  if ! { [ -f "$envf" ] && grep -q '^NETWORK_NAME=' "$envf"; }; then
-    echo "NETWORK_NAME=${net}" >> "$envf"
-    ok "added NETWORK_NAME=${net} to .env"
-  fi
-}
-
 maybe_envsubst_file(){
-  # $1: in, $2: out
   local in="$1" out="$2"
   if [[ "${USE_ENVSUBST:-0}" == "1" ]]; then
     have_envsubst || die "envsubst requested but not installed"
     load_dotenv
-    # keep unknowns intact
     local tmp esc
     tmp="$(mktemp)"; esc="$(mktemp)"
-    sed -E 's/\$\{?([A-Za-z0-9_]+)\}?/__DLR__{\1}/g' "$in" > "$esc"
+    # Protect already-resolved DOCKY_REPLACE tokens from envsubst
+    sed -E 's/DOCKY_REPLACE_([A-Z0-9_]+)/DOCKY_KEEP_\1/g' "$in" > "$esc"
     envsubst < "$esc" > "$tmp"
-    sed -E 's/__DLR__\{([A-Za-z0-9_]+)\}/\$\{\1\}/g' "$tmp" > "$out"
+    sed -E 's/DOCKY_KEEP_([A-Z0-9_]+)/DOCKY_REPLACE_\1/g' "$tmp" > "$out"
     rm -f "$tmp" "$esc"
   else
     cp -f "$in" "$out"
@@ -202,31 +215,19 @@ maybe_envsubst_file(){
 }
 
 # ---------------- placeholder resolver ----------------
-# Detect $DOCKY_REPLACE_* and ${DOCKY_REPLACE_*} tokens in YAML and replace them.
-# Values come from:
-#  - .docky.answers.yml (project)
-#  - DOCKY_CONFIG .vars (defaults)
-#  - DOCKY_CONFIG .OPTIONS (choice lists)
-#  - interactive prompt (unless --no-ask)
 collect_placeholders(){
   local file="$1"
-  # shellcheck disable=SC2002
-  cat "$file" | grep -oE '\$\{?DOCKY_REPLACE_[A-Z0-9_]+\}?' | sed 's/[${}]//g' | sort -u
+  grep -oE '\$\{?DOCKY_REPLACE_[A-Z0-9_]+\}?' "$file" | sed 's/[${}]//g' | sort -u || true
 }
 
 option_list_for(){
-  local base="$1"  # e.g. PHP_VERSION
-  # Try OPTIONS.PHP_VERSION, OPTIONS.PHP_VERSIONS, OPTIONS.PHP_VERSIONs, OPTIONS.PHP_VERSION_S
-  yq -r '
-    (.OPTIONS.'"$base"' // .OPTIONS.'"${base}"'s // .OPTIONS.'"${base}"'S // empty)
-  ' "$DOCKY_CONFIG" | yq -r '.[]? // empty'
+  local base="$1"
+  yq -r "(.OPTIONS.$base // .OPTIONS.${base}s // .OPTIONS.${base}S // empty) | .[]? // empty" "$DOCKY_CONFIG"
 }
 
 default_for(){
   local base="$1"
-  # Priority: project .env (BASE), answers file (already handled earlier), then submodule vars
-  # We prefer submodule vars as canonical default:
-  yq_raw '.vars.'"$base"' // empty' "$DOCKY_CONFIG"
+  yq_raw ".vars.$base // empty" "$DOCKY_CONFIG"
 }
 
 prompt_choice(){
@@ -245,9 +246,7 @@ prompt_choice(){
     read -r ans || true
     if [[ -z "$ans" && -n "$def" ]]; then
       echo "$def"
-      return 0
-    fi
-    if [[ "$ans" =~ ^[0-9]+$ ]] && (( ans>=1 && ans<=${#opts[@]} )); then
+    elif [[ "$ans" =~ ^[0-9]+$ ]] && (( ans>=1 && ans<=${#opts[@]} )); then
       echo "${opts[ans-1]}"
     else
       echo "$ans"
@@ -263,52 +262,45 @@ prompt_choice(){
 
 resolve_placeholders(){
   local in="$1" out="$2" ask="${3:-1}"
-  local tmp="$in"
-  local keys
-  mapfile -t keys < <(collect_placeholders "$in" || true)
-  [ "${#keys[@]}" -gt 0 ] || { cp -f "$in" "$out"; return 0; }
+  local tmp_in; tmp_in="$(mktemp)"; cp "$in" "$tmp_in"
+  local tmp_out; tmp_out="$(mktemp)"
 
-  local k base def val opts=()
+  local keys
+  mapfile -t keys < <(collect_placeholders "$tmp_in" || true)
+  [ "${#keys[@]}" -gt 0 ] || { cp -f "$tmp_in" "$out"; rm "$tmp_in"; return 0; }
+
+  local k base def val
   for k in "${keys[@]}"; do
     base="${k#DOCKY_REPLACE_}"
-
-    # 1) answers file
     val="$(ans_get "$k")"
-
-    # 2) env override (same base without prefix) – optional convenience
-    if [ -z "$val" ]; then
-      val="${!base:-}"
-    fi
-
-    # 3) default from submodule vars
-    if [ -z "$val" ]; then
-      def="$(default_for "$base")"
-    else
-      def="$val"
-    fi
-
-    # 4) options list from submodule OPTIONS
+    [ -z "$val" ] && val="${!base:-}"
+    
+    local opts=()
     mapfile -t opts < <(option_list_for "$base" || true)
 
-    # 5) interactive (if TTY & ask==1); otherwise pick def or first option
     if [ -z "$val" ]; then
+      def="$(default_for "$base")"
       if [[ "$ask" == "1" ]] && is_tty; then
         val="$(prompt_choice "$k" "$def" "${opts[@]}")"
       else
-        if [ -n "$def" ]; then val="$def"
-        elif ((${#opts[@]})); then val="${opts[0]}"
-        else val=""; fi
+        val="${def:-${opts[0]:-}}"
       fi
     fi
-
-    # persist & replace (support $FOO and ${FOO})
     ans_set "$k" "$val"
-    tmpfile="$(mktemp)"
-    sed -E "s#\\\$\{${k}\}#${val//\//\\/}#g; s#\\\$${k}#${val//\//\\/}#g" "$tmp" > "$tmpfile"
-    mv "$tmpfile" "$tmp"
+  done
+  
+  # Now perform all replacements in one go
+  local sed_expr=""
+  for k in "${keys[@]}"; do
+      val=$(ans_get "$k")
+      # Escape for sed: backslashes, slashes, and ampersands
+      val_esc=$(printf '%s\n' "$val" | sed -e 's/[\/&]/\\&/g')
+      sed_expr+="s#\\\${${k}}#${val_esc}#g; s#\\\$${k}#${val_esc}#g; "
   done
 
-  cp -f "$tmp" "$out"
+  sed -E "$sed_expr" "$tmp_in" > "$tmp_out"
+  mv "$tmp_out" "$out"
+  rm "$tmp_in"
 }
 
 # ---------------- compose generation ----------------
@@ -319,82 +311,70 @@ generate_compose(){
     case "$m" in
       --envsubst) USE_ENVSUBST=1 ;;
       --no-ask)   ASK=0 ;;
-      ""|*)       ;;
     esac
   done
 
   doctor >/dev/null || true
-
   local files=()
   mapfile -t files < <(collect_stub_files)
   info "merging stubs: $(printf '%s ' "${files[@]//$PROJECT_ROOT\//}")"
 
-  local merged tmp_merged
-  tmp_merged="$(mktemp)"; merged="$(merge_stubs "${files[@]}")"; printf "%s\n" "$merged" > "$tmp_merged"
+  local tmp_merged; tmp_merged="$(mktemp)"
+  merge_stubs "${files[@]}" > "$tmp_merged"
 
-  # pipeline patches
   local t1 t2 t3 t4 t5 t6
   t1="$(mktemp)"; t2="$(mktemp)"; t3="$(mktemp)"; t4="$(mktemp)"; t5="$(mktemp)"; t6="$(mktemp)"
 
-  yq -y '.' "$tmp_merged" \
-    | patch_networks  > "$t1"
-  cat "$t1" | patch_app_from_config  > "$t2"
-  cat "$t2" | patch_overlays_mount   > "$t3"
-  cat "$t3" | patch_extras           > "$t4"
-  cat "$t4" | patch_snippet_volumes  > "$t5"
-
-  # ---- NEW: resolve DOCKY_REPLACE_* tokens (no envsubst yet) ----
+  # Pipeline of patches
+  patch_networks < "$tmp_merged" > "$t1"
+  patch_app_from_config < "$t1" > "$t2"
+  patch_overlays_mount < "$t2" > "$t3"
+  patch_snippet_volumes < "$t3" > "$t4"
+  patch_extras < "$t4" > "$t5"
+  
   resolve_placeholders "$t5" "$t6" "$ASK"
-
-  # optional envsubst last (keeps unknowns intact)
   maybe_envsubst_file "$t6" "$COMPOSE_OUT"
 
   rm -f "$tmp_merged" "$t1" "$t2" "$t3" "$t4" "$t5" "$t6"
-
   ok "wrote ${COMPOSE_OUT#${PROJECT_ROOT}/}"
-  ensure_env_hint
   info "services:"; yq -r '.services | keys | .[]' "$COMPOSE_OUT" | sed 's/^/ - /'
-  info "app volumes (tail):"; yq -r '.services.app.volumes // [] | .[]' "$COMPOSE_OUT" | tail -n 6 | sed 's/^/   • /'
 }
 
-# ---------------- services / snippets ----------------
+# ---------------- services & snippets ----------------
 add_service(){
-  local name="${1:-}"; [ -n "$name" ] || die "usage: $0 add-svc <name>"
-  [ -f "${STUBS_DIR}/${name}.yml" ] || die "stub not found: ${STUBS_DIR}/${name}.yml"
-  # update the submodule's list? no — submodule is read-only.
-  # Instead, append to project .env DOCKY_STUBS, if present; else just inform the user.
-  local envf="${PROJECT_ROOT}/.env"
-  if [ -f "$envf" ]; then
-    if grep -q '^DOCKY_STUBS=' "$envf"; then
-      local cur; cur="$(grep '^DOCKY_STUBS=' "$envf" | sed 's/^DOCKY_STUBS=//')"
-      if echo "$cur" | tr ',' ' ' | tr -s ' ' | grep -qw "$name"; then
-        info "'$name' already in DOCKY_STUBS (.env)"
-      else
-        local new; new="$(printf "%s" "$cur" | sed 's/[[:space:]]\+/,/g' | sed 's/,,\+/,/g' | sed 's/^,\|,$//g')"
-        [ -z "$new" ] && new="$name" || new="${new},$name"
-        sed -i '' -e "s/^DOCKY_STUBS=.*/DOCKY_STUBS=${new}/" "$envf" 2>/dev/null || \
-        sed -i -e "s/^DOCKY_STUBS=.*/DOCKY_STUBS=${new}/" "$envf" 2>/dev/null || \
-        echo "DOCKY_STUBS=${new}" >> "$envf"
-        ok "added '$name' to DOCKY_STUBS in .env → ${new}"
-      fi
-    else
-      echo "DOCKY_STUBS=${name}" >> "$envf"
-      ok "created DOCKY_STUBS in .env with '${name}'"
+    local name="${1:-}"; [ -n "$name" ] || die "usage: $0 add-svc <name>"
+    [ -f "${STUBS_DIR}/${name}.yml" ] || die "stub not found: ${STUBS_DIR}/${name}.yml"
+    
+    local proj_config="${PROJECT_ROOT}/docky.yml"
+    # If project doesn't have a config, create one from the submodule default
+    if [ ! -f "$proj_config" ]; then
+        info "creating project-level docky.yml from submodule default"
+        cp "${SUBMODULE_DIR}/docky.yml" "$proj_config"
+        # Update DOCKY_CONFIG to point to the new file for the rest of the script
+        DOCKY_CONFIG="$proj_config"
     fi
-  else
-    warn ".env not found; create one and add DOCKY_STUBS=${name}"
-  fi
-  generate_compose
+
+    # Check if stub is already present
+    if yq -e ".stubs | contains([\"$name\"])" "$proj_config" >/dev/null; then
+        info "service '$name' is already in the stubs list of $proj_config"
+    else
+        # Add the new service to the stubs list
+        yq -i ".stubs += [\"$name\"]" "$proj_config"
+        ok "added '$name' to stubs list in ${proj_config#$PROJECT_ROOT/}"
+    fi
+
+    info "regenerating docker-compose.yml..."
+    generate_compose --no-ask
 }
 
 list_services(){
-  echo "—— available stubs (submodule) ——"
+  echo "—— Available Stubs (from submodule) ——"
   (cd "$STUBS_DIR" && ls -1 *.yml 2>/dev/null | sed 's/\.yml$//' | sed 's/^/ - /') || echo " (none)"
   echo
-  echo "—— enabled stubs (submodule docky.yml) ——"
+  echo "—— Enabled Stubs (from ${DOCKY_CONFIG#$PROJECT_ROOT/}) ——"
   yq -r '.stubs[]? // empty' "$DOCKY_CONFIG" 2>/dev/null | sed 's/^/ - /' || echo " (none)"
   echo
-  echo "—— compose services (generated) ——"
+  echo "—— Final Services (in ${COMPOSE_OUT#$PROJECT_ROOT/}) ——"
   if [ -f "$COMPOSE_OUT" ]; then
     yq -r '.services | keys | .[]' "$COMPOSE_OUT" | sed 's/^/ - /'
   else
@@ -416,11 +396,11 @@ snippet_php_ini(){
 ; ${name}.ini — project snippet (auto-mounted by docky)
 ; examples:
 ; memory_limit = 1024M
-; xdebug.mode = off
+; upload_max_filesize = 128M
 EOF
     ok "created ${f#${PROJECT_ROOT}/}"
   fi
-  generate_compose >/dev/null || true
+  generate_compose --no-ask >/dev/null || true
   info "mounted at: /usr/local/etc/php/conf.d/${name}.ini"
 }
 
@@ -441,10 +421,10 @@ open_docs(){
   if ! command -v mkdocs >/dev/null 2>&1; then
     die "mkdocs not found. Install: pip install mkdocs mkdocs-material"
   fi
-  local docs_dir_rel; docs_dir_rel="$(realpath --relative-to="$PROJECT_ROOT" "$SUBMODULE_DIR/docs" 2>/dev/null || true)"
-  local docs_dir="${PROJECT_ROOT}/${docs_dir_rel:-docs}"
-  [ -f "$docs_dir/mkdocs.yml" ] || [ -f "$PROJECT_ROOT/mkdocs.yml" ] || warn "mkdocs.yml not found; using defaults"
-  (cd "$PROJECT_ROOT" && mkdocs serve -a 127.0.0.1:5105)
+  local docs_dir="${SUBMODULE_DIR}/docs"
+  [ -f "$docs_dir/mkdocs.yml" ] || die "mkdocs.yml not found in ${docs_dir}"
+  info "Serving docs from $docs_dir on http://127.0.0.1:5105"
+  (cd "$docs_dir" && mkdocs serve -a 127.0.0.1:5105)
 }
 
 # ---------------- docker compose passthrough ----------------
@@ -455,13 +435,7 @@ cmd="${1:-help}"; shift || true
 case "$cmd" in
   doctor) doctor ;;
   gen|generate)
-    case "${1:-}" in
-      --envsubst) generate_compose --envsubst ;;
-      --no-ask)   generate_compose --no-ask ;;
-      "" )        generate_compose ;;
-      *)          # support two flags order-insensitive
-                  generate_compose "$1" "${2:-}" ;;
-    esac
+    generate_compose "$@"
     ;;
   add-svc|add-service) add_service "${1:-}";;
   list-svc|list-services) list_services ;;
@@ -492,30 +466,29 @@ case "$cmd" in
     ;;
   help|-h|--help|*)
     cat <<EOF
-docky — v2.3
-
+docky — v2.6
 USAGE
-  ./.docker/v2/docky doctor
-  ./.docker/v2/docky gen [--envsubst] [--no-ask]   # merge stubs, resolve DOCKY_REPLACE_* (optionally envsubst)
-  ./.docker/v2/docky add-svc <name>                 # append stub to DOCKY_STUBS in .env
-  ./.docker/v2/docky list-svc
-  ./.docker/v2/docky snippet php-ini <name>
-  ./.docker/v2/docky snippet list
-  ./.docker/v2/docky config show|set|reset          # manage .docky.answers.yml
-  ./.docker/v2/docky open-docs                      # mkdocs serve (127.0.0.1:5105)
+  ./.docker/v2/docky <command>
 
-compose shortcuts:
-  ./.docker/v2/docky up [-d] | down | ps | logs [svc] | build | restart | exec | run | pull
+COMMANDS
+  doctor                          Check dependencies (docker, yq, etc).
+  gen [--no-ask] [--envsubst]     Generate docker-compose.yml from stubs.
+  add-svc <name>                  Add a service stub to your project's docky.yml.
+  list-svc                        List available and enabled service stubs.
+  snippet php-ini <name>          Create a custom PHP .ini file snippet.
+  snippet list                    List active project snippets.
+  config show|set|reset           Manage saved answers in .docky.answers.yml.
+  open-docs                       Serve documentation locally (mkdocs).
+  up|down|ps|logs|...             Pass-through commands to 'docker compose'.
 
 NOTES
-- Internal config (read-only): ${DOCKY_CONFIG}
-  - .vars      : defaults for placeholders (e.g., PHP_VERSION, PHP_SERVER)
-  - .OPTIONS   : arrays to present as choices (e.g., PHP_VERSIONS, PHP_SERVERS)
-- Placeholders in stubs: $DOCKY_REPLACE_*
-  - resolved during 'gen' from .docky.answers.yml → defaults → OPTIONS → prompt
-  - persisted per project at: ${ANSWERS_FILE#$PROJECT_ROOT/}
-- Snippets: $(yq -r '.vars.DOCKER_SNIPPETS_DIR // "'"$SNIPPETS_DIR_DEFAULT"'"' "$DOCKY_CONFIG")/php/*.ini → /usr/local/etc/php/conf.d/
-- Overlays (from submodule) auto-mounted to /opt/overlay:ro when docky.yml:overlays is non-empty
+- Config: Uses 'docky.yml' in your project root if it exists,
+  otherwise falls back to the default one in the submodule.
+- Answers: Your choices from 'gen' are saved in '.docky.answers.yml'
+  in your project root. Commit this file to share the configuration.
+- Overlays: Project-level overlays in '.docker/overlays/' will override
+  identically named overlays from the submodule.
 EOF
     ;;
 esac
+

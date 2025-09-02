@@ -21,7 +21,6 @@ markdown_extensions:
   - tables
   - toc:
       permalink: true
-
 nav:
   - Overview: index.md
   - Docker 101 (Beginner): docker-101.md
@@ -36,7 +35,7 @@ nav:
       - Apache: services-apache.md
       - Nginx (FPM): services-nginx.md
       - FrankenPHP: services-frankenphp.md
-      - Swoole (preview): services-swoole.md
+      # - Swoole (preview): services-swoole.md
   - Runtime:
       - s6 & Services: s6-runtime.md
       - Healthchecks: healthchecks.md

@@ -12,4 +12,5 @@ services:
     networks: ["${NETWORK_NAME}"]
 
 volumes:
-  db_data: {}
+  db_data:
+    driver: local
