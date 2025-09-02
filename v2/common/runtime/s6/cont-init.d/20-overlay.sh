@@ -2,108 +2,106 @@
 
 set -e
 
-OVERLAY_DIR="${OVERLAY_DIR:-/opt/overlay}"
+OVERLAY_DIRS="${OVERLAY_DIRS:-${OVERLAY_DIR:-/opt/overlay}}"
+
 log() { echo "[overlay] $*"; }
 
-[ -d "$OVERLAY_DIR" ] || { log "no overlay at $OVERLAY_DIR"; exit 0; }
+normalize() {
+  echo "$1" | tr ':' ' '
+}
 
-# ---------- PHP conf.d overrides ----------
-if [ -d "$OVERLAY_DIR/php/conf.d" ]; then
-  for f in "$OVERLAY_DIR"/php/conf.d/*.ini; do
-    [ -f "$f" ] || continue
-    dst="/usr/local/etc/php/conf.d/$(basename "$f")"
-    cp -f "$f" "$dst"
-    chmod 644 "$dst" || true
-    log "php/conf.d -> $(basename "$f")"
-  done
-fi
+for ODIR in $(normalize "$OVERLAY_DIRS"); do
+  [ -d "$ODIR" ] || { log "skip: $ODIR (missing)"; continue; }
 
-# ---------- PHP-FPM pool overrides (if FPM present) ----------
-if [ -d /usr/local/etc/php-fpm.d ] && [ -d "$OVERLAY_DIR/php/pool.d" ]; then
-  for f in "$OVERLAY_DIR"/php/pool.d/*.conf; do
-    [ -f "$f" ] || continue
-    cp -f "$f" "/usr/local/etc/php-fpm.d/$(basename "$f")"
-    log "php-fpm/pool.d -> $(basename "$f")"
-  done
-fi
-
-# ---------- Nginx conf.d overrides (if Nginx present) ----------
-if [ -d /etc/nginx ] && [ -d "$OVERLAY_DIR/nginx/conf.d" ]; then
-  for f in "$OVERLAY_DIR"/nginx/conf.d/*.conf; do
-    [ -f "$f" ] || continue
-    cp -f "$f" "/etc/nginx/conf.d/$(basename "$f")"
-    log "nginx/conf.d -> $(basename "$f")"
-  done
-fi
-
-# ---------- FrankenPHP / Caddy overrides (if present) ----------
-if command -v caddy >/dev/null 2>&1; then
-  [ -f "$OVERLAY_DIR/frankenphp/Caddyfile" ] && {
-    cp -f "$OVERLAY_DIR/frankenphp/Caddyfile" /etc/caddy/Caddyfile.custom
-    log "frankenphp: Caddyfile.custom installed"
-  }
-  [ -d "$OVERLAY_DIR/frankenphp/snippets" ] && {
-    mkdir -p /etc/caddy/snippets
-    cp -rf "$OVERLAY_DIR/frankenphp/snippets/." /etc/caddy/snippets/
-    log "frankenphp: snippets installed"
-  }
-fi
-
-# ---------- s6 services (add or override) ----------
-if [ -d "$OVERLAY_DIR/services.d" ]; then
-  for svc in "$OVERLAY_DIR"/services.d/*; do
-    [ -d "$svc" ] || continue
-    name="$(basename "$svc")"
-    rm -rf "/etc/services.d/$name"
-    cp -a "$svc" "/etc/services.d/$name"
-    find "/etc/services.d/$name" -type f -name run -exec chmod +x {} \; || true
-    find "/etc/services.d/$name" -type f -path '*/log/run' -exec chmod +x {} \; || true
-    log "services.d -> $name"
-  done
-fi
-
-# ---------- extra cont-init steps (run after base init) ----------
-if [ -d "$OVERLAY_DIR/cont-init.d" ]; then
-  for s in "$OVERLAY_DIR"/cont-init.d/*; do
-    [ -f "$s" ] || continue
-    chmod +x "$s" || true
-    log "running cont-init: $(basename "$s")"
-    "$s"
-  done
-fi
-
-# ---------- runtime apt installs (dev-friendly) ----------
-# Also honors EXTRA_APT_PACKAGES="git jq ..."
-if [ -s "$OVERLAY_DIR/apt/packages.txt" ] || [ -n "${EXTRA_APT_PACKAGES:-}" ]; then
-  log "installing apt packages from overlay (dev/use with care)"
-  apt-get update
-  if [ -s "$OVERLAY_DIR/apt/packages.txt" ]; then
-    xargs -a "$OVERLAY_DIR/apt/packages.txt" -r apt-get install -y --no-install-recommends
+  # php/conf.d
+  if [ -d "$ODIR/php/conf.d" ]; then
+    for f in "$ODIR"/php/conf.d/*.ini; do
+      [ -f "$f" ] || continue
+      cp -f "$f" "/usr/local/etc/php/conf.d/$(basename "$f")"
+      chmod 644 "/usr/local/etc/php/conf.d/$(basename "$f")" || true
+      log "$ODIR: php/conf.d -> $(basename "$f")"
+    done
   fi
-  if [ -n "${EXTRA_APT_PACKAGES:-}" ]; then
-    # shellcheck disable=SC2086
-    apt-get install -y --no-install-recommends $EXTRA_APT_PACKAGES
+
+  # php-fpm pools
+  if [ -d /usr/local/etc/php-fpm.d ] && [ -d "$ODIR/php/pool.d" ]; then
+    for f in "$ODIR"/php/pool.d/*.conf; do
+      [ -f "$f" ] || continue
+      cp -f "$f" "/usr/local/etc/php-fpm.d/$(basename "$f")"
+      log "$ODIR: php-fpm/pool.d -> $(basename "$f")"
+    done
   fi
-  rm -rf /var/lib/apt/lists/*
-fi
 
-# ---------- CA certs ----------
-if [ -d "$OVERLAY_DIR/certs" ]; then
-  mkdir -p /usr/local/share/ca-certificates
-  find "$OVERLAY_DIR/certs" -type f -name '*.crt' -exec cp -f {} /usr/local/share/ca-certificates/ \;
-  update-ca-certificates || true
-  log "CA certificates updated"
-fi
+  # nginx conf.d
+  if [ -d /etc/nginx ] && [ -d "$ODIR/nginx/conf.d" ]; then
+    for f in "$ODIR"/nginx/conf.d/*.conf; do
+      [ -f "$f" ] || continue
+      cp -f "$f" "/etc/nginx/conf.d/$(basename "$f")"
+      log "$ODIR: nginx/conf.d -> $(basename "$f")"
+    done
+  fi
 
-# ---------- deletions (power tool) ----------
-# Put relative paths in remove/list, e.g.:
-#   usr/local/etc/php/conf.d/92-docker-php-ext-xdebug.ini
-if [ -s "$OVERLAY_DIR/remove/list" ]; then
-  while IFS= read -r rel; do
-    [ -n "$rel" ] || continue
-    rm -rf "/$rel" && log "removed /$rel" || true
-  done < "$OVERLAY_DIR/remove/list"
-fi
+  # FrankenPHP (Caddy)
+  if command -v caddy >/dev/null 2>&1; then
+    [ -f "$ODIR/frankenphp/Caddyfile" ] && {
+      cp -f "$ODIR/frankenphp/Caddyfile" /etc/caddy/Caddyfile.custom
+      log "$ODIR: frankenphp -> Caddyfile.custom"
+    }
+    [ -d "$ODIR/frankenphp/snippets" ] && {
+      mkdir -p /etc/caddy/snippets
+      cp -rf "$ODIR/frankenphp/snippets/." /etc/caddy/snippets/
+      log "$ODIR: frankenphp -> snippets"
+    }
+  fi
+
+  # s6 services
+  if [ -d "$ODIR/services.d" ]; then
+    for svc in "$ODIR"/services.d/*; do
+      [ -d "$svc" ] || continue
+      name="$(basename "$svc")"
+      rm -rf "/etc/services.d/$name"
+      cp -a "$svc" "/etc/services.d/$name"
+      find "/etc/services.d/$name" -type f -name run -exec chmod +x {} \; || true
+      find "/etc/services.d/$name" -type f -path '*/log/run' -exec chmod +x {} \; || true
+      log "$ODIR: services.d -> $name"
+    done
+  fi
+
+  # extra cont-init hooks
+  if [ -d "$ODIR/cont-init.d" ]; then
+    for s in "$ODIR"/cont-init.d/*; do
+      [ -f "$s" ] || continue
+      chmod +x "$s" || true
+      log "$ODIR: run cont-init $(basename "$s")"
+      "$s"
+    done
+  fi
+
+  # runtime apt
+  if [ -s "$ODIR/apt/packages.txt" ] || [ -n "${EXTRA_APT_PACKAGES:-}" ]; then
+    log "$ODIR: installing apt packages (dev only)"
+    apt-get update
+    [ -s "$ODIR/apt/packages.txt" ] && xargs -a "$ODIR/apt/packages.txt" -r apt-get install -y --no-install-recommends
+    [ -n "${EXTRA_APT_PACKAGES:-}" ] && apt-get install -y --no-install-recommends $EXTRA_APT_PACKAGES
+    rm -rf /var/lib/apt/lists/*
+  fi
+
+  # certs
+  if [ -d "$ODIR/certs" ]; then
+    mkdir -p /usr/local/share/ca-certificates
+    find "$ODIR/certs" -type f -name '*.crt' -exec cp -f {} /usr/local/share/ca-certificates/ \;
+    update-ca-certificates || true
+    log "$ODIR: CA certificates updated"
+  fi
+
+  # removals
+  if [ -s "$ODIR/remove/list" ]; then
+    while IFS= read -r rel; do
+      [ -n "$rel" ] || continue
+      rm -rf "/$rel" && log "$ODIR: removed /$rel" || true
+    done < "$ODIR/remove/list"
+  fi
+done
 
 log "done"
 exit 0

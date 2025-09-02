@@ -7,7 +7,7 @@ A single command to print:
 - s6 version & running services
 - PHP version, loaded extensions, INI
 - Composer & Node
-- FrankenPHP/Swoole versions (when present)
+- FrankenPHP version (when present)
 - Selected env and PATH
 
 Run:

@@ -21,19 +21,22 @@ markdown_extensions:
   - tables
   - toc:
       permalink: true
+
 nav:
   - Overview: index.md
+  - Docker 101 (Beginner): docker-101.md
   - Getting Started: getting-started.md
+  - Docky CLI: docky-cli.md
   - Architecture: architecture.md
   - Configuration:
-      - All Variables: configuration.md
+      - All Variables: config-reference.md
       - PHP Extensions: extensions.md
       - JS Runtimes: js-runtimes.md
   - Web Servers:
       - Apache: services-apache.md
       - Nginx (FPM): services-nginx.md
       - FrankenPHP: services-frankenphp.md
-      - Swoole: services-swoole.md
+      - Swoole (preview): services-swoole.md
   - Runtime:
       - s6 & Services: s6-runtime.md
       - Healthchecks: healthchecks.md
@@ -42,4 +45,5 @@ nav:
   - Troubleshooting: troubleshooting.md
   - FAQ: faq.md
   - Security Notes: security.md
+  - Conventions: conventions.md
   - Contributing: contributing.md

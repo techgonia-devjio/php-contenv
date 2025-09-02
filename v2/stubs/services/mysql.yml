@@ -1,0 +1,15 @@
+services:
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: "${DB_ROOT_PASSWORD:-secret}"
+      MYSQL_DATABASE: "${DB_DATABASE:-app}"
+      MYSQL_USER: "${DB_USERNAME:-user}"
+      MYSQL_PASSWORD: "${DB_PASSWORD:-password}"
+    ports: ["${FORWARD_DB_PORT:-3306}:3306"]
+    volumes:
+      - db_data:/var/lib/mysql
+    networks: ["${NETWORK_NAME}"]
+
+volumes:
+  db_data: {}

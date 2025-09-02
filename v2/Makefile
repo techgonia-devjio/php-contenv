@@ -12,4 +12,3 @@ smoke-all:
 	@bash scripts/smoke.sh php/8.4/apache/Dockerfile     development 8081
 	@bash scripts/smoke.sh php/8.4/nginx/Dockerfile      development 8082
 	@bash scripts/smoke.sh php/8.4/frankenphp/Dockerfile development 8083
-	@bash scripts/smoke.sh php/8.4/swoole/Dockerfile     development 8084

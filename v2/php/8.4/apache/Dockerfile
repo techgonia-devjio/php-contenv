@@ -240,9 +240,9 @@ COPY --from=build_tools /usr/local/ /usr/local/
 COPY --from=build_tools /etc/apt/sources.list.d/ /etc/apt/sources.list.d/
 COPY --from=composer /usr/bin/composer /usr/local/bin/composer
 
-RUN mkdir -p /var/log/{php,apache2,frankenphp,nginx,swoole} \
- && chown -R www-data:www-data /var/log/{php,apache2,frankenphp,nginx,swoole} \
- && chmod -R 775 /var/log/{php,apache2,frankenphp,nginx,swoole}
+RUN mkdir -p /var/log/{php,apache2,frankenphp,nginx} \
+ && chown -R www-data:www-data /var/log/{php,apache2,frankenphp,nginx} \
+ && chmod -R 775 /var/log/{php,apache2,frankenphp,nginx}
 
 WORKDIR /var/www/html
 EXPOSE 80

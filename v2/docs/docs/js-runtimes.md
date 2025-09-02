@@ -1,4 +1,7 @@
+# JS Runtimes
+
 Managed by `common/build/scripts/mani-docker-install-js-runtime.sh`:
+
 - **Node via NVM** with symlinks to `/usr/local/bin/{node,npm,npx}` so it “just works” in shell and CI.
 - **Corepack** enabled (for Yarn/Pnpm shims).
 - Optional **Deno** and **Bun**.

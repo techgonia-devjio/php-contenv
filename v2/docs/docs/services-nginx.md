@@ -8,16 +8,17 @@
 
 **Run**
 ```bash
-docker compose -f docker-compose.profiles.yml --profile nginx up --build
+./.docker/v2/docky gen
+./.docker/v2/docky up -d
 ````
 
 **Logs**
+- Nginx: /var/log/nginx
+- PHP-FPM: /var/log/php
 
-* `/var/log/nginx` and `/var/log/php`
-
-**Verify**
+#### Debug tips
 
 ```bash
-docker exec -it <ctr> bash
-nginx -t && nginx -T | head -n 60
+docker exec -it <app_name> bash     # or ./.docker/v2/docky exec
+nginx -t && nginx -T | head -n 80
 ```

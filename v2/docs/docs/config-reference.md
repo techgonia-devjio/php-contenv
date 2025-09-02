@@ -1,3 +1,7 @@
+# Configuration Reference
+
+This page enumerates **build args** (image features) and **runtime env** (container behavior). Defaults come from the submodule Dockerfiles and INIs.
+
 ## Build-time arguments (common across images)
 
 | Arg                      |    Default | Purpose / Notes                                                                                                                    |
@@ -8,45 +12,48 @@
 | `S6_OVERLAY_VERSION`     | `v3.1.6.2` | s6-overlay tarballs to fetch in the multi-arch stage.                                                                              |
 
 
-## PHP DB client & extension toggles (handled by mani-php-ext-db.sh)
-| Arg                       |        Default | Purpose / Notes                                  |
-| ------------------------- | -------------: | ------------------------------------------------ |
-| `INSTALL_DB_MYSQL_CLIENT` |         `true` | Install MySQL/MariaDB client tools in the image. |
-| `INSTALL_DB_PGSQL_CLIENT` | `true`/`false` | Install PostgreSQL client tools in the image.    |
-| `DB_PGSQL_CLIENT_VERSION` | `18` (or `17`) | Specific pg client major version to install.     |
-| `PHP_EXT_PDO_MYSQL`       |         `true` | Enable/compile `pdo_mysql`.                      |
-| `PHP_EXT_PDO_PGSQL`       |        `false` | Enable/compile `pdo_pgsql`.                      |
-| `PHP_EXT_PDO_SQLITE`      |        `false` | Enable/compile `pdo_sqlite`.                     |
-| `PHP_EXT_SQLITE`          |        `false` | Enable/compile `sqlite3`.                        |
-| `PHP_EXT_MONGODB`         |        `false` | Install `mongodb` via PECL if true.              |
-| `PHP_EXT_REDIS`           |        `false` | Install `redis` via PECL if true.                |
-| `PHP_EXT_MEMCACHED`       |        `false` | Install `memcached` via PECL if true.            |
+---
+
+## Build args — DB clients & PHP DB extensions  *(mani-php-ext-db.sh)*
+
+| Arg                       | Default | Notes |
+| ---                       | ---: | --- |
+| `INSTALL_DB_MYSQL_CLIENT` | `true`  | Installs `default-mysql-client`. |
+| `INSTALL_DB_PGSQL_CLIENT` | `false` | Adds PGDG and installs `postgresql-client-<ver>`. |
+| `DB_PGSQL_CLIENT_VERSION` | `18`    | PG client major version. |
+| `PHP_EXT_PDO_MYSQL`       | `true`  | Enable/Compile `pdo_mysql`. |
+| `PHP_EXT_PDO_PGSQL`       | `false` | Enable/Compile `pdo_pgsql` (needs `libpq-dev` during build). |
+| `PHP_EXT_SQLITE`          | `false` | `sqlite3` ext. |
+| `PHP_EXT_PDO_SQLITE`      | `false` | `pdo_sqlite` ext. |
+| `PHP_EXT_REDIS`           | `false` | PECL `redis`. |
+| `PHP_EXT_MEMCACHED`       | `false` | PECL `memcached` (+ runtime libs). |
+| `PHP_EXT_MONGODB`         | `false` | PECL `mongodb` (+ `libssl` runtime). |
 
 
-## PHP “core” extension toggles (handled by mani-php-ext-core.sh)
-| Arg              |                       Default | Purpose / Notes                                                        |
-| ---------------- | ----------------------------: | ---------------------------------------------------------------------- |
-| `PHP_EXT_INTL`   |                  `true/false` | `intl` + runtime ICU libs.                                             |
-| `PHP_EXT_SOAP`   |                       `false` | `soap` + libxml dev at build.                                          |
-| `PHP_EXT_ZIP`    |                        `true` | `zip` + libzip.                                                        |
-| `PHP_EXT_XSL`    |                       `false` | `xsl` + libxslt.                                                       |
-| `PHP_EXT_GMP`    |                       `false` | `gmp` + libgmp.                                                        |
-| `PHP_EXT_BCMATH` |                       `false` | `bcmath`.                                                              |
-| `PHP_EXT_EXIF`   |                       `false` | `exif`.                                                                |
-| `PHP_EXT_PCNTL`  |                       `false` | `pcntl`.                                                               |
-| `PHP_EXT_XDEBUG` |                        `true` | Install Xdebug at build time (activation still controlled at runtime). |
-| `PHP_EXT_SWOOLE` | `false/true` *(Swoole image)* | Try `openswoole` via PECL first, fallback to `swoole`.                 |
+## Build args — Core PHP extensions  *(mani-php-ext-core.sh)*
 
+| Arg              | Default | Notes |
+| ---              | ---: | --- |
+| `PHP_EXT_INTL`   | `true`  | `intl` + ICU runtime. |
+| `PHP_EXT_SOAP`   | `false` | SOAP + libxml dev. |
+| `PHP_EXT_ZIP`    | `true`  | `zip` + libzip. |
+| `PHP_EXT_XSL`    | `false` | libxslt. |
+| `PHP_EXT_GMP`    | `false` | libgmp. |
+| `PHP_EXT_BCMATH` | `false` | `bcmath`. |
+| `PHP_EXT_EXIF`   | `false` | `exif`. |
+| `PHP_EXT_PCNTL`  | `false` | `pcntl` (CLI use). |
+| `PHP_EXT_XDEBUG` | `true`  | Installs Xdebug; **runtime controls activation**. |
+| `PHP_EXT_SWOOLE` | `false` | For Swoole profile; tries openswoole first. (Doesn't work yet) |
 
 > opcache is always built in mani-php-ext-core.sh.
 
+## Build args — Imaging  *(mani-php-ext-images.sh)*
 
-## PHP imaging / media extensions (handled by mani-php-ext-images.sh)
-| Arg               | Default | Purpose / Notes                        |
-| ----------------- | ------: | -------------------------------------- |
-| `PHP_EXT_GD`      |  `true` | `gd` with common image libs.           |
-| `PHP_EXT_IMAGICK` |  `true` | `imagick` via PECL + ImageMagick libs. |
-| `PHP_EXT_VIPS`    |  `true` | `vips` via PECL + libvips.             |
+| Arg | Default | Notes |
+| --- | ---: | --- |
+| `PHP_EXT_GD`      | `true` | GD compiled with jpeg/webp/freetype/xpm. |
+| `PHP_EXT_IMAGICK` | `true` | PECL imagick + ImageMagick runtimes. |
+| `PHP_EXT_VIPS`    | `true` | PECL vips + libvips runtimes. |
 
 
 ## JavaScript runtime installers (handled by mani-docker-install-js-runtime.sh)
@@ -60,18 +67,24 @@
 | `JS_RUNTIME_REQUIRE_PNPM` | `false` | Install pnpm if true.          |
 
 
-## Runtime environment variables (common)
-| Env                      |                           Default | Purpose / Notes                                                                                                                                                                         |
-| ------------------------ | --------------------------------: | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `PUID`                   |                            `1000` | Map container user/group (`www-data`) to host UID for volume permissions. Applied in `10-init.sh`.                                                                                      |
-| `PGID`                   |                            `1000` | Map container group to host GID.                                                                                                                                                        |
-| `XDEBUG_MODE`            | `off` (dev often `develop,debug`) | Runtime mode for Xdebug. For Swoole/Octane it’s recommended `off`.                                                                                                                      |
-| `XDEBUG_CLIENT_HOST`     |            `host.docker.internal` | IDE host for Xdebug.                                                                                                                                                                    |
-| `XDEBUG_CLIENT_PORT`     |       `9003` *(implicit via ini)* | Only if you override; default is 9003.                                                                                                                                                  |
-| `OVERLAY_DIR`            |                    `/opt/overlay` | Root for host-provided overlay (see extensibility hook).                                                                                                                                |
-| `EXTRA_APT_PACKAGES`     |                         *(unset)* | Space-separated packages to apt-install at container start (dev convenience).                                                                                                           |
-| `ENABLE_QUEUE_WORKER`    |                           `false` | If your s6 `queue-worker` service is present, you can toggle enabling via your run script logic.                                                                                        |
-| **App passthrough vars** |              *(project-specific)* | `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`, `REDIS_HOST`, `REDIS_PORT`, etc. Not used by the base image, but available to your app and visible in `mani-sanity`. |
+## Runtime environment variables (compose `environment:`)
+
+| Var | Default | Meaning |
+| --- | ---: | --- |
+| `PUID` / `PGID` | `1000/1000` | Map container user/group `www-data` uid/gid to host user (perms for bind mounts/volumes permissions). |
+| `XDEBUG_MODE` | `off` | `off`, `develop`, `debug`, etc. |
+| `XDEBUG_CLIENT_HOST` | `host.docker.internal` | IDE host. Port 9003 by default (ini). |
+| `XDEBUG_CLIENT_PORT`     |       `9003` *(implicit via ini)* | Only if you override; default is 9003. |
+
+| App DB envs | *(yours)* | `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`. |
+| Redis hints | *(yours)* | `REDIS_HOST`, `REDIS_PORT`. |
+| Overlay controls | *(unset)* | `OVERLAY_DIR=/opt/overlay`, `EXTRA_APT_PACKAGES="jq yq"`. |
+
+
+## Where to configure?
+- **Features at build time**: set build args in your **docker compose** file once its generated or in existing one, so images are baked consistently.
+- **Behavior at runtime**: set compose `environment:` values (e.g., `XDEBUG_MODE`).
+- **Project-specific values in stubs**: use `$DOCKY_REPLACE_*` and let Docky resolve to concrete values for your project.
 
 
 ## Nginx + PHP-FPM image
@@ -79,7 +92,6 @@
 Ports (in-container):
 - Nginx listens on :80
 - PHP-FPM listens on 127.0.0.1:9000 (wired in Nginx fastcgi_pass)
-
 Runtime env used by the base:
 - (none required) — Nginx and PHP-FPM are configured by files under /etc/nginx/ and /usr/local/etc/php-fpm.d/. You can override via overlay:
     - overlay/nginx/conf.d/*.conf

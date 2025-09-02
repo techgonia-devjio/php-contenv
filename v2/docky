@@ -1,478 +1,521 @@
 #!/usr/bin/env bash
+# docky — v2.3 (submodule-internal config + DOCKY_REPLACE_* placeholders)
+# deps: docker compose v2, yq v4, (optional) envsubst from gettext
+set -euo pipefail
 
-set -e
-
-DOCKER_DIR=".docker"
-while [[ "$#" -gt 0 ]]; do
-    case "$1" in
-        --docker-dir)
-            if [ -n "$2" ]; then
-                DOCKER_DIR="$2"
-                shift 2 # Shift past the argument name and value
-            else
-                echo "Error: --docker-dir requires a directory name." >&2
-                exit 1
-            fi
-            ;;
-        *)
-            break
-            ;;
-    esac
-done
-
-STUBS_DIR="${DOCKER_DIR}/stubs/services"
+# ---------------- paths / config ----------------
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SUBMODULE_DIR="${SCRIPT_DIR}"
 PROJECT_ROOT="$(pwd)"
-REPO_ROOT="${PROJECT_ROOT}/${DOCKER_DIR}"
-DOCKER_COMPOSE_DEST="${PROJECT_ROOT}/docker-compose.yml"
 
+DOCKY_CONFIG="${SUBMODULE_DIR}/docky.yml"            # read-only, shipped in submodule
+STUBS_DIR="${SUBMODULE_DIR}/stubs/services"
+COMPOSE_OUT="${PROJECT_ROOT}/docker-compose.yml"
 
-log() {
-    echo "[php-contenv] $1"
+SNIPPETS_DIR_DEFAULT=".docker-snippets"     # project-side snippets root
+SNIPPETS_PHP_SUBDIR="php"
+
+ANSWERS_FILE="${PROJECT_ROOT}/.docky.answers.yml"    # project-side persisted choices
+
+# ---------------- utils ----------------
+die(){ echo "✗ $*" >&2; exit 1; }
+warn(){ echo "⚠ $*" >&2; }
+info(){ echo "› $*"; }
+ok(){ echo "✓ $*"; }
+
+need(){ command -v "$1" >/dev/null 2>&1 || die "missing dependency: $1"; }
+yq_raw(){ yq -r "$1" "$2"; }
+have_envsubst(){ command -v envsubst >/dev/null 2>&1; }
+
+is_tty(){ [[ -t 0 ]] && [[ -t 1 ]]; }
+
+load_dotenv(){
+  local envf="${PROJECT_ROOT}/.env"
+  [ -f "$envf" ] || return 0
+  set -a
+  # shellcheck disable=SC1090
+  . "$envf"
+  set +a
 }
 
+# ---------------- doctor ----------------
+doctor(){
+  need docker
+  docker compose version >/dev/null 2>&1 || die "Docker Compose v2 not found (need 'docker compose')."
+  ok "docker: $(docker --version | cut -d' ' -f3- | sed 's/,//')"
+  ok "compose: $(docker compose version | head -n1)"
 
+  need yq
+  yq --version | grep -q 'version 4.' || warn "yq v4 strongly recommended; found: $(yq --version)"
 
-hot_log() {
-    if command_exists tput; then
-        echo "$(tput setaf 3)$(tput bold)[php-contenv] $1$(tput sgr0)"
-    else
-        echo "[php-contenv] $1"
-    fi
+  if have_envsubst; then ok "envsubst present"; else warn "envsubst not found; --envsubst will be unavailable"; fi
+
+  [ -f "$DOCKY_CONFIG" ] || die "config not found: $DOCKY_CONFIG"
+  [ -d "$STUBS_DIR" ] || die "stubs dir missing: $STUBS_DIR"
+
+  local sdir; sdir="$(yq_raw '.vars.DOCKER_SNIPPETS_DIR // "'"$SNIPPETS_DIR_DEFAULT"'"' "$DOCKY_CONFIG")"
+  [ -d "$PROJECT_ROOT/$sdir" ] && ok "snippets dir: $sdir" || info "snippets dir will be created on demand: $sdir"
+
+  ok "doctor looks good."
 }
 
-
-
-error() {
-    echo "[php-contenv ERROR] $1" >&2
-    exit 1
+# ---------------- answers store ----------------
+ans_get(){
+  local key="$1"
+  [ -f "$ANSWERS_FILE" ] || { echo ""; return 0; }
+  yq -r '.["'"$key"'"] // empty' "$ANSWERS_FILE"
 }
 
-
-command_exists() {
-    command -v "$1" >/dev/null 2>&1
+ans_set(){
+  local key="$1" val="$2"
+  if [ ! -f "$ANSWERS_FILE" ]; then
+    printf "{}\n" > "$ANSWERS_FILE"
+  fi
+  yq -i '.["'"$key"'"] = "'"$val"'"' "$ANSWERS_FILE"
 }
 
-
-get_input_with_default() {
-    local prompt="$1"
-    local default_value="$2"
-    local input_value
-
-    read -p "$prompt [$default_value]: " input_value
-    echo "${input_value:-$default_value}"
+ans_show(){
+  if [ -f "$ANSWERS_FILE" ]; then
+    echo "# ${ANSWERS_FILE#$PROJECT_ROOT/}"
+    cat "$ANSWERS_FILE"
+  else
+    echo "(no answers saved yet)"
+  fi
 }
 
-
-is_service_selected() {
-    local service_name="$1"
-    local selected_services_array=("${@:2}")
-    for selected in "${selected_services_array[@]}"; do
-        if [[ "$selected" == "${service_name}-service.stub.yml" ]]; then
-            return 0 # Service found
-        fi
-    done
-    return 1 # Service not found
+ans_reset(){
+  rm -f "$ANSWERS_FILE"
+  ok "cleared ${ANSWERS_FILE#$PROJECT_ROOT/}"
 }
 
-
-log_env_variables_to_add() {
-    local context="$1"
-    shift 1
-    local services_list=("$@")
-
-    hot_log "Please add the following variables to your project's .env file:"
-
-    if [[ "$context" == "setup" ]]; then
-         log "APP_PORT=8080"
-         log "VITE_PORT=5173"
-         log "WWWUSER=1000"
-         log "WWWGROUP=1000"
-         log "DEEM_XDEBUG_MODE=off"
-         log "DEEM_XDEBUG_CONFIG=client_host=host.docker.internal"
-         log ""
-    fi
-
-
-    for service_item in "${services_list[@]}"; do
-        local service_name="${service_item%-service.stub.yml}"
-
-        case "$service_name" in
-            mysql|pgsql|mariadb)
-                log "# Database Configuration for ${service_name} service"
-                log "DB_CONNECTION=${service_name}"
-                log "DB_HOST=${service_name}"
-                if [[ "$service_name" == "pgsql" ]]; then
-                    log "DB_PORT=5432"
-                else
-                    log "DB_PORT=3306"
-                fi
-                log "DB_DATABASE=laravel"
-                log "DB_USERNAME=root"
-                log "DB_PASSWORD=complex!Passw0rd"
-                log ""
-                # Conditional DB port forwarding
-                if [[ "$service_name" == "pgsql" ]]; then
-                    log "FORWARD_DB_PORT=5432"
-                else
-                    log "FORWARD_DB_PORT=3306"
-                fi
-                log ""
-                ;;
-            mailpit)
-                log "# Mailpit Configuration"
-                log "MAIL_MAILER=smtp"
-                log "MAIL_HOST=mailpit"
-                log "MAIL_PORT=1025"
-                log "MAIL_USERNAME=null"
-                log "MAIL_PASSWORD=null"
-                log "MAIL_ENCRYPTION=null"
-                log "MAIL_FROM_ADDRESS=\"hello@example.com\""
-                log "MAIL_FROM_NAME=\"\${APP_NAME}\""
-                log "FORWARD_MAILPIT_PORT=1025"
-                log "FORWARD_MAILPIT_DASHBOARD_PORT=8025"
-                log ""
-                ;;
-            redis)
-                log "# Redis Configuration"
-                log "REDIS_HOST=redis"
-                log "REDIS_PASSWORD=null"
-                log "REDIS_PORT=6379"
-                log ""
-                ;;
-            typesense)
-                 log "# Typesense Configuration"
-                 log "TYPESENSE_HOST=typesense"
-                 log "TYPESENSE_PORT=8108"
-                 log "TYPESENSE_PROTOCOL=http"
-                 log "TYPESENSE_API_KEY=xyz"
-                 log "FORWARD_TYPESENSE_PORT=8108"
-                 log ""
-                 ;;
-            *)
-                log "# Review .env variables for the ${service_name} service."
-                ;;
-        esac
-    done
-
-    hot_log "Review and update your .env file with these and any other project-specific variables."
+# ---------------- stubs merge pipeline ----------------
+collect_stub_files(){
+  mapfile -t _names < <(yq -r '.stubs[]? // empty' "$DOCKY_CONFIG")
+  [ "${#_names[@]}" -gt 0 ] || die "no stubs selected in submodule docky.yml (.stubs)"
+  local app=() rest=()
+  for n in "${_names[@]}"; do
+    local p="${STUBS_DIR}/${n}.yml"
+    [ -f "$p" ] || die "stub not found: $p"
+    if [[ "$n" == "app" ]]; then app+=("$p"); else rest+=("$p"); fi
+  done
+  printf '%s\n' "${app[@]}" "${rest[@]}"
 }
 
-
-log_gitignore_to_add() {
-    hot_log "Please add the following patterns to your project's .gitignore file:"
-    log "/logs/"
-    log ".env"
-    log "docker-compose.override.yml" # If you plan to use overrides
-    log "supervisord*" # Files created by supervisord
-    hot_log "Ensure these are not already present or conflict with existing patterns."
+merge_stubs(){
+  yq eval-all 'reduce .[] as $item ({}; . *+ $item)' "$@"
 }
 
-
-# --- Setup Command ---
-setup_environment() {
-    log "Starting php-contenv setup..."
-
-
-    if ! command_exists docker; then
-        error "Docker is not installed. Please install Docker Desktop or Docker Engine."
-    fi
-    if ! command_exists docker compose; then
-
-        if ! command_exists docker-compose; then
-            log "Using the older 'docker-compose' command."
-            DOCKER_COMPOSE_CMD="docker-compose"
-        else
-            error "Docker Compose is not installed. Please install Docker Compose V2 or the standalone docker-compose."
-        fi
-    else
-        log "Using 'docker compose' (Docker Compose V2)."
-        DOCKER_COMPOSE_CMD="docker compose"
-    fi
-
-
-    if [ ! -d "$DOCKER_DIR" ]; then
-        error "'${DOCKER_DIR}' directory not found. Please run this script from your project root directory after adding php-contenv as a git submodule (e.g., git submodule add https://github.com/techgonia-devjio/php-contenv ${DOCKER_DIR}). If you used a different name for the submodule, use the --docker-dir flag."
-    fi
-
-
-    if [ -f "$DOCKER_COMPOSE_DEST" ]; then
-        if ! grep -q "# Generated by php-contenv setup script" "$DOCKER_COMPOSE_DEST"; then
-            error "A docker-compose.yml file already exists in the project root and was not generated by this script. Please back it up manually before running setup."
-        else
-             log "Existing docker-compose.yml found (generated by php-contenv). Backing it up."
-             local timestamp=$(date +"%Y%m%d_%H%M%S")
-             local backup_file="${DOCKER_COMPOSE_DEST}.bak_${timestamp}"
-             cp "$DOCKER_COMPOSE_DEST" "$backup_file"
-             log "Backed up to $backup_file"
-        fi
-    fi
-
-
-    log "Gathering environment details..."
-
-    available_versions=($(ls -d "$DOCKER_DIR"/[0-9]*.[0-9]* 2>/dev/null | xargs -n 1 basename))
-
-    if [ ${#available_versions[@]} -eq 0 ]; then
-        error "No PHP version directories found in '$DOCKER_DIR'."
-    fi
-
-    echo "Available PHP Versions:"
-    select php_version in "${available_versions[@]}"; do
-        if [[ " ${available_versions[@]} " =~ " ${php_version} " ]]; then
-            break
-        else
-            echo "Invalid selection. Please try again."
-        fi
-    done
-
-    available_servers=($(ls -d "$DOCKER_DIR/$php_version"/* 2>/dev/null | xargs -n 1 basename))
-    # Filter out 'php' and 'database' directories
-    available_servers=($(echo "${available_servers[@]}" | tr ' ' '\n' | grep -v '^php$' | grep -v '^database$' | tr '\n' ' '))
-
-    if [ ${#available_servers[@]} -eq 0 ]; then
-        error "No server configurations found for PHP version $php_version in '$DOCKER_DIR/$php_version'."
-    fi
-
-    echo "Available Web Servers for PHP $php_version:"
-    select web_server in "${available_servers[@]}"; do
-        if [[ " ${available_servers[@]} " =~ " ${web_server} " ]]; then
-            break
-        else
-            echo "Invalid selection. Please try again."
-        fi
-    done
-
-    log "You selected PHP $php_version with $web_server."
-
-    DOCKER_NETWORK_NAME=$(get_input_with_default "Enter Docker network name" "optimesh")
-    log "Using Docker network: $DOCKER_NETWORK_NAME"
-
-    log "Select optional services to include (y/N for each):"
-    available_service_stubs=($(ls "$STUBS_DIR"/*.stub.yml 2>/dev/null | xargs -n 1 basename | grep -v '^app-service.stub.yml$'))
-
-    selected_services=()
-    if [ ${#available_service_stubs[@]} -eq 0 ]; then
-        log "No optional service stubs found in '$STUBS_DIR'."
-    else
-        for service_stub in "${available_service_stubs[@]}"; do
-            local service_name="${service_stub%.stub.yml}"
-            read -p "Include ${service_name} service? (y/N): " include_service
-            if [[ "$include_service" =~ ^[Yy]$ ]]; then
-                selected_services+=("$service_stub")
-            fi
-        done
-    fi
-
-    log "Selected services: ${selected_services[*]:-None}"
-
-
-    generate_docker_compose "$php_version" "$web_server" "$DOCKER_NETWORK_NAME" "${selected_services[@]}"
-
-    create_logs_directory
-
-    log_env_variables_to_add "setup" "${selected_services[@]}"
-    log_gitignore_to_add
-
-    log "Setup complete! You can now build and start your Docker environment:"
-    log "$DOCKER_COMPOSE_CMD build"
-    log "$DOCKER_COMPOSE_CMD up -d"
-    hot_log "Remember to run 'composer install' and 'npm install' inside the container after the first build."
-}
-
-generate_docker_compose() {
-    local php_version="$1"
-    local web_server="$2"
-    local network_name="$3"
-    shift 3
-    local optional_service_stubs=("$@")
-
-    local docker_compose_content="# Generated by php-contenv setup script\n\nservices:\n"
-
-    local app_stub_path="${STUBS_DIR}/app-service.stub.yml"
-    if [ ! -f "$app_stub_path" ]; then
-        error "App service stub not found: $app_stub_path"
-    fi
-    local app_service_content=$(cat "$app_stub_path")
-    local app_volumes=""
-    # Replace placeholders and insert dynamic volumes into the app service content
-    # Using sed for simple replacements. More complex YAML manipulation, we need a dedicated parser/tool.
-    app_service_content=$(echo "$app_service_content" | \
-        sed "s|context: .docker|context: ${DOCKER_DIR}|" | \
-        sed "s|dockerfile: 8.1/apache/Dockerfile|dockerfile: ${php_version}/${web_server}/Dockerfile|" | \
-        awk -v volumes_content="${app_volumes}" '/environment:/ { print; next } { print }' \
+patch_networks(){
+  local net; net="$(yq_raw '.project.network // "dockynet"' "$DOCKY_CONFIG")"
+  yq -y --arg net "$net" '
+    .networks = (.networks // {}) |
+    .networks[$net] = ((.networks[$net] // {}) * {"driver":"bridge","name":$net}) |
+    .services |= with_entries(
+      .value.networks = (.value.networks // [$net])
     )
-
-    docker_compose_content+="$app_service_content\n"
-
-    local named_volumes_needed=()
-    for service_stub in "${optional_service_stubs[@]}"; do
-        local service_stub_path="${STUBS_DIR}/${service_stub}"
-        if [ ! -f "$service_stub_path" ]; then
-            log "Warning: Service stub not found: $service_stub_path. Skipping."
-            continue
-        fi
-        local service_content=$(cat "$service_stub_path")
-
-        # Simple check for named volumes in the stub (e.g., 'volumes:')
-        if echo "$service_content" | grep -q 'volumes:'; then
-             # Extract named volume names (basic parsing)
-             local service_volumes=$(echo "$service_content" | sed -n '/volumes:/,/^[^[:space:]]/p' | grep -v 'volumes:' | grep -v '^- ' | sed 's/:.*//' | xargs)
-             for vol in $service_volumes; do
-                 if [[ ! " ${named_volumes_needed[@]} " =~ " ${vol} " ]]; then
-                     named_volumes_needed+=("$vol")
-                 fi
-             done
-        fi
-
-        docker_compose_content+="\n$service_content\n"
-    done
-
-    # Add networks definition
-    docker_compose_content+="\nnetworks:\n"
-    docker_compose_content+="  $network_name:\n"
-    docker_compose_content+="    driver: bridge\n"
-    docker_compose_content+="    name: optimesh\n"
-
-    if [ ${#named_volumes_needed[@]} -gt 0 ]; then
-        docker_compose_content+="\nvolumes:\n"
-        for vol in "${named_volumes_needed[@]}"; do
-            docker_compose_content+="  $vol:\n"
-        done
-    fi
-
-    log "Writing generated docker-compose.yml to $DOCKER_COMPOSE_DEST"
-    echo "$docker_compose_content" > "$DOCKER_COMPOSE_DEST"
-    log "Successfully generated docker-compose.yml"
+  '
 }
 
-# Function to create necessary log directories on the host
-create_logs_directory() {
-    local LOGS_DIR="${PROJECT_ROOT}/logs"
-    if [ ! -d "$LOGS_DIR" ]; then
-        log "Creating logs directory: $LOGS_DIR"
-        mkdir -p "$LOGS_DIR"
-        # Create subdirectories for clarity
-        mkdir -p "$LOGS_DIR/php" "$LOGS_DIR/apache2" "$LOGS_DIR/nginx" "$LOGS_DIR/supervisor"
+patch_app_from_config(){
+  yq -y --slurpfile cfg "$DOCKY_CONFIG" '
+    . as $dc |
+    ($cfg[0].app // {}) as $app |
+    $dc
+    | .services.app.ports = ((.services.app.ports // []) + ($app.ports // []))
+    | .services.app.environment = ((.services.app.environment // {}) * ($app.env // {}))
+    | .services.app.volumes = ((.services.app.volumes // []) + ($app.volumes // []))
+  '
+}
+
+patch_overlays_mount(){
+  local count; count="$(yq_raw '(.overlays // []) | length' "$DOCKY_CONFIG")"
+  [ "$count" -gt 0 ] || { cat; return 0; }
+  local src="./$(realpath --relative-to="$PROJECT_ROOT" "$SUBMODULE_DIR")/overlays"
+  yq -y --arg vol "${src}:/opt/overlay:ro" '
+    .services.app.volumes = ((.services.app.volumes // []) + [$vol])
+  '
+}
+
+collect_snippet_volume_lines(){
+  local root; root="$(yq_raw '.vars.DOCKER_SNIPPETS_DIR // "'"$SNIPPETS_DIR_DEFAULT"'"' "$DOCKY_CONFIG")"
+  local phpdir="${PROJECT_ROOT}/${root}/${SNIPPETS_PHP_SUBDIR}"
+  [ -d "$phpdir" ] || return 0
+  # shellcheck disable=SC2044
+  for f in $(find "$phpdir" -maxdepth 1 -type f -name '*.ini' 2>/dev/null | sort); do
+    local base rel dest
+    base="$(basename "$f")"
+    rel="./$(realpath --relative-to="$PROJECT_ROOT" "$f")"
+    dest="/usr/local/etc/php/conf.d/${base}"
+    printf "%s:%s\n" "$rel" "$dest"
+  done
+}
+
+patch_snippet_volumes(){
+  local lines
+  mapfile -t lines < <(collect_snippet_volume_lines || true)
+  [ "${#lines[@]}" -gt 0 ] || { cat; return 0; }
+  local exprs=()
+  for m in "${lines[@]}"; do
+    exprs+=( '.services.app.volumes = ((.services.app.volumes // []) + ["'"$m"'"])' )
+  done
+  yq -y "${exprs[@]/#/-e }" -
+}
+
+patch_extras(){
+  yq -y --slurpfile cfg "$DOCKY_CONFIG" '
+    . as $dc |
+    ($cfg[0].extras.services // {}) as $es |
+    ($cfg[0].extras.volumes  // {}) as $ev |
+    ($cfg[0].extras.networks // {}) as $en |
+    $dc
+    | .services = (.services *+ $es)
+    | .volumes  = (.volumes  *+ $ev)
+    | .networks = (.networks *+ $en)
+  '
+}
+
+ensure_env_hint(){
+  local net; net="$(yq_raw '.project.network // "dockynet"' "$DOCKY_CONFIG")"
+  local envf="${PROJECT_ROOT}/.env"
+  if ! { [ -f "$envf" ] && grep -q '^NETWORK_NAME=' "$envf"; }; then
+    echo "NETWORK_NAME=${net}" >> "$envf"
+    ok "added NETWORK_NAME=${net} to .env"
+  fi
+}
+
+maybe_envsubst_file(){
+  # $1: in, $2: out
+  local in="$1" out="$2"
+  if [[ "${USE_ENVSUBST:-0}" == "1" ]]; then
+    have_envsubst || die "envsubst requested but not installed"
+    load_dotenv
+    # keep unknowns intact
+    local tmp esc
+    tmp="$(mktemp)"; esc="$(mktemp)"
+    sed -E 's/\$\{?([A-Za-z0-9_]+)\}?/__DLR__{\1}/g' "$in" > "$esc"
+    envsubst < "$esc" > "$tmp"
+    sed -E 's/__DLR__\{([A-Za-z0-9_]+)\}/\$\{\1\}/g' "$tmp" > "$out"
+    rm -f "$tmp" "$esc"
+  else
+    cp -f "$in" "$out"
+  fi
+}
+
+# ---------------- placeholder resolver ----------------
+# Detect $DOCKY_REPLACE_* and ${DOCKY_REPLACE_*} tokens in YAML and replace them.
+# Values come from:
+#  - .docky.answers.yml (project)
+#  - DOCKY_CONFIG .vars (defaults)
+#  - DOCKY_CONFIG .OPTIONS (choice lists)
+#  - interactive prompt (unless --no-ask)
+collect_placeholders(){
+  local file="$1"
+  # shellcheck disable=SC2002
+  cat "$file" | grep -oE '\$\{?DOCKY_REPLACE_[A-Z0-9_]+\}?' | sed 's/[${}]//g' | sort -u
+}
+
+option_list_for(){
+  local base="$1"  # e.g. PHP_VERSION
+  # Try OPTIONS.PHP_VERSION, OPTIONS.PHP_VERSIONS, OPTIONS.PHP_VERSIONs, OPTIONS.PHP_VERSION_S
+  yq -r '
+    (.OPTIONS.'"$base"' // .OPTIONS.'"${base}"'s // .OPTIONS.'"${base}"'S // empty)
+  ' "$DOCKY_CONFIG" | yq -r '.[]? // empty'
+}
+
+default_for(){
+  local base="$1"
+  # Priority: project .env (BASE), answers file (already handled earlier), then submodule vars
+  # We prefer submodule vars as canonical default:
+  yq_raw '.vars.'"$base"' // empty' "$DOCKY_CONFIG"
+}
+
+prompt_choice(){
+  local key="$1" base="${1#DOCKY_REPLACE_}" def="$2"
+  shift 2
+  local opts=("$@")
+  echo
+  echo "⚙  $base"
+  if ((${#opts[@]})); then
+    echo "   available:"
+    local i=1
+    for o in "${opts[@]}"; do printf "    %d) %s\n" "$i" "$o"; ((i++)); done
+    echo -n "   pick [1-${#opts[@]}] or type a value"
+    [ -n "$def" ] && echo -n " (default: $def)"
+    echo -n ": "
+    read -r ans || true
+    if [[ -z "$ans" && -n "$def" ]]; then
+      echo "$def"
+      return 0
+    fi
+    if [[ "$ans" =~ ^[0-9]+$ ]] && (( ans>=1 && ans<=${#opts[@]} )); then
+      echo "${opts[ans-1]}"
     else
-        log "Logs directory already exists: $LOGS_DIR"
+      echo "$ans"
     fi
+  else
+    echo -n "   value"
+    [ -n "$def" ] && echo -n " (default: $def)"
+    echo -n ": "
+    read -r ans || true
+    echo "${ans:-$def}"
+  fi
 }
 
-# --- Add Service Command ---
-add_service_to_compose() {
-    local service_name="$1"
-    local service_stub="${service_name}-service.stub.yml"
-    local service_stub_path="${STUBS_DIR}/${service_stub}"
+resolve_placeholders(){
+  local in="$1" out="$2" ask="${3:-1}"
+  local tmp="$in"
+  local keys
+  mapfile -t keys < <(collect_placeholders "$in" || true)
+  [ "${#keys[@]}" -gt 0 ] || { cp -f "$in" "$out"; return 0; }
 
-    if [ -z "$service_name" ]; then
-        error "Please specify the service name to add (e.g., docky add-service typesense)."
+  local k base def val opts=()
+  for k in "${keys[@]}"; do
+    base="${k#DOCKY_REPLACE_}"
+
+    # 1) answers file
+    val="$(ans_get "$k")"
+
+    # 2) env override (same base without prefix) – optional convenience
+    if [ -z "$val" ]; then
+      val="${!base:-}"
     fi
 
-    if [ ! -f "$DOCKER_COMPOSE_DEST" ]; then
-        error "docker-compose.yml not found in the project root. Please run 'docky setup' first."
-    fi
-
-    if [ ! -f "$service_stub_path" ]; then
-        error "Service stub not found for '${service_name}': ${service_stub_path}. Please ensure the stub file exists in ${STUBS_DIR}."
-    fi
-
-    local compose_content=$(cat "$DOCKER_COMPOSE_DEST")
-
-    if echo "$compose_content" | grep -q -E "^[[:space:]]*${service_name}:"; then
-        hot_log "Service '${service_name}' already exists in docker-compose.yml. Skipping."
-        log_env_variables_to_add "add-service" "$service_stub"
-        return 0
-    fi
-
-    log "Adding service '${service_name}' from stub: ${service_stub_path}"
-
-    local service_content=$(cat "$service_stub_path")
-
-    local insert_line=$(echo "$compose_content" | grep -n "^networks:" | head -n 1 | cut -d: -f1)
-    if [ -z "$insert_line" ]; then
-        insert_line=$(echo "$compose_content" | grep -n "^volumes:" | head -n 1 | cut -d: -f1)
-    fi
-
-    # Use awk for reliable multi-line insertion,Pipe service_content into awk and use getline
-    if [ -z "$insert_line" ]; then
-        echo -e "\n$service_content" >> "$DOCKER_COMPOSE_DEST"
+    # 3) default from submodule vars
+    if [ -z "$val" ]; then
+      def="$(default_for "$base")"
     else
-        echo "$compose_content" | awk -v line="$insert_line" '
-        BEGIN {
-            # Read the service content from stdin (piped input)
-            service_content = ""
-            while ((getline line_from_stdin < "-") > 0) {
-                service_content = service_content line_from_stdin "\n"
-            }
-            # Remove the trailing newline added by the loop
-            sub(/\n$/, "", service_content)
-        }
-        NR == line {
-            print service_content;
-            print;
-            next;
-        }
-        { print }
-        ' > temp_compose.yml
-        mv temp_compose.yml "$DOCKER_COMPOSE_DEST"
+      def="$val"
     fi
 
+    # 4) options list from submodule OPTIONS
+    mapfile -t opts < <(option_list_for "$base" || true)
 
-    log "Service '${service_name}' added to docker-compose.yml."
-
-    if echo "$service_content" | grep -q 'volumes:'; then
-         hot_log "Checking for named volumes in the '${service_name}' service stub..."
-         local service_volumes=$(echo "$service_content" | sed -n '/volumes:/,/^[^[:space:]]/p' | grep -v 'volumes:' | grep -v '^- ' | sed 's/:.*//' | xargs)
-         local root_volumes_section=$(cat "$DOCKER_COMPOSE_DEST" | sed -n '/^volumes:/,/^[^[:space:]]/p')
-
-         for vol in $service_volumes; do
-             if ! echo "$root_volumes_section" | grep -q "^${vol}:"; then
-                 hot_log "Named volume '${vol}' not found in root 'volumes:' section. Please add it manually to your docker-compose.yml:"
-                 log "volumes:"
-                 log "  ${vol}:"
-                 log ""
-             else
-                 log "Named volume '${vol}' already defined in root 'volumes:' section."
-             fi
-         done
+    # 5) interactive (if TTY & ask==1); otherwise pick def or first option
+    if [ -z "$val" ]; then
+      if [[ "$ask" == "1" ]] && is_tty; then
+        val="$(prompt_choice "$k" "$def" "${opts[@]}")"
+      else
+        if [ -n "$def" ]; then val="$def"
+        elif ((${#opts[@]})); then val="${opts[0]}"
+        else val=""; fi
+      fi
     fi
 
-    if echo "$service_content" | grep -q 'networks:'; then
-        hot_log "The '${service_name}' service stub defines a 'networks:' block. Please ensure the referenced network(s) are defined at the root level of your docker-compose.yml if they are not the main network ('${DOCKER_NETWORK_NAME}')."
-    fi
+    # persist & replace (support $FOO and ${FOO})
+    ans_set "$k" "$val"
+    tmpfile="$(mktemp)"
+    sed -E "s#\\\$\{${k}\}#${val//\//\\/}#g; s#\\\$${k}#${val//\//\\/}#g" "$tmp" > "$tmpfile"
+    mv "$tmpfile" "$tmp"
+  done
 
-
-    log_env_variables_to_add "add-service" "$service_stub"
-
-    hot_log "Service '${service_name}' successfully added."
-    hot_log "Remember to review the updated docker-compose.yml, add any necessary named volumes or networks at the root level, and update your .env file."
-    hot_log "Then run 'docker compose up -d' to start the new service."
+  cp -f "$tmp" "$out"
 }
 
+# ---------------- compose generation ----------------
+generate_compose(){
+  local mode_1="${1:-}" mode_2="${2:-}"
+  USE_ENVSUBST=0; ASK=1
+  for m in "$mode_1" "$mode_2"; do
+    case "$m" in
+      --envsubst) USE_ENVSUBST=1 ;;
+      --no-ask)   ASK=0 ;;
+      ""|*)       ;;
+    esac
+  done
 
+  doctor >/dev/null || true
 
-create_logs_directory() {
-    local LOGS_DIR="${PROJECT_ROOT}/logs"
-    if [ ! -d "$LOGS_DIR" ]; then
-        log "Creating logs directory: $LOGS_DIR"
-        mkdir -p "$LOGS_DIR"
-        mkdir -p "$LOGS_DIR/php" "$LOGS_DIR/apache2" "$LOGS_DIR/nginx" "$LOGS_DIR/supervisor"
+  local files=()
+  mapfile -t files < <(collect_stub_files)
+  info "merging stubs: $(printf '%s ' "${files[@]//$PROJECT_ROOT\//}")"
+
+  local merged tmp_merged
+  tmp_merged="$(mktemp)"; merged="$(merge_stubs "${files[@]}")"; printf "%s\n" "$merged" > "$tmp_merged"
+
+  # pipeline patches
+  local t1 t2 t3 t4 t5 t6
+  t1="$(mktemp)"; t2="$(mktemp)"; t3="$(mktemp)"; t4="$(mktemp)"; t5="$(mktemp)"; t6="$(mktemp)"
+
+  yq -y '.' "$tmp_merged" \
+    | patch_networks  > "$t1"
+  cat "$t1" | patch_app_from_config  > "$t2"
+  cat "$t2" | patch_overlays_mount   > "$t3"
+  cat "$t3" | patch_extras           > "$t4"
+  cat "$t4" | patch_snippet_volumes  > "$t5"
+
+  # ---- NEW: resolve DOCKY_REPLACE_* tokens (no envsubst yet) ----
+  resolve_placeholders "$t5" "$t6" "$ASK"
+
+  # optional envsubst last (keeps unknowns intact)
+  maybe_envsubst_file "$t6" "$COMPOSE_OUT"
+
+  rm -f "$tmp_merged" "$t1" "$t2" "$t3" "$t4" "$t5" "$t6"
+
+  ok "wrote ${COMPOSE_OUT#${PROJECT_ROOT}/}"
+  ensure_env_hint
+  info "services:"; yq -r '.services | keys | .[]' "$COMPOSE_OUT" | sed 's/^/ - /'
+  info "app volumes (tail):"; yq -r '.services.app.volumes // [] | .[]' "$COMPOSE_OUT" | tail -n 6 | sed 's/^/   • /'
+}
+
+# ---------------- services / snippets ----------------
+add_service(){
+  local name="${1:-}"; [ -n "$name" ] || die "usage: $0 add-svc <name>"
+  [ -f "${STUBS_DIR}/${name}.yml" ] || die "stub not found: ${STUBS_DIR}/${name}.yml"
+  # update the submodule's list? no — submodule is read-only.
+  # Instead, append to project .env DOCKY_STUBS, if present; else just inform the user.
+  local envf="${PROJECT_ROOT}/.env"
+  if [ -f "$envf" ]; then
+    if grep -q '^DOCKY_STUBS=' "$envf"; then
+      local cur; cur="$(grep '^DOCKY_STUBS=' "$envf" | sed 's/^DOCKY_STUBS=//')"
+      if echo "$cur" | tr ',' ' ' | tr -s ' ' | grep -qw "$name"; then
+        info "'$name' already in DOCKY_STUBS (.env)"
+      else
+        local new; new="$(printf "%s" "$cur" | sed 's/[[:space:]]\+/,/g' | sed 's/,,\+/,/g' | sed 's/^,\|,$//g')"
+        [ -z "$new" ] && new="$name" || new="${new},$name"
+        sed -i '' -e "s/^DOCKY_STUBS=.*/DOCKY_STUBS=${new}/" "$envf" 2>/dev/null || \
+        sed -i -e "s/^DOCKY_STUBS=.*/DOCKY_STUBS=${new}/" "$envf" 2>/dev/null || \
+        echo "DOCKY_STUBS=${new}" >> "$envf"
+        ok "added '$name' to DOCKY_STUBS in .env → ${new}"
+      fi
     else
-        log "Logs directory already exists: $LOGS_DIR"
+      echo "DOCKY_STUBS=${name}" >> "$envf"
+      ok "created DOCKY_STUBS in .env with '${name}'"
     fi
+  else
+    warn ".env not found; create one and add DOCKY_STUBS=${name}"
+  fi
+  generate_compose
 }
 
+list_services(){
+  echo "—— available stubs (submodule) ——"
+  (cd "$STUBS_DIR" && ls -1 *.yml 2>/dev/null | sed 's/\.yml$//' | sed 's/^/ - /') || echo " (none)"
+  echo
+  echo "—— enabled stubs (submodule docky.yml) ——"
+  yq -r '.stubs[]? // empty' "$DOCKY_CONFIG" 2>/dev/null | sed 's/^/ - /' || echo " (none)"
+  echo
+  echo "—— compose services (generated) ——"
+  if [ -f "$COMPOSE_OUT" ]; then
+    yq -r '.services | keys | .[]' "$COMPOSE_OUT" | sed 's/^/ - /'
+  else
+    echo " (compose not generated yet; run: ./.docker/v2/docky gen)"
+  fi
+}
 
-case "$1" in
-    setup)
-        setup_environment
+snippet_php_ini(){
+  local name="${1:-custom}"
+  name="${name%.ini}"
+  local root; root="$(yq_raw '.vars.DOCKER_SNIPPETS_DIR // "'"$SNIPPETS_DIR_DEFAULT"'"' "$DOCKY_CONFIG")"
+  local dir="${PROJECT_ROOT}/${root}/${SNIPPETS_PHP_SUBDIR}"
+  mkdir -p "$dir"
+  local f="${dir}/${name}.ini"
+  if [ -f "$f" ]; then
+    warn "exists: ${f#${PROJECT_ROOT}/}"
+  else
+    cat > "$f" <<EOF
+; ${name}.ini — project snippet (auto-mounted by docky)
+; examples:
+; memory_limit = 1024M
+; xdebug.mode = off
+EOF
+    ok "created ${f#${PROJECT_ROOT}/}"
+  fi
+  generate_compose >/dev/null || true
+  info "mounted at: /usr/local/etc/php/conf.d/${name}.ini"
+}
+
+snippet_list(){
+  local root; root="$(yq_raw '.vars.DOCKER_SNIPPETS_DIR // "'"$SNIPPETS_DIR_DEFAULT"'"' "$DOCKY_CONFIG")"
+  local phpdir="${PROJECT_ROOT}/${root}/${SNIPPETS_PHP_SUBDIR}"
+  echo "snippets root: ${root}"
+  if [ -d "$phpdir" ]; then
+    echo "php ini:"
+    find "$phpdir" -maxdepth 1 -type f -name '*.ini' -printf " - %P\n" 2>/dev/null || true
+  else
+    echo "php ini: (none)"
+  fi
+}
+
+# ---------------- docs helper ----------------
+open_docs(){
+  if ! command -v mkdocs >/dev/null 2>&1; then
+    die "mkdocs not found. Install: pip install mkdocs mkdocs-material"
+  fi
+  local docs_dir_rel; docs_dir_rel="$(realpath --relative-to="$PROJECT_ROOT" "$SUBMODULE_DIR/docs" 2>/dev/null || true)"
+  local docs_dir="${PROJECT_ROOT}/${docs_dir_rel:-docs}"
+  [ -f "$docs_dir/mkdocs.yml" ] || [ -f "$PROJECT_ROOT/mkdocs.yml" ] || warn "mkdocs.yml not found; using defaults"
+  (cd "$PROJECT_ROOT" && mkdocs serve -a 127.0.0.1:5105)
+}
+
+# ---------------- docker compose passthrough ----------------
+dc(){ docker compose "$@"; }
+
+# ---------------- CLI ----------------
+cmd="${1:-help}"; shift || true
+case "$cmd" in
+  doctor) doctor ;;
+  gen|generate)
+    case "${1:-}" in
+      --envsubst) generate_compose --envsubst ;;
+      --no-ask)   generate_compose --no-ask ;;
+      "" )        generate_compose ;;
+      *)          # support two flags order-insensitive
+                  generate_compose "$1" "${2:-}" ;;
+    esac
+    ;;
+  add-svc|add-service) add_service "${1:-}";;
+  list-svc|list-services) list_services ;;
+  snippet)
+    sub="${1:-}"; shift || true
+    case "$sub" in
+      php-ini) snippet_php_ini "${1:-custom}";;
+      ls|list) snippet_list;;
+      *) die "usage: docky snippet {php-ini <name>|list}";;
+    esac
+    ;;
+  config)
+    sub="${1:-show}"; shift || true
+    case "$sub" in
+      show)  ans_show ;;
+      reset) ans_reset ;;
+      set)
+        k="${1:-}"; v="${2:-}"
+        [ -n "$k" ] && [ -n "$v" ] || die "usage: docky config set DOCKY_REPLACE_KEY value"
+        ans_set "$k" "$v"; ok "set $k=$v"
         ;;
-    add-service)
-        shift
-        add_service_to_compose "$@"
-        ;;
-    *)
-        echo "Usage: $0 [--docker-dir <directory>] {setup | add-service <service_name>}"
-        exit 1
-        ;;
+      *) die "usage: docky config {show|reset|set DOCKY_REPLACE_KEY value}" ;;
+    esac
+    ;;
+  open-docs) open_docs ;;
+  up|down|ps|logs|exec|run|restart|build|pull)
+    dc "$cmd" "$@"
+    ;;
+  help|-h|--help|*)
+    cat <<EOF
+docky — v2.3
+
+USAGE
+  ./.docker/v2/docky doctor
+  ./.docker/v2/docky gen [--envsubst] [--no-ask]   # merge stubs, resolve DOCKY_REPLACE_* (optionally envsubst)
+  ./.docker/v2/docky add-svc <name>                 # append stub to DOCKY_STUBS in .env
+  ./.docker/v2/docky list-svc
+  ./.docker/v2/docky snippet php-ini <name>
+  ./.docker/v2/docky snippet list
+  ./.docker/v2/docky config show|set|reset          # manage .docky.answers.yml
+  ./.docker/v2/docky open-docs                      # mkdocs serve (127.0.0.1:5105)
+
+compose shortcuts:
+  ./.docker/v2/docky up [-d] | down | ps | logs [svc] | build | restart | exec | run | pull
+
+NOTES
+- Internal config (read-only): ${DOCKY_CONFIG}
+  - .vars      : defaults for placeholders (e.g., PHP_VERSION, PHP_SERVER)
+  - .OPTIONS   : arrays to present as choices (e.g., PHP_VERSIONS, PHP_SERVERS)
+- Placeholders in stubs: $DOCKY_REPLACE_*
+  - resolved during 'gen' from .docky.answers.yml → defaults → OPTIONS → prompt
+  - persisted per project at: ${ANSWERS_FILE#$PROJECT_ROOT/}
+- Snippets: $(yq -r '.vars.DOCKER_SNIPPETS_DIR // "'"$SNIPPETS_DIR_DEFAULT"'"' "$DOCKY_CONFIG")/php/*.ini → /usr/local/etc/php/conf.d/
+- Overlays (from submodule) auto-mounted to /opt/overlay:ro when docky.yml:overlays is non-empty
+EOF
+    ;;
 esac

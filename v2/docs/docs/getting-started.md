@@ -3,60 +3,76 @@
 ## Prereqs
 - Docker Desktop (or Engine) 20+ recommended
 - Git
-- Optional: Python 3 for docs (`pip install mkdocs mkdocs-material`)
+- Optional for viewing docs locally: `pip install mkdocs mkdocs-material`
+- Optioanl for using docky or generating docker-compose.yml file: `yq` and `gettext`
 
 ## 1) Clone & env
 ```bash
-git clone <your-repo> mani
-cd mani
-cp .env.example .env   # if you keep one; otherwise set env via compose
-````
-
-## 2) Pick a profile and run
-
-**Apache**
-
-```bash
-docker compose -f docker-compose.profiles.yml --profile apache up --build
+git submodule add https://github.com/techgonia-devjio/php-contenv .docker
+git submodule update --init --recursive
 ```
 
-**Nginx (FPM)**
+This will add the submodule in your project and will be easy to update with new changes without breaking the docker env.
 
+## 2) Generate compose
 ```bash
-docker compose -f docker-compose.profiles.yml --profile nginx up --build
+# interactively resolve placeholders (first time)
+./.docker/v2/docky gen
+
+# or, skip prompts and take defaults/saved answers
+./.docker/v2/docky gen --no-ask
 ```
 
-**FrankenPHP (Caddy)**
+What happens:
+- Docky merges the selected stubs into an in-memory YAML.
+- It detects $DOCKY_REPLACE_* tokens and asks for values.
+- Answers are saved to .docky.answers.yml in your project. You can delete or add it to the gitignore if really don't want in project
+- Writes docker-compose.yml at the project root.
+> You can pre-seed .docky.answers.yml, or set values via ./.docker/v2/docky config set KEY value
+
+
+## 3) Start the stack
+`./.docker/v2/docky up` or `docker compose up`
+
+### first run will build images; add -d to detach
+Open: `http://localhost:8081`
+
+## 4) Verify the container
 
 ```bash
-docker compose -f docker-compose.profiles.yml --profile frankenphp up --build
-```
-
-**Swoole**
-
-```bash
-docker compose -f docker-compose.profiles.yml --profile swoole up --build
-```
-
-Open: [http://localhost:8081](http://localhost:8081)
-
-## 3) Verify
-
-```bash
-docker exec -it <container> bash
+./.docker/v2/docky exec app bash
 mani-sanity
 ```
+You’ll see OS, PHP version, loaded extensions, Node, and services.
 
-You’ll see OS, PHP/extensions, Node, services, etc.
+## 5) Typical dev loop
+Edit files on your host editor (the project is bind-mounted).
+- Edit code locally (bind-mounted at /var/www/html).
+- Logs:
+  - Apache → /var/log/apache2
+  - Nginx → /var/log/nginx
+  - PHP → /var/log/php
+  - FrankenPHP → /var/log/frankenphp
 
-## 4) Common dev loop
+Tail logs:
+`./.docker/v2/docky logs -f app`
 
-* Code locally (mounted at `/var/www/html`).
-* Logs:
+Toggle Xdebug:
+- Off (faster by default): `XDEBUG_MODE=off`
+- On for stepping: `XDEBUG_MODE=debug|develop` and restart
 
-  * Apache: `/var/log/apache2` (apache profile)
-  * Nginx: `/var/log/nginx` (nginx profile)
-  * PHP: `/var/log/php`
-  * FrankenPHP: `/var/log/frankenphp` (if configured)
-* Xdebug: default **installed**, **off** at runtime. Turn on with `XDEBUG_MODE=debug` in compose env (see [Configuration](configuration.md)).
+
+## 6) Docs (optional)
+`./.docker/v2/docky open-docs   # serves docs on http://127.0.0.1:5105`
+
+If you prefer manual:
+- `cd ./.docker/v2/docs`
+- `mkdocs serve -a 127.0.0.1:5105`
+
+### FAQ snippets
+- Port busy? Change app port mapping in .env APP_PORT as needed, or directly in the docker compose file.
+- Permissions? Set PUID/PGID to your host uid/gid (defaults 1000/1000).
+- Switch servers? Change answers for DOCKY_REPLACE_PHP_SERVER (apache|nginx|frankenphp), run gen, then up -d.
+
+
 
