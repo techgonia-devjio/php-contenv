@@ -54,8 +54,6 @@ vars:
   # typesense stub
   TYPESENSE_API_KEY: "changeme"
   FORWARD_TYPESENSE_PORT: "8108"
-
-  DOCKER_SUBMODULE_DIR: ".docker/v2"
   DOCKER_PROJECT_OVERLAYS_DIR: ".docker/overlays"
 
 OPTIONS:
