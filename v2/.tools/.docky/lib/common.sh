@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# --- PATHS (DEFINED FIRST) ---
 export DOCKY_HOME="${DOCKY_HOME:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 export PROJECT_ROOT="${PROJECT_ROOT:-$(pwd)}"
 export STUBS_DIR="${STUBS_DIR:-${DOCKY_HOME}/stubs}"
@@ -9,14 +8,12 @@ export COMPOSE_OUT_FILE="${COMPOSE_OUT_FILE:-${PROJECT_ROOT}/docker-compose.yml}
 export DOCKY_SNIPPETS_DIR="${PROJECT_ROOT}/.docker-snippets"
 export DOCKY_CACHE_FILE="${DOCKY_SNIPPETS_DIR}/.docky-cache"
 
-# --- SOURCE LIBRARIES ---
 # shellcheck disable=SC1091
 source "${DOCKY_HOME}/lib/utils.sh"
 # shellcheck disable=SC1091
 source "${DOCKY_HOME}/lib/merger.sh"
 
 # --- CORE FUNCTIONS ---
-
 _render_template() {
   local template="$1"
   local vars; vars="$(compgen -v DOCKY_REPLACEABLE_ || true)"
@@ -32,7 +29,7 @@ _render_template() {
   printf '%s' "$template"
 }
 
-# Renders a template by replacing DOCKY_REPLACEABLE_* variables
+
 _render_template_legacy() {
   local template="$1"
   for var in $(compgen -v DOCKY_REPLACEABLE_); do
@@ -42,7 +39,7 @@ _render_template_legacy() {
   echo "$template"
 }
 
-# Orchestrates the process for a single stub
+
 build_stub_docs() {
   local svc="$1"
   local stub="${STUBS_DIR}/${svc}.sh"

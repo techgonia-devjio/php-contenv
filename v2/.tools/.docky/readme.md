@@ -56,7 +56,7 @@ Cache file:
 
 .docker-snippets/.docky-cache
 
-````
+```
 
 ---
 
@@ -72,7 +72,7 @@ Cache file:
 
 # 3) Up your stack
 .docker/v2/docky up -d
-````
+```
 
 ---
 

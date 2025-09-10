@@ -12,7 +12,7 @@ By using `php-contenv` as a Git submodule, you can keep your project's Docker co
 
 The primary purpose of `php-contenv` is to:
 
-- Dockerfiles & configs for multiple PHP versions and servers (Apache, Nginx, FrankenPHP, Swoole — coming soon).
+- Dockerfiles & configs for multiple PHP versions and servers (Apache, Nginx, FrankenPHP — coming soon).
 - Common dev tools/extensions (Composer, Node.js, Xdebug, image libs, DB clients) enabled via build args/env.
 - Live code/config via bind mounts (no rebuild for typical edits).
 - Simple setup that feels production-ish locally.
@@ -136,7 +136,7 @@ services:
     volumes:
       - ./.docker-snippets/overlays:/opt/overlay:ro
     environment:
-      OVERLAY_DIRS: /opt/overlay
+      OVERLAY_DIR: /opt/overlay
 ```
 
 **Override server configs**
@@ -181,4 +181,4 @@ Contributions are welcome! Please feel free to open issues or submit pull reques
 
 ## License
 
-This project is open-source software licensed under the [MIT License](LICENSE).
+This project is open-source software licensed under the [MIT License](../LICENSE).

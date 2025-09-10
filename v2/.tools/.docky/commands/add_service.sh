@@ -12,8 +12,6 @@ if compose_has_service "$COMPOSE_OUT_FILE" "$service_name"; then
   exit 0
 fi
 
-# Load cached variables from the last 'gen' run and export them so the new stub
-# has access to global settings like NETWORK_NAME.
 if [ -f "${DOCKY_CACHE_FILE}" ]; then
   set -a # Automatically export all variables defined from now on
   # shellcheck disable=SC1090
@@ -31,7 +29,7 @@ if have_yq; then
   info "Using 'yq' for merging."
   merge_with_yq "$COMPOSE_OUT_FILE" "$svc_yaml" "$vol_yaml"
 else
-  warn "yq v4 not found. Trying awk-based merge 99.999% may not work as expected."
+  warn "yq v4 not found. Trying awk-based merge 99.999% may not work as expected lolzzz"
   merge_without_yq "$COMPOSE_OUT_FILE" "$service_name" "$svc_yaml" "$vol_yaml"
 fi
 good "Service '${service_name}' successfully merged."

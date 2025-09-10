@@ -19,7 +19,7 @@ example: you want to add a s6-service. In .docker-snippets, you create overlays/
       - .:/var/www/html
       - ./.docker-snippets/overlays:/opt/overlay:ro   # <— mount all your overlays
     environment:
-      OVERLAY_DIRS: /opt/overlay             # <— tells init where to look
+      OVERLAY_DIR: /opt/overlay             # <— tells init where to look
 
 
 for custom php.ini files

@@ -12,7 +12,9 @@ echo "[locales] enabling: $LOCALES_STR (default: $DEFAULT_LOCALE)"
 # Ensure lines exist in /etc/locale.gen (idempotent)
 for loc in $LOCALES_STR; do
   pat="$(printf '%s UTF-8' "$loc")"
-  if ! grep -qE "^${loc}[[:space:]]+UTF-8$" /etc/locale.gen 2>/dev/null; then
+  if grep -qE "^[# ]*${loc}[[:space:]]+UTF-8$" /etc/locale.gen 2>/dev/null; then
+    sed -ri "s|^[# ]*${loc}[[:space:]]+UTF-8$|${pat}|" /etc/locale.gen
+  else
     echo "$pat" >> /etc/locale.gen
   fi
 done

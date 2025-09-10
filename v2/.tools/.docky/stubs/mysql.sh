@@ -12,30 +12,33 @@ get_variables() {
 get_service_template() {
 cat <<'EOF'
   mysql:
-    image: mysql:8.0
-    container_name: ${APP_NAME:-DOCKY_REPLACEABLE_APP_NAME}-mysql
+    image: mysql:8.4
+    container_name: ${DB_CONTAINER_NAME:-DOCKY_REPLACEABLE_APP_NAME}-mysql
     environment:
       MYSQL_ROOT_PASSWORD: "${DB_ROOT_PASSWORD:-DOCKY_REPLACEABLE_DB_ROOT_PASSWORD}"
       MYSQL_DATABASE: "${DB_DATABASE:-DOCKY_REPLACEABLE_DB_DATABASE}"
       MYSQL_USER: "${DB_USERNAME:-DOCKY_REPLACEABLE_DB_USERNAME}"
       MYSQL_PASSWORD: "${DB_PASSWORD:-DOCKY_REPLACEABLE_DB_PASSWORD}"
-    volumes:
-      - db_data:/var/lib/mysql
     ports:
       - "${DB_PORT:-DOCKY_REPLACEABLE_DB_PORT}:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./.docker/v2/database/mysql/create-database.sh:/docker-entrypoint-initdb.d/10-create-database.sh:ro
+      - ./.docker/v2/database/mysql/create-testing-database.sh:/docker-entrypoint-initdb.d/20-create-testing-database.sh:ro
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      timeout: 20s
-      retries: 10
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-p${DB_ROOT_PASSWORD:-DOCKY_REPLACEABLE_DB_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - "DOCKY_REPLACEABLE_NETWORK_NAME"
+    restart: unless-stopped
 EOF
 }
 
 get_volumes_template() {
 cat <<'EOF'
-  db_data:
+  mysql_data:
     driver: local
 EOF
 }
-

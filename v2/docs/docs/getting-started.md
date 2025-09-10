@@ -4,7 +4,7 @@
 - Docker Desktop (or Engine) 20+ recommended
 - Git
 - Optional for viewing docs locally: `pip install mkdocs mkdocs-material`
-- Optioanl for using docky or generating docker-compose.yml file: `yq` and `gettext`
+- Optional for using docky or generating docker-compose.yml file: `yq` and `gettext`
 
 ## 1) Clone & env
 ```bash
@@ -25,10 +25,10 @@ This will add the submodule in your project and will be easy to update with new 
 
 What happens:
 - Docky merges the selected stubs into an in-memory YAML.
-- It detects $DOCKY_REPLACE_* tokens and asks for values.
-- Answers are saved to .docky.answers.yml in your project. You can delete or add it to the gitignore if really don't want in project
+- It detects $DOCKY_REPLACEABLE_* tokens and asks for values.
+- Answers are saved to .docker-snippets/.docky-cache in your project. You can delete or add it to the gitignore if really don't want in project
 - Writes docker-compose.yml at the project root.
-> You can pre-seed .docky.answers.yml, or set values via ./.docker/v2/docky config set KEY value
+> You can pre-seed .docker-snippets/.docky-cache, or set values via ./.docker/v2/docky config set KEY value
 
 
 ## 3) Start the stack
@@ -72,7 +72,7 @@ If you prefer manual:
 ### FAQ snippets
 - Port busy? Change app port mapping in .env APP_PORT as needed, or directly in the docker compose file.
 - Permissions? Set PUID/PGID to your host uid/gid (defaults 1000/1000).
-- Switch servers? Change answers for DOCKY_REPLACE_PHP_SERVER (apache|nginx|frankenphp), run gen, then up -d.
+- Switch servers? Change answers for DOCKY_REPLACEABLE_PHP_SERVER (apache|nginx|frankenphp), run gen, then up -d.
 
 
 

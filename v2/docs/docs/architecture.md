@@ -13,7 +13,7 @@
 - php/
   - 8.4/<server>/Dockerfile # multi-stage per server
 - stubs/
-  - services/.yml # compose fragments (may contain $DOCKY_REPLACE_)
+  - services/.yml # compose fragments (may contain $DOCKY_REPLACEABLE_)
 - docky.yml # defaults + OPTIONS (read-only in submodule)
 - docky # CLI entrypoint
 - docs/ # mkdocs site

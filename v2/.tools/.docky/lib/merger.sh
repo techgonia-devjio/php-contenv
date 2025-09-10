@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-# Requires functions from utils.sh (have_yq, info, warn)
-
 merge_with_yq() {
   local compose="$1" service_yaml="$2" volume_yaml="$3"
   local tmp_add tmp_out
@@ -35,14 +33,12 @@ compose_has_service() {
 merge_without_yq() {
     local compose="$1" service_name="$2" service_yaml="$3" volume_yaml="$4"
 
-    # Export multi-line strings so awk can safely read them from the environment
     export AWK_SVC_BLOCK="$service_yaml"
     export AWK_VOL_BLOCK="$volume_yaml"
 
     local current_content; current_content=$(cat "$compose")
     local processed_content
 
-    # --- Step 1: Inject Service Block ---
     if echo "$current_content" | grep -qE '^services:'; then
         # If services: key exists, inject the block under it
         processed_content=$(echo "$current_content" | awk -v name="$service_name" '
@@ -57,7 +53,6 @@ merge_without_yq() {
         processed_content=$(printf '%s\nservices:\n%s\n' "$current_content" "$service_yaml")
     fi
 
-    # --- Step 2: Inject Volume Block ---
     if [ -n "$volume_yaml" ]; then
         if echo "$processed_content" | grep -qE '^volumes:'; then
             # If volumes: key exists, inject under it
@@ -82,10 +77,10 @@ merge_without_yq() {
         fi
     fi
 
-    # --- Step 3: Write the final, correct content back to the file ---
+    # TODO: handle networks if needed
+
     echo "$processed_content" > "$compose"
 
-    # Clean up environment variables
     unset AWK_SVC_BLOCK
     unset AWK_VOL_BLOCK
 }

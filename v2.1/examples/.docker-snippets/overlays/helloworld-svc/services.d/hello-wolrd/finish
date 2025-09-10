@@ -1,4 +1,0 @@
-#!/usr/bin/env bash
-
-echo "[hello-world] Custom service is shutting down."
-exit 0

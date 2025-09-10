@@ -6,3 +6,5 @@
 - Use read-only root FS, drop caps where possible.
 - Supply robust TLS (FrankenPHP/Caddy can terminate TLS easily).
 - Healthchecks should not expose secrets; current checks are simple HTTP GETs.
+
+Production tip: set PHP_EXT_XDEBUG=false in build args when building the production target to exclude the extension entirely.

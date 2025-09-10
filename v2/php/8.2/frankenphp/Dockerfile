@@ -1,4 +1,6 @@
 ARG PHP_VERSION=8.2
+
+# OS: bookworm or alpine
 ARG FrankenPHP_Version=1
 ARG OS=bookworm
 FROM dunglas/frankenphp:${FrankenPHP_Version}-php${PHP_VERSION}-${OS} AS base
@@ -36,13 +38,13 @@ ARG PHP_EXT_VIPS=true
 
 ARG PHP_EXT_XDEBUG=true
 ARG PHP_EXT_INTL=true
-ARG PHP_EXT_SOAP=false
+ARG PHP_EXT_SOAP=true
 ARG PHP_EXT_ZIP=true
-ARG PHP_EXT_XSL=false
-ARG PHP_EXT_GMP=false
-ARG PHP_EXT_BCMATH=false
-ARG PHP_EXT_EXIF=false
-ARG PHP_EXT_PCNTL=false
+ARG PHP_EXT_XSL=true
+ARG PHP_EXT_GMP=true
+ARG PHP_EXT_BCMATH=true
+ARG PHP_EXT_EXIF=true
+ARG PHP_EXT_PCNTL=true
 
 # JS Runtimes
 ARG JS_RUNTIME_NODE_VERSION=22
@@ -136,7 +138,7 @@ RUN find /etc/cont-init.d /etc/cont-finish.d /etc/services.d -type f -exec dos2u
  && chmod -R a+rx /etc/cont-init.d /etc/cont-finish.d \
  && find /etc/services.d -type f -name run -exec chmod a+rx {} \; \
  && find /etc/services.d -type f -name finish -exec chmod a+rx {} \; \
- && find /etc/services.d -type f -path '*/log/run' -exec chmod a+rx {} \; 
+ && find /etc/services.d -type f -path '*/log/run' -exec chmod a+rx {} \;
 
 
 ENV HOME=/root \
@@ -146,19 +148,19 @@ ENV HOME=/root \
 
 RUN mkdir -p /var/lib/caddy /etc/caddy \
  && chown -R www-data:www-data /var/lib/caddy || true
- 
+
 # Healthcheck
 COPY common/runtime/healthchecks/healthcheck-frankenphp.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/healthcheck-frankenphp.sh
 HEALTHCHECK --interval=30s --timeout=5s --retries=5 CMD /usr/local/bin/healthcheck-frankenphp.sh || exit 1
 
 # Runtime libs in final image (domain scripts in --runtime mode)
-ARG INSTALL_DB_PGSQL_CLIENT=true
+ARG INSTALL_DB_PGSQL_CLIENT=false
 ARG DB_PGSQL_CLIENT_VERSION=18
-ARG INSTALL_DB_MYSQL_CLIENT=true
+ARG INSTALL_DB_MYSQL_CLIENT=false
 
-ARG PHP_EXT_PDO_PGSQL=true
-ARG PHP_EXT_PDO_MYSQL=true
+ARG PHP_EXT_PDO_PGSQL=false
+ARG PHP_EXT_PDO_MYSQL=false
 ARG PHP_EXT_PDO_SQLITE=false
 ARG PHP_EXT_SQLITE=false
 ARG PHP_EXT_MONGODB=false

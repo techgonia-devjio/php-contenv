@@ -100,7 +100,7 @@ That runs the default **matrix** (nginx, apache, frankenphp on PHP 8.4).
 * App code: the package `v2/` directory → `/var/www/html`
 * PHP ini override: `tests/fixtures/php/99-test.ini` → `/usr/local/etc/php/conf.d/99-test.ini:ro`
 * Overlay example: `tests/fixtures/overlays/hello-svc` → `/opt/overlay/hello-svc:ro`
-* `OVERLAY_DIRS=/opt/overlay` is set so the init script loads overlays.
+* `OVERLAY_DIR=/opt/overlay` is set so the init script loads overlays.
 
 ## Troubleshooting
 

@@ -1,10 +1,5 @@
-# Healthchecks
+Each profile ships a small curl-based healthcheck (30s interval, 5s timeout).
 
-Each profile ships a simple **curl** healthcheck (30s interval, 5s timeout) against `127.0.0.1:80`.
-
-- Apache: `common/runtime/healthchecks/healthcheck-apache.sh`
-- Nginx: `common/runtime/healthchecks/healthcheck-nginx.sh`
-- FrankenPHP: `common/runtime/healthchecks/healthcheck-frankenphp.sh`
-
-**Why?** Orchestrators restart unhealthy containers. Locally, it’s a quick smoke test.
-
+- Apache: `common/runtime/healthchecks/healthcheck-apache.sh` (enabled by default)
+- Nginx: `common/runtime/healthchecks/healthcheck-nginx.sh` (**disabled by default**; enable with `ENABLE_HEALTHCHECK=true`)
+- FrankenPHP: `common/runtime/healthchecks/healthcheck-frankenphp.sh` (enabled by default)

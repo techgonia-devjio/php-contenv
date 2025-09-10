@@ -30,7 +30,6 @@ have_yq() {
   return 0
 }
 
-# -------- cache helpers --------
 _cache_get() {
   local key="$1" line
   [ -f "${DOCKY_CACHE_FILE}" ] || return 1
@@ -50,7 +49,6 @@ _cache_set() {
   fi
 }
 
-# -------- prompting --------
 prompt_for_var() {
   local var_name="$1" prompt_text="$2" def="${3:-}"
   local cached input value

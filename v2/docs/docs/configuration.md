@@ -1,6 +1,6 @@
 ### (all variables)
 
-```md
+
 # Configuration (Build Args & Env)
 
 All knobs can be set as Docker **build args** (at build time) or docker-compose **environment** (runtime). Defaults shown in **bold**.
@@ -18,12 +18,12 @@ All knobs can be set as Docker **build args** (at build time) or docker-compose 
 | `JS_RUNTIME_REQUIRE_PNPM` | **false** | Enable pnpm via Corepack or `npm -g`. |
 
 ## Build-time: DB clients & extensions
-| Arg | Default | Notes |
-|---|---|---|
-| `INSTALL_DB_MYSQL_CLIENT` | **true** | Installs `default-mysql-client`. |
+| Arg | Default   | Notes |
+|---|-----------|---|
+| `INSTALL_DB_MYSQL_CLIENT` | **false** | Installs `default-mysql-client`. |
 | `INSTALL_DB_PGSQL_CLIENT` | **false** | Adds PGDG repo + `postgresql-client-<ver>`. |
-| `DB_PGSQL_CLIENT_VERSION` | **18** | Choose client major version. |
-| `PHP_EXT_PDO_MYSQL` | **true** | Compiles `pdo_mysql`. |
+| `DB_PGSQL_CLIENT_VERSION` | **18**    | Choose client major version. |
+| `PHP_EXT_PDO_MYSQL` | **false** | Compiles `pdo_mysql`. |
 | `PHP_EXT_PDO_PGSQL` | **false** | Compiles `pdo_pgsql` (needs `libpq-dev`). |
 | `PHP_EXT_SQLITE` | **false** | Compiles `sqlite3`. |
 | `PHP_EXT_PDO_SQLITE` | **false** | Compiles `pdo_sqlite`. |
@@ -65,6 +65,5 @@ All knobs can be set as Docker **build args** (at build time) or docker-compose 
 - System php.ini lives in `common/runtime/configs/php/`
   - `90-docker-custom.ini` : dev-friendly defaults (display errors on, opcache, memory limits)
   - `92-docker-php-ext-xdebug.ini` : Xdebug 3 settings (start with request, port 9003)
-```
 
----
+

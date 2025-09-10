@@ -15,4 +15,4 @@ Managed by `common/build/scripts/mani-docker-install-js-runtime.sh`:
 JS_RUNTIME_REQUIRE_NODE: true
 JS_RUNTIME_NODE_VERSION: 22
 JS_RUNTIME_REQUIRE_YARN: true
-````
+```

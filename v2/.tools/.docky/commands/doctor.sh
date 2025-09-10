@@ -3,7 +3,7 @@
 info "--- Running Docky Doctor ---"
 ok=1
 
-# --- Check 1: Core Dependencies ---
+# --- Check: Core Dependencies ---
 info "› Checking for core dependencies..."
 command -v docker >/dev/null 2>&1 && good "  ✓ docker found" || { error "  ✗ docker not found"; ok=0; }
 if have_yq; then
@@ -13,7 +13,7 @@ else
   info "    (See https://github.com/mikefarah/yq for installation)"
 fi
 
-# --- Check 2: Paths and Permissions ---
+# --- Check: Paths and Permissions ---
 info "› Checking paths and permissions..."
 [ -d "${DOCKY_HOME}" ] && good "  ✓ DOCKY_HOME is valid: ${DOCKY_HOME}" || { error "  ✗ DOCKY_HOME is not a valid directory"; ok=0; }
 [ -d "${STUBS_DIR}" ] && good "  ✓ STUBS_DIR is valid: ${STUBS_DIR}" || { error "  ✗ STUBS_DIR is not a valid directory"; ok=0; }
@@ -21,7 +21,7 @@ info "› Checking paths and permissions..."
 [ -x "${DOCKY_HOME}/docky.sh" ] && good "  ✓ docky.sh is executable." || { warn "  ! docky.sh is not executable (run 'chmod +x .docker/v2/docky')"; }
 
 
-# --- Check 3: Stub File Integrity ---
+# --- Check: Stub File Integrity ---
 info "› Validating service stubs..."
 for stub in "${STUBS_DIR}"/*.sh; do
   svc_name=$(basename -s .sh "$stub")

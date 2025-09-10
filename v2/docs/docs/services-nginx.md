@@ -10,7 +10,7 @@
 ```bash
 ./.docker/v2/docky gen
 ./.docker/v2/docky up -d
-````
+```
 
 **Logs**
 - Nginx: /var/log/nginx

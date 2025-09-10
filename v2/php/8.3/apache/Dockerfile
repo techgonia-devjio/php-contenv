@@ -29,7 +29,7 @@ ARG PHP_EXT_PDO_SQLITE=false
 ARG PHP_EXT_SQLITE=false
 ARG PHP_EXT_MONGODB=false
 ARG PHP_EXT_REDIS=false
-ARG PHP_EXT_MEMCACHED=true
+ARG PHP_EXT_MEMCACHED=false
 
 ARG PHP_EXT_GD=true
 ARG PHP_EXT_IMAGICK=true
@@ -37,13 +37,13 @@ ARG PHP_EXT_VIPS=true
 
 ARG PHP_EXT_XDEBUG=true
 ARG PHP_EXT_INTL=true
-ARG PHP_EXT_SOAP=false
+ARG PHP_EXT_SOAP=true
 ARG PHP_EXT_ZIP=true
-ARG PHP_EXT_XSL=false
-ARG PHP_EXT_GMP=false
-ARG PHP_EXT_BCMATH=false
-ARG PHP_EXT_EXIF=false
-ARG PHP_EXT_PCNTL=false
+ARG PHP_EXT_XSL=true
+ARG PHP_EXT_GMP=true
+ARG PHP_EXT_BCMATH=true
+ARG PHP_EXT_EXIF=true
+ARG PHP_EXT_PCNTL=true
 
 # JS Runtimes
 ARG JS_RUNTIME_NODE_VERSION=22
@@ -59,7 +59,7 @@ COPY common/build/scripts/mani-php-ext-db.sh     /usr/local/bin/
 COPY common/build/scripts/mani-php-ext-images.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/mani-php-ext-*.sh
 
-# Build-time: DB stack (repos/clients, -dev, compile/pecl)
+# Build-time: DB stack
 ENV INSTALL_DB_PGSQL_CLIENT=${INSTALL_DB_PGSQL_CLIENT} \
     DB_PGSQL_CLIENT_VERSION=${DB_PGSQL_CLIENT_VERSION} \
     INSTALL_DB_MYSQL_CLIENT=${INSTALL_DB_MYSQL_CLIENT} \
@@ -152,19 +152,17 @@ COPY common/runtime/healthchecks/healthcheck-apache.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/healthcheck-apache.sh
 HEALTHCHECK --interval=30s --timeout=5s --retries=5 CMD /usr/local/bin/healthcheck-apache.sh || exit 1
 
-# ---------- Runtime libs in final image (domain scripts in --runtime mode) ----------
-# Re-declare args and promote to ENV for this stage
-ARG INSTALL_DB_PGSQL_CLIENT=true
+ARG INSTALL_DB_PGSQL_CLIENT=false
 ARG DB_PGSQL_CLIENT_VERSION=18
-ARG INSTALL_DB_MYSQL_CLIENT=true
+ARG INSTALL_DB_MYSQL_CLIENT=false
 
-ARG PHP_EXT_PDO_PGSQL=true
-ARG PHP_EXT_PDO_MYSQL=true
+ARG PHP_EXT_PDO_PGSQL=false
+ARG PHP_EXT_PDO_MYSQL=false
 ARG PHP_EXT_PDO_SQLITE=false
 ARG PHP_EXT_SQLITE=false
-ARG PHP_EXT_MONGODB=true
-ARG PHP_EXT_REDIS=true
-ARG PHP_EXT_MEMCACHED=true
+ARG PHP_EXT_MONGODB=false
+ARG PHP_EXT_REDIS=false
+ARG PHP_EXT_MEMCACHED=false
 
 ARG PHP_EXT_GD=true
 ARG PHP_EXT_IMAGICK=true
@@ -172,13 +170,13 @@ ARG PHP_EXT_VIPS=true
 
 ARG PHP_EXT_XDEBUG=true
 ARG PHP_EXT_INTL=true
-ARG PHP_EXT_SOAP=false
+ARG PHP_EXT_SOAP=true
 ARG PHP_EXT_ZIP=true
-ARG PHP_EXT_XSL=false
-ARG PHP_EXT_GMP=false
-ARG PHP_EXT_BCMATH=false
-ARG PHP_EXT_EXIF=false
-ARG PHP_EXT_PCNTL=false
+ARG PHP_EXT_XSL=true
+ARG PHP_EXT_GMP=true
+ARG PHP_EXT_BCMATH=true
+ARG PHP_EXT_EXIF=true
+ARG PHP_EXT_PCNTL=true
 
 ENV INSTALL_DB_PGSQL_CLIENT=${INSTALL_DB_PGSQL_CLIENT} \
     DB_PGSQL_CLIENT_VERSION=${DB_PGSQL_CLIENT_VERSION} \

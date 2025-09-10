@@ -1,8 +1,0 @@
-#!/bin/sh
-set -e
-: "${HOME:=/root}"
-: "${XDG_CONFIG_HOME:=/etc/caddy}"
-: "${XDG_DATA_HOME:=/var/lib/caddy}"
-: "${XDEBUG_MODE:=off}"
-export HOME XDG_CONFIG_HOME XDG_DATA_HOME XDEBUG_MODE
-exec /usr/local/bin/frankenphp run --config /etc/caddy/Caddyfile --adapter caddyfile

@@ -14,7 +14,7 @@ Run:
 ```bash
 docker exec -it <ctr> bash
 mani-sanity
-````
+```
 
 ## Shell history QOL
 

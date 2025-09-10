@@ -5,7 +5,7 @@
 - `common/build/scripts/*` — idempotent, parametric installers.
 - `common/runtime/configs/<variant>/*` — shipped defaults (override via overlay).
 - `common/runtime/s6/variants/<variant>/services.d/*` — s6 longruns; include `type`.
-- `stubs/services/*.yml` — compose fragments (can use `$DOCKY_REPLACE_*`).
+- `stubs/services/*.yml` — compose fragments (can use `$DOCKY_REPLACEABLE_*`).
 
 ## Naming
 - PHP INIs: `90-*.ini` project defaults, `92-*-xdebug*.ini` for debug.
@@ -40,7 +40,7 @@
 - Use `95-*.ini` for your overrides to win order.
 
 ## ports & listeners (in-container)
-- Apache/Nginx/FrankenPHP/Swoole: `:80`
+- Apache/Nginx/FrankenPHP: `:80`
 - PHP-FPM (Nginx flavor): `127.0.0.1:9000`
 
 ## Xdebug

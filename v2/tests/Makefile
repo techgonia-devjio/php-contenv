@@ -29,7 +29,7 @@ docky:
 goss:
 	@echo "Run with dgoss if you have it installed:"
 	@echo "  DGOSS_WAIT=30 dgoss run -p 8099:80 -v $$PWD/fixtures/php/99-test.ini:/usr/local/etc/php/conf.d/99-test.ini:ro \
-	-v $$PWD/fixtures/overlays/hello-svc:/opt/overlay/hello-svc:ro -e OVERLAY_DIRS=/opt/overlay \
+	-v $$PWD/fixtures/overlays/hello-svc:/opt/overlay/hello-svc:ro -e OVERLAY_DIR=/opt/overlay \
 	$$(basename $$(dirname $$(dirname php/8.4/nginx/Dockerfile)))-temp-image"
 
 clean:

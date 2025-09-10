@@ -68,7 +68,7 @@ cid=$(docker run -d \
   -e PUID=1000 -e PGID=1000 \
   -e XDEBUG_MODE=off \
   -e XDEBUG_CLIENT_HOST=host.docker.internal \
-  -e OVERLAY_DIRS=/opt/overlay \
+  -e OVERLAY_DIR=/opt/overlay \
   -v "$APP_MOUNT:/var/www/html" \
   -v "$FIXTURES_DIR/php/99-test.ini:/usr/local/etc/php/conf.d/99-test.ini:ro" \
   -v "$FIXTURES_DIR/overlays/hello-svc:/opt/overlay/hello-svc:ro" \

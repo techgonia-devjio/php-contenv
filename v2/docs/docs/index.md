@@ -1,6 +1,6 @@
 # MANI PHP Stack
 
-A modern, batteries-included PHP container stack with **multiple web servers** (Apache, Nginx+FPM, FrankenPHP, Swoole), **toggle-able extensions**, **Node runtimes**, **s6-managed services**, healthchecks, and developer niceties like a one-shot sanity tool and persistent shell history.
+A modern, batteries-included PHP container stack with **multiple web servers** (Apache, Nginx+FPM, FrankenPHP), **toggle-able extensions**, **Node runtimes**, **s6-managed services**, healthchecks, and developer niceties like a one-shot sanity tool and persistent shell history.
 
 ## Why this exists
 

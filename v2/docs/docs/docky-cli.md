@@ -5,24 +5,18 @@ Docky is a thin helper that **merges stubs** and resolves **placeholders** into 
 
 ## Key ideas
 - The submodule ships a **read-only** `docky.yml` with defaults (`vars`) and choice lists (`OPTIONS`).
-- Stubs can include **`$DOCKY_REPLACE_*`** tokens anywhere (e.g., paths, ports).
-- On `gen`, Docky asks for values, saves them to **`.docky.answers.yml`** at the **project** root, then writes `docker-compose.yml`.
+- Stubs can include **`$DOCKY_REPLACEABLE_*`** tokens anywhere (e.g., paths, ports).
 
 > Run `./.docker/v2/docky help` anytime.
 
 ### Placeholder lifecycle
 
-1. Collect tokens like `$DOCKY_REPLACE_PHP_VERSION` or `${DOCKY_REPLACE_PHP_SERVER}`.
-2. Resolve value from, in order:
-   - `.docky.answers.yml` (project, if present)
-   - environment variable named like the **base** (e.g., `PHP_VERSION`) *(optional convenience)*
-   - submodule defaults in `docky.yml: vars`
-   - submodule choices in `docky.yml: OPTIONS`
-   - **interactive prompt** (unless `--no-ask`)
-3. Persist to `.docky.answers.yml`.
+1. Collect tokens like `$DOCKY_REPLACEABLE_PHP_VERSION` or `${DOCKY_REPLACEABLE_PHP_SERVER}`.
+2. Resolve value from stubs:
+3. Persist to `/.docker-snippets/.docky-cache`.
 4. Replace tokens in the merged YAML.
 
-> **Important:** This replacement happens **before** compose is written. We do **not** rely on Docker’s env interpolation for Dockerfile paths.
+> **Important:** This replacement happens **before** compose is written. I do **not** rely on Docker’s env interpolation for Dockerfile paths.
 
 ## Commands
 
@@ -39,17 +33,10 @@ Docky is a thin helper that **merges stubs** and resolves **placeholders** into 
 ./.docker/v2/docky up|down|ps|logs|exec|build|restart|pull
 ```
 
-### `gen` flags
-- `--no-ask`: never prompt; uses .docky.answers.yml → defaults → first option.
-- `--envsubst`: after replacement, also run envsubst on the final YAML while keeping unknowns intact. This is optional and not needed for Dockerfile paths.
-### .docky.answers.yml
-- Created in your project root on first gen.
-- Safe to commit if you want teammates to share the same stack; or keep it local and document your preferred answers.
-
 ```env
-DOCKY_REPLACE_PHP_VERSION: "8.4"
-DOCKY_REPLACE_PHP_SERVER: "nginx"
-DOCKY_REPLACE_PHP_TARGET: "development"
+DOCKY_REPLACEABLE_PHP_VERSION: "8.4"
+DOCKY_REPLACEABLE_PHP_SERVER: "nginx"
+DOCKY_REPLACEABLE_PHP_TARGET: "development"
 APP_PORT: "8081"
 ```
 
@@ -74,11 +61,11 @@ Opens `docs/index.html` if built, otherwise `README.md`. Handy for local doc bro
 
 ## Example flows
 
-- **Add Typesense**:
+- **Add mysql**:
   ```bash
   ./docky add-svc mysql
   ./docky up -d
-
+```
 
 ### Snippets & Overlays
 

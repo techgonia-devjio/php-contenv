@@ -1,4 +1,5 @@
 ARG PHP_VERSION=8.4
+
 # OS: bookworm or alpine
 ARG FrankenPHP_Version=1
 ARG OS=bookworm
@@ -18,13 +19,13 @@ RUN chmod +x /usr/local/bin/mani-docker-install-system-deps.sh \
 # ---------- Build tools & optional components ----------
 FROM base AS build_tools
 
-# DB Clients + PHP Extensions feature flags (same knobs you already use)
-ARG INSTALL_DB_PGSQL_CLIENT=true
-ARG DB_PGSQL_CLIENT_VERSION=18
-ARG INSTALL_DB_MYSQL_CLIENT=true
 
-ARG PHP_EXT_PDO_PGSQL=true
-ARG PHP_EXT_PDO_MYSQL=true
+ARG INSTALL_DB_PGSQL_CLIENT=false
+ARG DB_PGSQL_CLIENT_VERSION=18
+ARG INSTALL_DB_MYSQL_CLIENT=false
+
+ARG PHP_EXT_PDO_PGSQL=false
+ARG PHP_EXT_PDO_MYSQL=false
 ARG PHP_EXT_PDO_SQLITE=false
 ARG PHP_EXT_SQLITE=false
 ARG PHP_EXT_MONGODB=false
@@ -37,13 +38,13 @@ ARG PHP_EXT_VIPS=true
 
 ARG PHP_EXT_XDEBUG=true
 ARG PHP_EXT_INTL=true
-ARG PHP_EXT_SOAP=false
+ARG PHP_EXT_SOAP=true
 ARG PHP_EXT_ZIP=true
-ARG PHP_EXT_XSL=false
-ARG PHP_EXT_GMP=false
-ARG PHP_EXT_BCMATH=false
-ARG PHP_EXT_EXIF=false
-ARG PHP_EXT_PCNTL=false
+ARG PHP_EXT_XSL=true
+ARG PHP_EXT_GMP=true
+ARG PHP_EXT_BCMATH=true
+ARG PHP_EXT_EXIF=true
+ARG PHP_EXT_PCNTL=true
 
 # JS Runtimes
 ARG JS_RUNTIME_NODE_VERSION=22
@@ -218,8 +219,6 @@ COPY common/runtime/profile/zz-history.sh  /etc/profile.d/zz-history.sh
 RUN chmod +x /usr/local/bin/mani-sanity && chmod 644 /etc/profile.d/zz-history.sh \
  && printf '\n[ -r /etc/profile.d/zz-history.sh ] && . /etc/profile.d/zz-history.sh\n' >> /etc/bash.bashrc
 
-# COPY common/build/scripts/mani-sanity.sh /usr/local/bin/mani-sanity
-# RUN chmod +x /usr/local/bin/mani-sanity
 
 # ---------- Production ----------
 FROM final_base AS production

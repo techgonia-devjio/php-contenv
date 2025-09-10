@@ -1,8 +1,0 @@
-#!/command/with-contenv /bin/bash
-set -euo pipefail
-echo "[hello] service up"
-# prove we’re alive by touching a file repeatedly
-while true; do
-  date -u > /tmp/hello.probe
-  sleep 5
-done

@@ -10,7 +10,7 @@
 ```bash
 ./.docker/v2/docky gen   # if not done yet
 ./.docker/v2/docky up    # or with -d for detach mode
-````
+```
 
 **Logs**
 - Apache: `/var/log/apache2`

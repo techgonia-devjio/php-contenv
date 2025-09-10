@@ -25,7 +25,7 @@ ARG PHP_EXT_PDO_SQLITE=false
 ARG PHP_EXT_SQLITE=false
 ARG PHP_EXT_MONGODB=false
 ARG PHP_EXT_REDIS=false
-ARG PHP_EXT_MEMCACHED=true
+ARG PHP_EXT_MEMCACHED=false
 
 ARG PHP_EXT_GD=true
 ARG PHP_EXT_IMAGICK=true
@@ -43,7 +43,7 @@ ARG PHP_EXT_PCNTL=true
 
 # JS Runtimes
 ARG JS_RUNTIME_NODE_VERSION=22
-ARG JS_RUNTIME_REQUIRE_NODE=false
+ARG JS_RUNTIME_REQUIRE_NODE=true
 ARG JS_RUNTIME_REQUIRE_DENO=false
 ARG JS_RUNTIME_REQUIRE_BUN=false
 ARG JS_RUNTIME_REQUIRE_YARN=false
@@ -151,7 +151,7 @@ RUN chmod +x /usr/local/bin/mani-sanity && chmod 644 /etc/profile.d/zz-history.s
  && printf '\n[ -r /etc/profile.d/zz-history.sh ] && . /etc/profile.d/zz-history.sh\n' >> /etc/bash.bashrc
 
 # Healthcheck
-ARG ENABLE_HEALTHCHECK=true
+ARG ENABLE_HEALTHCHECK=false
 ENV ENABLE_HEALTHCHECK=${ENABLE_HEALTHCHECK}
 COPY common/runtime/healthchecks/healthcheck-nginx.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/healthcheck-nginx.sh
@@ -171,7 +171,7 @@ ARG PHP_EXT_PDO_SQLITE=false
 ARG PHP_EXT_SQLITE=false
 ARG PHP_EXT_MONGODB=false
 ARG PHP_EXT_REDIS=false
-ARG PHP_EXT_MEMCACHED=true
+ARG PHP_EXT_MEMCACHED=false
 
 ARG PHP_EXT_GD=true
 ARG PHP_EXT_IMAGICK=true

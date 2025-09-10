@@ -17,11 +17,11 @@ This page enumerates **build args** (image features) and **runtime env** (contai
 ## Build args — DB clients & PHP DB extensions  *(mani-php-ext-db.sh)*
 
 | Arg                       | Default | Notes |
-| ---                       | ---: | --- |
-| `INSTALL_DB_MYSQL_CLIENT` | `true`  | Installs `default-mysql-client`. |
+| ---                       |--------:| --- |
+| `INSTALL_DB_MYSQL_CLIENT` |  `dLAW` | Installs `default-mysql-client`. |
 | `INSTALL_DB_PGSQL_CLIENT` | `false` | Adds PGDG and installs `postgresql-client-<ver>`. |
-| `DB_PGSQL_CLIENT_VERSION` | `18`    | PG client major version. |
-| `PHP_EXT_PDO_MYSQL`       | `true`  | Enable/Compile `pdo_mysql`. |
+| `DB_PGSQL_CLIENT_VERSION` |    `18` | PG client major version. |
+| `PHP_EXT_PDO_MYSQL`       | `false` | Enable/Compile `pdo_mysql`. |
 | `PHP_EXT_PDO_PGSQL`       | `false` | Enable/Compile `pdo_pgsql` (needs `libpq-dev` during build). |
 | `PHP_EXT_SQLITE`          | `false` | `sqlite3` ext. |
 | `PHP_EXT_PDO_SQLITE`      | `false` | `pdo_sqlite` ext. |
@@ -84,7 +84,7 @@ This page enumerates **build args** (image features) and **runtime env** (contai
 ## Where to configure?
 - **Features at build time**: set build args in your **docker compose** file once its generated or in existing one, so images are baked consistently.
 - **Behavior at runtime**: set compose `environment:` values (e.g., `XDEBUG_MODE`).
-- **Project-specific values in stubs**: use `$DOCKY_REPLACE_*` and let Docky resolve to concrete values for your project.
+- **Project-specific values in stubs**: use `$DOCKY_REPLACEABLE_*` and let Docky resolve to concrete values for your project.
 
 
 ## Nginx + PHP-FPM image

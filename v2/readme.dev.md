@@ -36,11 +36,6 @@ v2/
 ├── overlays/                          # built-in example overlays (can be enabled via compose)
 │   ├── locales/cont-init.d/10-locales.sh
 │   └── queue-worker/services.d/queue-worker/{run,type,log/run}
-├── stubs/services/                    # compose stubs used by docky
-│   ├── app.yml
-│   ├── mysql.yml
-│   ├── to add more stubs yet, such as postgresql,redis,mailpit,keyclock etc which will be the docker services 
-│   └── typesense.yml
 ├── docs/                              # docs can be run via mkdocs
 ├── public/                            # tiny probe app for HTTP 200 in tests
 ├── scripts/                           # maintainer utilities (lint/smoke etc.)
@@ -49,7 +44,7 @@ v2/
 │   ├── lint-shell.sh
 │   ├── smoke.sh
 │   └── validate-s6.sh
-├── tests/                             # local test harness (no CI required)
+├── tests/                             # local test harness
 │   ├── Makefile
 │   ├── fixtures/ (overlay + php ini)
 │   ├── scripts/{test-matrix.sh,test-runtime.sh}
@@ -86,7 +81,7 @@ Dockerfiles accept build args to include features without editing Dockerfiles:
 At runtime you can control:
 
 - `XDEBUG_MODE` (default off), `XDEBUG_CLIENT_HOST`
-- `OVERLAY_DIRS=/opt/overlay` (colon-separated list of overlay roots)
+- `OVERLAY_DIR=/opt/overlay` (colon-separated list of overlay roots)
 
 ---
 
@@ -94,7 +89,7 @@ At runtime you can control:
 
 * `common/runtime/s6/cont-init.d/` runs on container boot.
 * `common/runtime/s6/variants/<server>/services.d/` contains the main server service(s).
-* `cont-init.d/20-overlay.sh` discovers overlays when `OVERLAY_DIRS` is set and symlinks `services.d/*` and `cont-*` into `/etc/…`.
+* `cont-init.d/20-overlay.sh` discovers overlays when `OVERLAY_DIR` is set and symlinks `services.d/*` and `cont-*` into `/etc/…`.
 
 **Custom overlay pattern (user land)**
 
@@ -108,7 +103,7 @@ Mount as:
 volumes:
   - ./.docker-snippets/overlays:/opt/overlay:ro
 environment:
-  OVERLAY_DIRS: /opt/overlay
+  OVERLAY_DIR: /opt/overlay
 ```
 
 ---
@@ -140,7 +135,7 @@ environment:
 
 ---
 
-## 6) Tests (local, no CI needed)
+## 6) Tests (local)
 
 Everything lives in `v2/tests/`.
 

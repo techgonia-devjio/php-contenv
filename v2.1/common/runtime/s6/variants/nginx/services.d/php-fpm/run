@@ -1,7 +1,0 @@
-#!/bin/sh
-
-set -e
-echo "----> Starting PHP-FPM service..."
-# The 'exec' command is crucial for S6 to properly supervise the process.
-# '-F' or '--nodaemonize' tells PHP-FPM to run in the foreground.
-exec php-fpm -F
