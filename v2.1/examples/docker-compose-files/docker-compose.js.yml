@@ -1,0 +1,21 @@
+services:
+  app:
+    container_name: my-app
+    build:
+      context: .docker/v2
+      dockerfile: php/8.4/nginx/Dockerfile
+      args:
+        # --- When building the image, we tell to add also node v22 version ---
+        JS_RUNTIME_REQUIRE_NODE: ${JS_RUNTIME_REQUIRE_NODE:-true}
+        JS_RUNTIME_NODE_VERSION: ${JS_RUNTIME_NODE_VERSION:-22}
+    ports:
+      - "8080:80"
+    volumes:
+      - .:/var/www/html
+    networks:
+      - maninet
+# Define the shared network for all services
+networks:
+  maninet:
+    driver: bridge
+

@@ -1,0 +1,2 @@
+#!/bin/sh
+exec /command/s6-log n10 s100000 T /var/log/apache2

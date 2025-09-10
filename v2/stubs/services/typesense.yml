@@ -8,7 +8,6 @@ services:
     command: ["sh","-lc","exec /opt/typesense-server --data-dir=/data --api-key=\"$TYPESENSE_API_KEY\" --listen-port=8108"]
     volumes:
       - typesense_data:/data
-    networks: ["${NETWORK_NAME}"]
 
 volumes:
   typesense_data: {}

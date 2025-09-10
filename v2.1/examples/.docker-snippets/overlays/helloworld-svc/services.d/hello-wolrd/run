@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+set -e
+echo "[hello-world] Custom service started. Logging a message every 10 seconds."
+
+while true; do
+  echo "[hello-world] Hello from your custom overlay service! The time is $(date)."
+  sleep 10
+done

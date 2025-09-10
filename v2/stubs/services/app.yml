@@ -6,11 +6,10 @@ services:
       dockerfile: php/$DOCKY_REPLACE_PHP_VERSION/$DOCKY_REPLACE_PHP_SERVER/Dockerfile
       target: $DOCKY_REPLACE_PHP_TARGET
       args:
-        WWWUSER: "${WWWUSER:-1000}"
-        WWWGROUP: "${WWWGROUP:-1000}"
         JS_RUNTIME_REQUIRE_NODE: "true"
         JS_RUNTIME_NODE_VERSION: "22"
         # look for docs for more options to add or disable default extensions and packages
+        # you can run bash .docker/v2/docky open-docs to see the documentation of v2.
     extra_hosts:
       - "host.docker.internal:host-gateway"
     ports:
@@ -34,14 +33,13 @@ services:
       - "${DOCKER_SUBMODULE_DIR:-.docker/v2}/common/runtime/configs/php/92-docker-php-ext-xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini"
       - "./logs/:/var/log"
     # healthcheck:
-    # test: ["CMD", "/usr/local/bin/healthcheck-apache.sh"]
-    # interval: 30s
-    # timeout: 3s
-    # retries: 5
+      # test: ["CMD", "/usr/local/bin/healthcheck-apache.sh"]
+      # interval: 30s
+      # timeout: 3s
+      # retries: 5
     # use depends_on to ensure db is started before app, but does not wait for db to be "ready", only start the docker container
     # depends_on:
     #  - db
-    networks: ["${NETWORK_NAME}"]
+    networks:
+      - optimesh
 
-networks: {}
-volumes: {}
