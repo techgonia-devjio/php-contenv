@@ -4,7 +4,7 @@ get_variables() {
   info "--- Configuring MySQL Service ---"
   prompt_for_var "DOCKY_REPLACEABLE_DB_PORT" "Enter host port for MySQL" "3306"
   prompt_for_var "DOCKY_REPLACEABLE_DB_DATABASE" "Enter MySQL database name" "laravel"
-  prompt_for_var "DOCKY_REPLACEABLE_DB_USERNAME" "Enter MySQL user" "sail"
+  prompt_for_var "DOCKY_REPLACEABLE_DB_USERNAME" "Enter MySQL user" "laraboy"
   prompt_for_var "DOCKY_REPLACEABLE_DB_PASSWORD" "Enter MySQL password" "password"
   prompt_for_var "DOCKY_REPLACEABLE_DB_ROOT_PASSWORD" "Enter MySQL root password" "secret"
 }

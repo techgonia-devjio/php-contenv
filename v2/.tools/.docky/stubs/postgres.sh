@@ -4,7 +4,7 @@ get_variables() {
   info "--- Configuring PostgreSQL Service ---"
   prompt_for_var "DOCKY_REPLACEABLE_DB_PORT" "Enter host port for PostgreSQL" "5432"
   prompt_for_var "DOCKY_REPLACEABLE_DB_DATABASE" "Enter PostgreSQL database name" "laravel"
-  prompt_for_var "DOCKY_REPLACEABLE_DB_USERNAME" "Enter PostgreSQL user" "sail"
+  prompt_for_var "DOCKY_REPLACEABLE_DB_USERNAME" "Enter PostgreSQL user" "laraboy"
   prompt_for_var "DOCKY_REPLACEABLE_DB_PASSWORD" "Enter PostgreSQL password" "password"
 }
 
