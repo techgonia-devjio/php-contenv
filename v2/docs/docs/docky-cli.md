@@ -1,0 +1,79 @@
+# Docky CLI
+
+Docky is a thin helper that **merges stubs** and resolves **placeholders** into a ready-to-run `docker-compose.yml`.
+
+
+## Key ideas
+- The submodule ships a **read-only** `docky.yml` with defaults (`vars`) and choice lists (`OPTIONS`).
+- Stubs can include **`$DOCKY_REPLACEABLE_*`** tokens anywhere (e.g., paths, ports).
+
+> Run `./.docker/v2/docky help` anytime.
+
+### Placeholder lifecycle
+
+1. Collect tokens like `$DOCKY_REPLACEABLE_PHP_VERSION` or `${DOCKY_REPLACEABLE_PHP_SERVER}`.
+2. Resolve value from stubs:
+3. Persist to `/.docker-snippets/.docky-cache`.
+4. Replace tokens in the merged YAML.
+
+> **Important:** This replacement happens **before** compose is written. I do **not** rely on Docker’s env interpolation for Dockerfile paths.
+
+## Commands
+
+```bash
+./.docker/v2/docky doctor
+./.docker/v2/docky gen [--no-ask] [--envsubst]
+./.docker/v2/docky list-svc
+./.docker/v2/docky add-svc <name>
+./.docker/v2/docky snippet php-ini <name>
+./.docker/v2/docky snippet list
+./.docker/v2/docky config show|set|reset
+./.docker/v2/docky open-docs
+# docker compose passthrough:
+./.docker/v2/docky up|down|ps|logs|exec|build|restart|pull
+```
+
+```env
+DOCKY_REPLACEABLE_PHP_VERSION: "8.4"
+DOCKY_REPLACEABLE_PHP_SERVER: "nginx"
+DOCKY_REPLACEABLE_PHP_TARGET: "development"
+APP_PORT: "8081"
+```
+
+
+### `docky add-svc <name>`
+Adds a stub from `stubs/services/<name>.yml` to `docky.yml` and regenerates compose.
+
+### `docky list-svc`
+Shows available stubs, stubs enabled in `docky.yml`, and services present in the generated compose.
+
+### `docky snippet php-ini <name>`
+Creates `.docker-snippets/php/<name>.ini` and mounts it automatically. Great for per-project PHP tweaks.
+
+### `docky snippet list`
+Lists available project snippets that will be mounted.
+
+### `docky open-docs`
+Opens `docs/index.html` if built, otherwise `README.md`. Handy for local doc browsing.
+
+### Compose passthrough
+`up | down | ps | logs | exec | run | restart | build | pull` are proxied to `docker compose`.
+
+## Example flows
+
+- **Add mysql**:
+  ```bash
+  ./docky add-svc mysql
+  ./docky up -d
+```
+
+### Snippets & Overlays
+
+- **Snippets** (project): .docker-snippets/php/*.ini → auto-mounted to /usr/local/etc/php/conf.d/
+    - Create via: ./.docker/v2/docky snippet php-ini myapp
+- Overlays (from submodule by default): if docky.yml: overlays non-empty, they mount to /opt/overlay:ro and are applied by cont-init.d/20-overlay.sh:
+    - php/conf.d/*.ini, php/pool.d/*.conf
+    - nginx/conf.d/*.conf
+    - frankenphp/Caddyfile and frankenphp/snippets/*
+    - services.d/<name>/
+    - cont-init.d/*, apt/packages.txt, certs/*.crt, remove/list

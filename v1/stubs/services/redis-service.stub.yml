@@ -1,0 +1,6 @@
+    redis:
+        image: redis:latest
+        ports:
+            - '${FORWARD_REDIS_PORT:-6379}:6379'
+        networks:
+            - optimesh

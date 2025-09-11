@@ -71,22 +71,22 @@ networks:
 
 ### 4.) Running container
 - **Run the Setup Script:**
-  Navigate to your project's root directory and run the setup script if you want to generate docker compose file:
+    Navigate to your project's root directory and run the setup script if you want to generate docker compose file:
     - **Linux/macOS:** (might require some permission chmod +x ./.docker/v2/docky)
         ```bash
         bash ./.docker/docky gen
         ```
     * **Windows:**
-      Use git bash or similar tool which can run bash script(or WSL).
-      The script will guide you through selecting your desired PHP version and web server, set up the necessary `docker-compose.yml`.
+        Use git bash or similar tool which can run bash script(or WSL).
+    The script will guide you through selecting your desired PHP version and web server, set up the necessary `docker-compose.yml`.
 
 - **Start the Environment:**
-  Once the setup is complete, start your Docker environment:
+    Once the setup is complete, start your Docker environment:
     ```bash
     docker compose up
     ```
 -  **Access Your Application:**
-   Your application should now be accessible via the port configured in your `.env` file (defaulting to 8081 if using the example `docker-compose.yml`)
+    Your application should now be accessible via the port configured in your `.env` file (defaulting to 8081 if using the example `docker-compose.yml`)
 
 - **Running Artisan Commands:**
     ```bash
@@ -102,7 +102,7 @@ networks:
     ```bash
     docker exec laravel.app bash
     ```
-
+ 
 If the app name couldn't be found, you can run `docker container ls` and copy the container id or name and run `docker exec -it container_name_or_id bash`.
 
 
@@ -148,7 +148,7 @@ services:
       - ./.docker-snippets/configs/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
 ```
 
---
+-- 
 
 ## Running some basic tests
 
