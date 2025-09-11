@@ -48,14 +48,11 @@ Opinionated Bash tooling to scaffold and evolve a `docker-compose.yml` from smal
 ├────── mysql.sh
 ├────── postgres.sh
 └────── redis.sh
-
 ```
 
 Cache file:
 ```
-
 .docker-snippets/.docky-cache
-
 ```
 
 ---
@@ -137,7 +134,7 @@ Each stub defines 2 functions:
 
 get_variables() {
   # prompt for DOCKY_REPLACEABLE_* values
-  prompt_for_var "DOCKY_REPLACEABLE_NETWORK_NAME" "Network" "mainnet"
+  prompt_for_var "DOCKY_REPLACEABLE_NETWORK_NAME" "Network" "optimesh"
 }
 
 get_service_template() {
@@ -207,7 +204,7 @@ docky snippet s6-service queue-worker
     * `add-svc` validates before write; aborts on invalid YAML.
 * **Networks**
 
-    * Network name is taken from `DOCKY_REPLACEABLE_NETWORK_NAME` in cache; defaults to `mainnet` if absent.
+    * Network name is taken from `DOCKY_REPLACEABLE_NETWORK_NAME` in cache; defaults to `optimesh` if absent.
 
 ---
 
@@ -219,11 +216,9 @@ docky snippet s6-service queue-worker
     * Check indentation in stub templates.
     * Verify placeholders were fully replaced (`DOCKY_REPLACEABLE_*` tokens should not remain).
 
-* Wrong values used:
-
+* Wrong values used?:
     * Edit `.docker-snippets/.docky-cache` or delete it to re-prompt.
 
 * Force awk path (debug merges):
-
     * `DOCKY_FORCE_NO_YQ=1 docky add-svc <name>`
 

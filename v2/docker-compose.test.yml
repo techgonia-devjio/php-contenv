@@ -1,6 +1,4 @@
-
 services:
-  # The main application service, built from our custom Dockerfile
   app:
     container_name: mani-app-apache
     build:
@@ -12,7 +10,6 @@ services:
         # --- Build-Time Arguments ---
         # These arguments control what gets installed in the image.
         # They are all read from the .env file, with sensible defaults.
-
         # --- JS Runtime Configuration ---
         JS_RUNTIME_REQUIRE_NODE: ${JS_RUNTIME_REQUIRE_NODE:-true}
         JS_RUNTIME_NODE_VERSION: ${JS_RUNTIME_NODE_VERSION:-22}
