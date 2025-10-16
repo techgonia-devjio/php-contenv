@@ -69,3 +69,10 @@ fi
 if [ -n "${PKG:-}" ]; then
   apt-get update && apt-get install -y --no-install-recommends $PKG && apt-get clean && rm -rf /var/lib/apt/lists/*
 fi
+# Install CLI clients at runtime if requested (final image)
+if [ "${INSTALL_DB_MYSQL_CLIENT:-false}" = "true" ]; then
+  apt-get update && apt-get install -y --no-install-recommends default-mysql-client && rm -rf /var/lib/apt/lists/*
+fi
+if [ "${INSTALL_DB_PGSQL_CLIENT:-false}" = "true" ]; then
+  apt-get update && apt-get install -y --no-install-recommends "postgresql-client-${DB_PGSQL_CLIENT_VERSION:-18}" && rm -rf /var/lib/apt/lists/*
+fi
