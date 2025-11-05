@@ -39,7 +39,6 @@ cat <<'EOF'
       PHP_IDE_CONFIG: "serverName=docker"
       XDEBUG_MODE: "off"
       XDEBUG_CONFIG: '${XDEBUG_CONFIG:-client_host=host.docker.internal}'
-      IGNITION_LOCAL_SITES_PATH: '${PWD}'
       SUPERVISOR_PHP_USER: "www-data"
     volumes:
       # - "${DOCKER_SUBMODULE_DIR:-.docker/v2}/common/runtime/configs/php/92-docker-php-ext-xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini"
