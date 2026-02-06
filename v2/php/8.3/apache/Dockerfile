@@ -6,8 +6,11 @@ ENV DEBIAN_FRONTEND=noninteractive \
 
 SHELL ["/bin/bash","-o","pipefail","-c"]
 
+# Path to the common resources relative to the build context
+ARG DOCKER_RESOURCES_PATH=common
+
 # Core OS deps (includes dos2unix)
-COPY common/build/scripts/mani-docker-install-system-deps.sh /usr/local/bin/
+COPY ${DOCKER_RESOURCES_PATH}/build/scripts/mani-docker-install-system-deps.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/mani-docker-install-system-deps.sh \
  && mani-docker-install-system-deps.sh
 
@@ -55,9 +58,9 @@ ARG JS_RUNTIME_REQUIRE_YARN=false
 ARG JS_RUNTIME_REQUIRE_PNPM=false
 
 # Domain scripts
-COPY common/build/scripts/mani-php-ext-core.sh   /usr/local/bin/
-COPY common/build/scripts/mani-php-ext-db.sh     /usr/local/bin/
-COPY common/build/scripts/mani-php-ext-images.sh /usr/local/bin/
+COPY ${DOCKER_RESOURCES_PATH}/build/scripts/mani-php-ext-core.sh   /usr/local/bin/
+COPY ${DOCKER_RESOURCES_PATH}/build/scripts/mani-php-ext-db.sh     /usr/local/bin/
+COPY ${DOCKER_RESOURCES_PATH}/build/scripts/mani-php-ext-images.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/mani-php-ext-*.sh
 
 # Build-time: DB stack
@@ -93,7 +96,7 @@ ENV PHP_EXT_INTL=${PHP_EXT_INTL} \
 RUN mani-php-ext-core.sh --build
 
 # JS runtimes
-COPY common/build/scripts/mani-docker-install-js-runtime.sh /usr/local/bin/
+COPY ${DOCKER_RESOURCES_PATH}/build/scripts/mani-docker-install-js-runtime.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/mani-docker-install-js-runtime.sh \
  && JS_RUNTIME_REQUIRE_NODE=${JS_RUNTIME_REQUIRE_NODE} \
     JS_RUNTIME_NODE_VERSION=${JS_RUNTIME_NODE_VERSION} \
@@ -128,12 +131,15 @@ RUN tar -C / -Jxpf /tmp/s6-overlay-noarch.tar.xz \
  && tar -C / -Jxpf /tmp/s6-overlay-arch.tar.xz \
  && rm /tmp/s6-overlay-*.tar.xz
 
-# Configs + s6 (legacy paths)
-COPY common/runtime/configs/php/     /usr/local/etc/php/conf.d/
-COPY common/runtime/configs/apache/  /etc/apache2/
-COPY common/runtime/s6/cont-init.d/   /etc/cont-init.d/
-COPY common/runtime/s6/cont-finish.d/ /etc/cont-finish.d/
-COPY common/runtime/s6/variants/apache/services.d/ /etc/services.d/
+# Configs + s6
+COPY ${DOCKER_RESOURCES_PATH}/runtime/configs/php/     /usr/local/etc/php/conf.d/
+COPY ${DOCKER_RESOURCES_PATH}/runtime/configs/apache2/apache2.conf /etc/apache2/apache2.conf
+COPY ${DOCKER_RESOURCES_PATH}/runtime/configs/apache2/conf-available/ /etc/apache2/conf-available/
+COPY ${DOCKER_RESOURCES_PATH}/runtime/configs/apache2/sites-available/ /etc/apache2/sites-available/
+
+COPY ${DOCKER_RESOURCES_PATH}/runtime/s6/cont-init.d/   /etc/cont-init.d/
+COPY ${DOCKER_RESOURCES_PATH}/runtime/s6/cont-finish.d/ /etc/cont-finish.d/
+COPY ${DOCKER_RESOURCES_PATH}/runtime/s6/variants/apache/services.d/ /etc/services.d/
 
 # Normalize EOLs and ensure +x for s6 scripts
 RUN find /etc/cont-init.d /etc/cont-finish.d /etc/services.d -type f -exec dos2unix {} \; \
@@ -206,9 +212,9 @@ ENV INSTALL_DB_PGSQL_CLIENT=${INSTALL_DB_PGSQL_CLIENT} \
     PHP_EXT_PCNTL=${PHP_EXT_PCNTL}
 
 # Copy domain scripts for runtime pass
-COPY common/build/scripts/mani-php-ext-core.sh   /usr/local/bin/
-COPY common/build/scripts/mani-php-ext-db.sh     /usr/local/bin/
-COPY common/build/scripts/mani-php-ext-images.sh /usr/local/bin/
+COPY ${DOCKER_RESOURCES_PATH}/build/scripts/mani-php-ext-core.sh   /usr/local/bin/
+COPY ${DOCKER_RESOURCES_PATH}/build/scripts/mani-php-ext-db.sh     /usr/local/bin/
+COPY ${DOCKER_RESOURCES_PATH}/build/scripts/mani-php-ext-images.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/mani-php-ext-*.sh
 
 # Runtime passes (only shared libs and ini toggles)
