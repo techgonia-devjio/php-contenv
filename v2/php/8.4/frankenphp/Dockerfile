@@ -232,11 +232,17 @@ COPY --from=build_tools /usr/local/ /usr/local/
 COPY --from=build_tools /etc/apt/sources.list.d/ /etc/apt/sources.list.d/
 COPY --from=composer /usr/bin/composer /usr/local/bin/composer
 
+# Install dependencies without scripts (prevents artisan errors)
 COPY composer.json composer.lock ./
+RUN composer install --no-dev --prefer-dist --no-interaction --no-scripts --no-autoloader
+
+# Copy application code
+COPY . .
+
+# Run final optimization and scripts
 RUN composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader \
  && rm /usr/local/bin/composer
 
-COPY . .
 ENTRYPOINT ["/init"]
 
 # ---------- Development ----------
