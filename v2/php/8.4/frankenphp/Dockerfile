@@ -16,6 +16,11 @@ ARG DOCKER_RESOURCES_PATH=common
 
 # Core OS deps (includes dos2unix)
 COPY ${DOCKER_RESOURCES_PATH}/build/scripts/mani-docker-install-system-deps.sh /usr/local/bin/
+
+# Generic project-specific hooks (defaults to an empty directory in the module)
+ARG PROJECT_BUILD_HOOKS_PATH=${DOCKER_RESOURCES_PATH}/build/hooks
+COPY ${PROJECT_BUILD_HOOKS_PATH}/ /usr/local/bin/project-build-hooks/
+
 RUN chmod +x /usr/local/bin/mani-docker-install-system-deps.sh \
  && mani-docker-install-system-deps.sh
 
