@@ -12,11 +12,19 @@ if [[ -n "${PGID:-}" ]]; then
 fi
 
 # writable dirs
+# Recursive chmod/chown on bind mounts can be very slow on Docker Desktop and
+# exceed s6's oneshot timeout. Keep fast behavior by default; allow opting in.
+PERMS_FIX_RECURSIVE="${PERMS_FIX_RECURSIVE:-false}"
 for d in /var/www/html/storage /var/www/html/bootstrap/cache; do
   [[ -d "$d" ]] || continue
-  chown -R www-data:www-data "$d" || true
-  chmod -R ug+rwX "$d" || true
+  chown www-data:www-data "$d" || true
+  chmod ug+rwx "$d" || true
+  if [[ "$PERMS_FIX_RECURSIVE" == "true" ]]; then
+    chown -R www-data:www-data "$d" || true
+    chmod -R ug+rwX "$d" || true
+  fi
 done
+[[ "$PERMS_FIX_RECURSIVE" == "true" ]] || echo "cont-init:v4 skip recursive perms (set PERMS_FIX_RECURSIVE=true to enable)"
 
 # per-project persistent bash history (within bind-mounted workspace)
 HISTDIR="/var/www/html/.container-history"
