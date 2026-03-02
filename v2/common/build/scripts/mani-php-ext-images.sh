@@ -22,9 +22,9 @@ if [ "$MODE" = "--build" ]; then
 
   [ -n "$PKG" ] && { apt-get update && apt-get install -y --no-install-recommends $PKG && apt-get clean && rm -rf /var/lib/apt/lists/*; }
 
-  [ "${PHP_EXT_GD:-false}" = "true" ] && { docker-php-ext-configure gd --enable-gd --with-freetype --with-jpeg --with-webp && docker-php-ext-install -j"$(nproc)" gd; } || true
-  [ "${PHP_EXT_IMAGICK:-false}" = "true" ] && { pecl install imagick && docker-php-ext-enable imagick; } || true
-  [ "${PHP_EXT_VIPS:-false}" = "true" ]    && { pecl install vips && docker-php-ext-enable vips; } || true
+  [ "${PHP_EXT_GD:-false}" = "true" ] && { docker-php-ext-configure gd --enable-gd --with-freetype --with-jpeg --with-webp && docker-php-ext-install -j"$(nproc)" gd; }
+  [ "${PHP_EXT_IMAGICK:-false}" = "true" ] && { pecl install imagick && docker-php-ext-enable imagick; }
+  [ "${PHP_EXT_VIPS:-false}" = "true" ]    && { pecl install vips && docker-php-ext-enable vips; }
 
   exit 0
 fi

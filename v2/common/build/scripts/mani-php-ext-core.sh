@@ -21,19 +21,19 @@ if [ "$MODE" = "--build" ]; then
   [ -n "$PKG" ] && { apt-get update && apt-get install -y --no-install-recommends $PKG && apt-get clean && rm -rf /var/lib/apt/lists/*; }
 
   docker-php-ext-install -j"$(nproc)" opcache
-  [ "${PHP_EXT_INTL:-false}" = "true" ]   && docker-php-ext-install -j"$(nproc)" intl || true
-  [ "${PHP_EXT_SOAP:-false}" = "true" ]   && docker-php-ext-install -j"$(nproc)" soap || true
-  [ "${PHP_EXT_ZIP:-false}" = "true" ]    && docker-php-ext-install -j"$(nproc)" zip  || true
-  [ "${PHP_EXT_XSL:-false}" = "true" ]    && docker-php-ext-install -j"$(nproc)" xsl  || true
-  [ "${PHP_EXT_GMP:-false}" = "true" ]    && docker-php-ext-install -j"$(nproc)" gmp  || true
-  [ "${PHP_EXT_BCMATH:-false}" = "true" ] && docker-php-ext-install -j"$(nproc)" bcmath || true
-  [ "${PHP_EXT_EXIF:-false}" = "true" ]   && docker-php-ext-install -j"$(nproc)" exif || true
-  [ "${PHP_EXT_PCNTL:-false}" = "true" ]  && docker-php-ext-install -j"$(nproc)" pcntl || true
-  [ "${PHP_EXT_FTP:-false}" = "true" ]    && docker-php-ext-install -j"$(nproc)" ftp || true
+  [ "${PHP_EXT_INTL:-false}" = "true" ]   && docker-php-ext-install -j"$(nproc)" intl
+  [ "${PHP_EXT_SOAP:-false}" = "true" ]   && docker-php-ext-install -j"$(nproc)" soap
+  [ "${PHP_EXT_ZIP:-false}" = "true" ]    && docker-php-ext-install -j"$(nproc)" zip
+  [ "${PHP_EXT_XSL:-false}" = "true" ]    && docker-php-ext-install -j"$(nproc)" xsl
+  [ "${PHP_EXT_GMP:-false}" = "true" ]    && docker-php-ext-install -j"$(nproc)" gmp
+  [ "${PHP_EXT_BCMATH:-false}" = "true" ] && docker-php-ext-install -j"$(nproc)" bcmath
+  [ "${PHP_EXT_EXIF:-false}" = "true" ]   && docker-php-ext-install -j"$(nproc)" exif
+  [ "${PHP_EXT_PCNTL:-false}" = "true" ]  && docker-php-ext-install -j"$(nproc)" pcntl
+  [ "${PHP_EXT_FTP:-false}" = "true" ]    && docker-php-ext-install -j"$(nproc)" ftp
 
 
   # Xdebug: install only; ini controls activation at runtime
-  [ "${PHP_EXT_XDEBUG:-true}" = "true" ] && pecl install xdebug || true
+  [ "${PHP_EXT_XDEBUG:-true}" = "true" ] && pecl install xdebug
 
   # Swoole / OpenSwoole (optional)
   if [ "${PHP_EXT_SWOOLE:-false}" = "true" ]; then

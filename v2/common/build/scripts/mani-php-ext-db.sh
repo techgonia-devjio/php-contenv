@@ -42,7 +42,7 @@ if [ "$MODE" = "--build" ]; then
       add postgresql-client-common
       add libpq-dev
       # libpq-dev will be PGDG because repo is present and provides newer version
-      apt-get update && apt-get install -y --no-install-recommends libpq-dev || true
+      apt-get update && apt-get install -y --no-install-recommends libpq-dev
     else
       add libpq-dev
     fi
@@ -60,15 +60,15 @@ if [ "$MODE" = "--build" ]; then
   fi
 
   # Core ext compile
-  [ "${PHP_EXT_PDO_MYSQL:-false}" = "true" ]  && docker-php-ext-install -j"$(nproc)" pdo_mysql || true
-  [ "${PHP_EXT_PDO_PGSQL:-false}" = "true" ]  && docker-php-ext-install -j"$(nproc)" pdo_pgsql || true
-  [ "${PHP_EXT_SQLITE:-false}" = "true" ]     && docker-php-ext-install -j"$(nproc)" sqlite3   || true
-  [ "${PHP_EXT_PDO_SQLITE:-false}" = "true" ] && docker-php-ext-install -j"$(nproc)" pdo_sqlite || true
+  [ "${PHP_EXT_PDO_MYSQL:-false}" = "true" ]  && docker-php-ext-install -j"$(nproc)" pdo_mysql
+  [ "${PHP_EXT_PDO_PGSQL:-false}" = "true" ]  && docker-php-ext-install -j"$(nproc)" pdo_pgsql
+  [ "${PHP_EXT_SQLITE:-false}" = "true" ]     && docker-php-ext-install -j"$(nproc)" sqlite3
+  [ "${PHP_EXT_PDO_SQLITE:-false}" = "true" ] && docker-php-ext-install -j"$(nproc)" pdo_sqlite
 
   # PECL ext
-  [ "${PHP_EXT_REDIS:-false}" = "true" ]      && { pecl install -o -f redis     && docker-php-ext-enable redis; }     || true
-  [ "${PHP_EXT_MEMCACHED:-false}" = "true" ]  && { pecl install -o -f memcached && docker-php-ext-enable memcached; } || true
-  [ "${PHP_EXT_MONGODB:-false}" = "true" ]    && { pecl install -o -f mongodb   && docker-php-ext-enable mongodb; }   || true
+  [ "${PHP_EXT_REDIS:-false}" = "true" ]      && { pecl install -o -f redis     && docker-php-ext-enable redis; }
+  [ "${PHP_EXT_MEMCACHED:-false}" = "true" ]  && { pecl install -o -f memcached && docker-php-ext-enable memcached; }
+  [ "${PHP_EXT_MONGODB:-false}" = "true" ]    && { pecl install -o -f mongodb   && docker-php-ext-enable mongodb; }
   exit 0
 fi
 
